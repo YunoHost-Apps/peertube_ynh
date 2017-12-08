@@ -15,7 +15,7 @@
     "requirements": {
         "yunohost": ">= 2.7.2"
     },
-    "multi_instance": true,
+    "multi_instance": false,
     "services": [
         "nginx",
         "nodejs",
@@ -32,7 +32,7 @@
                 "example": "example.com"
             },
             {
-                "name": "email"
+                "name": "email",
                 "ask": {
                     "en": "Choose an admin(root) email(Can be other then LDAP emails and can't be changed after installation)"
                 },

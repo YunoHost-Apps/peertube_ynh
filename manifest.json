@@ -5,9 +5,9 @@
     "description": {
         "en": "Peertube is a p2p video sharing app which works in browser too"
     },
-    "version": "0",
+    "version": "1.0",
     "url": "https://github.com/Chocobozzz/PeerTube",
-    "license": "free",
+    "license": "AGPL",
     "maintainer": {
         "name": "Anmol Sharma",
         "email": "anmol@datamol.org"

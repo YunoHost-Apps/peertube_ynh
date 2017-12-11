@@ -8,8 +8,8 @@ User=__APP__
 Group=__APP__
 ExecStart=/usr/bin/npm start
 WorkingDirectory=__FINALPATH__/
-StandardOutput=/var/log/__APP__/__APP__.log/var/log/__APP__/__APP__.log
-StandardError=/var/log/__APP__/__APP__.log/var/log/__APP__/error__APP__.log
+StandardOutput=syslog
+StandardError=syslog
 SyslogIdentifier=peertube
 Restart=always
 

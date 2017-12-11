@@ -8,6 +8,7 @@
 
 source _common.sh
 source psql.sh
+source nodejs.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -22,6 +23,7 @@ ynh_abort_if_errors
 #=================================================
 
 domain=$YNH_APP_ARG_DOMAIN
+path_url="/"
 admin_email=$YNH_APP_ARG_EMAIL
 is_public=$YNH_APP_ARG_IS_PUBLIC
 
@@ -44,7 +46,10 @@ app=$YNH_APP_INSTANCE_NAME
 final_path=/var/www/$app
 test ! -e "$final_path" || ynh_die "This path already contains a folder"
 
-
+# Check web path availability
+ynh_webpath_available $domain $path_url
+# Register (book) web path
+ynh_webpath_register $app $domain $path_url
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
@@ -63,26 +68,25 @@ ynh_app_setting_set $app is_public $is_public
 # Find a free port
 port=$(ynh_find_port 9000)
 # Open this port
-yunohost firewall allow --no-upnp TCP $port 2>&1
+yunohost firewall allow Both $port 2>&1
 ynh_app_setting_set $app port $port
 
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
 
-ynh_install_app_dependencies postgresql-9.4 yarn
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
+ynh_install_app_dependencies postgresql-9.4 yarn ffmpeg
+ynh_install_nodejs 8
 
 # Create postgresql database
-db_name=$(ynh_sanitize_dbid "$app")
+db_name="peertube_prod"
 db_pwd=$(ynh_string_random 30)
 ynh_app_setting_set $app psql_db $db_name
 ynh_app_setting_set $app psqlpwd $db_pwd
 ynh_psql_test_if_first_run
-ynh_psql_create_db "$db_name" "$app" "$db_pwd"
-systemctl reload postgresql
+ynh_psql_create_user $app $db_pwd
+ynh_psql_execute_as_root \
+"CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $app;"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -92,9 +96,10 @@ ynh_app_setting_set $app final_path $final_path
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
 cp -f ../conf/yarn.lock $final_path/client/yarn.lock
-cd $final_path && yarn install
-cd $final_path && npm run build
 cp  ../conf/production.yaml $final_path/config/.
+(cd $final_path && yarn install)
+(cd $final_path && npm run build)
+
 
 
 #=================================================
@@ -135,7 +140,7 @@ systemctl reload nginx
 #=================================================
 
 ynh_replace_string "__domain__" "$domain" "$final_path/config/production.yaml"
-ynh_replace_string "__db_name__" "$db_name" "$final_path/config/production.yaml"
+ynh_replace_string "__db_name__" "$app" "$final_path/config/production.yaml"
 ynh_replace_string "__db_pwd__" "$db_pwd" "$final_path/config/production.yaml"
 ynh_replace_string "__email__" "$admin_email" "$final_path/config/production.yaml"
 
@@ -145,7 +150,7 @@ ynh_replace_string "__email__" "$admin_email" "$final_path/config/production.yam
 #=================================================
 
 # Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum "$final_path/CONFIG_FILE"
+ynh_store_file_checksum "$final_path/config/production.yaml"
 
 #=================================================
 # GENERIC FINALIZATION
@@ -155,8 +160,7 @@ ynh_store_file_checksum "$final_path/CONFIG_FILE"
 #=================================================
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate /var/log/$app/peertube.log
-ynh_use_logrotate /var/log/$app/error_peertube.log
+ynh_use_logrotate
 
 
 #=================================================
@@ -179,7 +183,8 @@ fi
 #=================================================
 
 # Create a dedicated systemd config
-ynh_systemd_config
+ynh_add_systemd_config
+sudo systemctl start peertube
 
 #=================================================
 # RELOAD NGINX

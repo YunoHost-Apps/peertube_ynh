@@ -12,7 +12,7 @@ database:
   hostname: 'localhost'
   port: 5432
   suffix: '_prod'
-  username: '__db_name__'
+  username: 'peertube'
   password: '__db_pwd__'
 
 # From the project root directory

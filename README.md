@@ -1,19 +1,22 @@
 # PeerTube app for YunoHost
 [![Install Peertube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=Peertube)<br><br>
 
-## Installation(Read it before Installation)
+## Installation(Read it)
  1. Require dedicated domain like **peertube.domain.tld**.
  2. No LDAP support
  3. No Multi-instance
  4. No change-url possible.
-**Install the app by following command:**
-     $ yunohost app install https://github.com/YunoHost-Apps/peertube_ynh
-**root* is the admin username and the admin email is the email address given at the time of installation.
-**After installation change the password by this command:**
-     $ cd /var/www/peertube && NODE_ENV=production npm run reset-password -- -u root
+ 5. Peertube is under development stage,don't use it for production
+ 6. **Install the app by following command:**
+
+         $ yunohost app install https://github.com/YunoHost-Apps/peertube_ynh
+ 7. **root** is the admin username and the admin email is the email address given at the time of installation.
+ 8. **After installation change the password by this command:**
+
+         $ cd /var/www/peertube && NODE_ENV=production npm run reset-password -- -u root
 
     <h1 align="center">
-      PeerTube(Currently under development stage,don't use it for production)
+      PeerTube
     </h1>
 
 <h4 align="center">

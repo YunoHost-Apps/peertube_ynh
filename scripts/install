@@ -80,22 +80,24 @@ ynh_app_setting_set $app port $port
 # INSTALL DEPENDENCIES
 #=================================================
 
-# Import debian archive pubkey, need on ARM arch
-# taken from https://github.com/YunoHost-Apps/mastodon_ynh/blob/7db022c2cc3d6e9fa2e26803c4a424a3bb8c9bd4/scripts/install#L55
-arch=$(uname -m)
-if [[ $arch = arm*  ]]; then
-	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8B48AD6246925553
-	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7638D0442B90D010
-fi
+# install yarn
+wget https://github.com/yarnpkg/yarn/releases/download/v1.5.1/yarn_1.5.1_all.deb
+echo "a4770cd8dcb13dc9a9218940dbd24b510ddf5eec78adb4e0da9ef3760b55a76e yarn_1.5.1_all.deb" | sha256sum -c || ynh_die
+sudo dpkg -i yarn_1.5.1_all.deb
 
-# Install source.list debian package backports & yarn
-sudo cp ../conf/backports.list /etc/apt/sources.list.d/
-sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-sudo cp ../conf/yarn.list /etc/apt/sources.list.d/
+# add backports (required to install ffmpeg)
+echo "deb http://httpredir.debian.org/debian jessie-backports main" | sudo tee /etc/apt/sources.list.d/jessie-backports.list
 ynh_package_update
 
-ynh_install_app_dependencies postgresql-9.4 yarn ffmpeg redis-server redis-tools
+# install postgresql, ffmpeg, redis
+ynh_install_app_dependencies postgresql-9.4 ffmpeg redis-server redis-tools
+
+# install nodejs
 ynh_install_nodejs 8
+
+#=================================================
+# DATABASE SETUP
+#=================================================
 
 # Create postgresql database
 db_name="peertube_prod"
@@ -115,16 +117,14 @@ ynh_psql_execute_as_root \
 ynh_system_user_create $app
 
 #=================================================
-# DOWNLOAD, CHECK AND UNPACK SOURCE
+# DOWNLOAD, CHECK AND UNPACK PEERTUBE SOURCE
 #=================================================
 
 ynh_app_setting_set $app final_path $final_path
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
-# cp -f ../conf/yarn.lock $final_path/client/yarn.lock
 cp ../conf/production.yaml $final_path/config/production.yaml
 (cd $final_path && yarn install --production --pure-lockfile)
-# (cd $final_path && npm run build)
 
 #=================================================
 # NGINX CONFIGURATION
@@ -133,12 +133,6 @@ cp ../conf/production.yaml $final_path/config/production.yaml
 # Create a dedicated nginx config
 sudo mkdir -p "/etc/nginx/conf.d/${domain}.d"
 ynh_add_nginx_config
-
-#=================================================
-# SPECIFIC SETUP
-#=================================================
-# ...
-#=================================================
 
 #=================================================
 # SETUP APPLICATION WITH CURL

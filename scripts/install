@@ -17,6 +17,9 @@ source /usr/share/yunohost/helpers
 
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
+#ynh_clean_setup () {
+#
+#}
 
 #=================================================
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
@@ -25,6 +28,7 @@ ynh_abort_if_errors
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 admin_email=$YNH_APP_ARG_EMAIL
+admin_pass=$YNH_APP_ARG_PASS
 is_public=$YNH_APP_ARG_IS_PUBLIC
 
 # This is a multi-instance app, meaning it can be installed several times independently
@@ -57,6 +61,7 @@ ynh_webpath_register $app $domain $path_url
 
 ynh_app_setting_set $app domain $domain
 ynh_app_setting_set $app admin_email $admin_email
+ynh_app_setting_set $app admin_pass $admin_pass
 ynh_app_setting_set $app is_public $is_public
 
 #=================================================
@@ -75,8 +80,24 @@ ynh_app_setting_set $app port $port
 # INSTALL DEPENDENCIES
 #=================================================
 
-ynh_install_app_dependencies postgresql-9.4 yarn ffmpeg
+# install yarn
+wget https://github.com/yarnpkg/yarn/releases/download/v1.5.1/yarn_1.5.1_all.deb
+echo "a4770cd8dcb13dc9a9218940dbd24b510ddf5eec78adb4e0da9ef3760b55a76e yarn_1.5.1_all.deb" | sha256sum -c || ynh_die
+sudo dpkg -i yarn_1.5.1_all.deb
+
+# add backports (required to install ffmpeg)
+echo "deb http://httpredir.debian.org/debian jessie-backports main" | sudo tee /etc/apt/sources.list.d/jessie-backports.list
+ynh_package_update
+
+# install postgresql, ffmpeg, redis
+ynh_install_app_dependencies postgresql-9.4 ffmpeg redis-server redis-tools
+
+# install nodejs
 ynh_install_nodejs 8
+
+#=================================================
+# DATABASE SETUP
+#=================================================
 
 # Create postgresql database
 db_name="peertube_prod"
@@ -89,39 +110,29 @@ ynh_psql_execute_as_root \
 "CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $app;"
 
 #=================================================
-# DOWNLOAD, CHECK AND UNPACK SOURCE
-#=================================================
-
-ynh_app_setting_set $app final_path $final_path
-# Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source "$final_path"
-cp -f ../conf/yarn.lock $final_path/client/yarn.lock
-cp  ../conf/production.yaml $final_path/config/.
-(cd $final_path && yarn install)
-(cd $final_path && npm run build)
-
-
-
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-
-# Create a dedicated nginx config
-ynh_add_nginx_config
-
-#=================================================
 # CREATE DEDICATED USER
 #=================================================
 
 # Create a system user
 ynh_system_user_create $app
 
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK PEERTUBE SOURCE
+#=================================================
+
+ynh_app_setting_set $app final_path $final_path
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source "$final_path"
+cp ../conf/production.yaml $final_path/config/production.yaml
+(cd $final_path && yarn install --production --pure-lockfile)
 
 #=================================================
-# SPECIFIC SETUP
+# NGINX CONFIGURATION
 #=================================================
-# ...
-#=================================================
+
+# Create a dedicated nginx config
+sudo mkdir -p "/etc/nginx/conf.d/${domain}.d"
+ynh_add_nginx_config
 
 #=================================================
 # SETUP APPLICATION WITH CURL
@@ -130,10 +141,8 @@ ynh_system_user_create $app
 # Set right permissions for curl install
 chown -R $app:$app $final_path
 
-
 # Reload Nginx
 systemctl reload nginx
-
 
 #=================================================
 # MODIFY A CONFIG FILE
@@ -143,7 +152,6 @@ ynh_replace_string "__domain__" "$domain" "$final_path/config/production.yaml"
 ynh_replace_string "__db_name__" "$app" "$final_path/config/production.yaml"
 ynh_replace_string "__db_pwd__" "$db_pwd" "$final_path/config/production.yaml"
 ynh_replace_string "__email__" "$admin_email" "$final_path/config/production.yaml"
-
 
 #=================================================
 # STORE THE CHECKSUM OF THE CONFIG FILE
@@ -161,7 +169,6 @@ ynh_store_file_checksum "$final_path/config/production.yaml"
 
 # Use logrotate to manage application logfile(s)
 ynh_use_logrotate
-
 
 #=================================================
 # SETUP SSOWAT
@@ -185,6 +192,13 @@ fi
 # Create a dedicated systemd config
 ynh_add_systemd_config
 sudo systemctl start peertube
+
+#=================================================
+# CHANGE PEERTUBE ADMIN PASSWORD AFTER INITIAL GEN
+#=================================================
+
+# we need to wait for the service to init peertube's database
+(cd /var/www/peertube && sleep 5 && exec /bin/sh -c "echo $admin_pass | NODE_CONFIG_DIR=/var/www/peertube/config NODE_ENV=production PATH=/opt/node_n/bin:$PATH npm run reset-password -- -u root")
 
 #=================================================
 # RELOAD NGINX

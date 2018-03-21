@@ -6,7 +6,7 @@ Type=simple
 Environment=NODE_ENV=production
 User=__APP__
 Group=__APP__
-ExecStart=/usr/bin/npm start
+ExecStart=/bin/sh -c 'PATH=/opt/node_n/bin:$PATH exec npm start'
 WorkingDirectory=__FINALPATH__/
 StandardOutput=syslog
 StandardError=syslog

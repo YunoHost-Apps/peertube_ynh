@@ -3,11 +3,11 @@
     "id": "peertube",
     "packaging_format": 1,
     "description": {
-        "en": "Peertube is a p2p video sharing app which works in browser too"
+        "en": "Video streaming platform using P2P directly in the web browser, connected to a federated network"
     },
-    "version": "1.0",
+    "version": "1.1",
     "url": "https://github.com/Chocobozzz/PeerTube",
-    "license": "AGPL",
+    "license": "free",
     "maintainer": {
         "name": "Anmol Sharma",
         "email": "anmol@datamol.org"
@@ -17,9 +17,7 @@
     },
     "multi_instance": false,
     "services": [
-        "nginx",
-        "nodejs",
-        "postgresql"
+        "nginx"
     ],
     "arguments": {
         "install" : [
@@ -37,6 +35,15 @@
                     "en": "Choose an admin(root) email(Can be other then LDAP emails and can't be changed after installation)"
                 },
                 "example": "johndoe@example.com"
+            },
+            {
+                "name": "pass",
+                "type": "password",
+                "ask": {
+                    "en": "Enter password of this administrator ≥ 6 character",
+                    "fr": "Ajouter le mot de passe pour cette administrateur ≥ 6 charactères"
+                },
+                "example": "battery horse staple nenuphar"
             },
             {
                 "name": "is_public",

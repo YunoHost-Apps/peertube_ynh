@@ -1,7 +1,24 @@
 # PeerTube app for YunoHost
+
 [![Install Peertube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=Peertube)<br><br>
 
+<h4 align="center">
+PeerTube is a decentralized video streaming platform using P2P (BitTorrent) directly in the web browser, using <a href="https://github.com/feross/webtorrent">WebTorrent</a>.
+</h4>
+
+**PeerTube is sponsored by [Framasoft](https://framatube.org/#en), a non-profit that promotes, spreads and develops free-libre software. If you want to support this project, please [consider donating them](https://soutenir.framasoft.org/en/).**
+
+## Demonstration
+
+Want to see in action?
+
+   * [Demo](http://peertube.cpy.re)
+   * [Video](https://peertube.cpy.re/videos/watch/f78a97f8-a142-4ce1-a5bd-154bf9386504) to see how the "decentralization feature" looks like
+   * [Video](https://peertube.valvin.fr/videos/watch/e510b421-92f3-4153-aaf9-baf5166f43e8) showcasing A2HS
+
+
 ## Installation
+
  1. Require dedicated domain like **peertube.domain.tld**.
  1. No LDAP support (blocked until upstream implements it)
  1. No Multi-instance
@@ -22,23 +39,6 @@
 
          $ cd /var/www/peertube && NODE_ENV=production npm run reset-password -- -u root
 
-    <h1 align="center">
-      PeerTube
-    </h1>
-
-<h4 align="center">
-Decentralized video streaming platform using P2P (BitTorrent) directly in the web browser with <a href="https://github.com/feross/webtorrent">WebTorrent</a>.
-</h4>
-
-**PeerTube is sponsored by [Framasoft](https://framatube.org/#en), a non-profit that promotes, spreads and develops free-libre software. If you want to support this project, please [consider donating them](https://soutenir.framasoft.org/en/).**
-
-## Demonstration
-
-Want to see in action?
-
-   * [Demo](http://peertube.cpy.re)
-   * [Video](https://peertube.cpy.re/videos/watch/f78a97f8-a142-4ce1-a5bd-154bf9386504) to see how the "decentralization feature" looks like
-   * [Video](https://peertube.valvin.fr/videos/watch/e510b421-92f3-4153-aaf9-baf5166f43e8) showcasing A2HS
 
 ## Why
 

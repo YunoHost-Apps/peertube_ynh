@@ -29,7 +29,9 @@ domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 admin_email=$YNH_APP_ARG_EMAIL
 admin_pass=$YNH_APP_ARG_PASS
+port=$YNH_APP_ARG_PORT
 is_public=$YNH_APP_ARG_IS_PUBLIC
+
 
 # This is a multi-instance app, meaning it can be installed several times independently
 # The id of the app as stated in the manifest is available as $YNH_APP_ID
@@ -55,6 +57,11 @@ ynh_webpath_available $domain $path_url
 # Register (book) web path
 ynh_webpath_register $app $domain $path_url
 
+# Check password strength
+[[ ${#admin_pass} -gt 6 ]] || ynh_die \
+"The password is too weak, it must be longer than 6 characters"
+
+
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
@@ -71,10 +78,19 @@ ynh_app_setting_set $app is_public $is_public
 #=================================================
 
 # Find a free port
-port=$(ynh_find_port 9000)
+ynh_find_port $port
 # Open this port
 yunohost firewall allow Both $port 2>&1
 ynh_app_setting_set $app port $port
+
+#=================================================
+# CREATE THE DATA DIRECTORY
+#=================================================
+
+# Define app's data directory
+datadir="/home/yunohost.app/${app}/storage"
+# Create app folders
+mkdir -p "$datadir"
 
 #=================================================
 # INSTALL DEPENDENCIES
@@ -100,7 +116,7 @@ ynh_install_nodejs 8
 #=================================================
 
 # Create postgresql database
-db_name="peertube_prod"
+db_name="peertube_${app}"
 db_pwd=$(ynh_string_random 30)
 ynh_app_setting_set $app psql_db $db_name
 ynh_app_setting_set $app psqlpwd $db_pwd
@@ -139,7 +155,7 @@ ynh_add_nginx_config
 #=================================================
 
 # Set right permissions for curl install
-chown -R $app:$app $final_path
+chown -R $app:$app "$final_path" "$datadir"
 
 # Reload Nginx
 systemctl reload nginx
@@ -150,8 +166,11 @@ systemctl reload nginx
 
 ynh_replace_string "__domain__" "$domain" "$final_path/config/production.yaml"
 ynh_replace_string "__db_name__" "$app" "$final_path/config/production.yaml"
+ynh_replace_string "__app__" "$app" "$final_path/config/production.yaml"
 ynh_replace_string "__db_pwd__" "$db_pwd" "$final_path/config/production.yaml"
 ynh_replace_string "__email__" "$admin_email" "$final_path/config/production.yaml"
+ynh_replace_string "__PORT__" "$port" "$final_path/config/production.yaml"
+
 
 #=================================================
 # STORE THE CHECKSUM OF THE CONFIG FILE
@@ -191,14 +210,14 @@ fi
 
 # Create a dedicated systemd config
 ynh_add_systemd_config
-sudo systemctl start peertube
+sudo systemctl start $app
 
 #=================================================
 # CHANGE PEERTUBE ADMIN PASSWORD AFTER INITIAL GEN
 #=================================================
 
 # we need to wait for the service to init peertube's database
-(cd /var/www/peertube && sleep 5 && exec /bin/sh -c "echo $admin_pass | NODE_CONFIG_DIR=/var/www/peertube/config NODE_ENV=production PATH=/opt/node_n/bin:$PATH npm run reset-password -- -u root")
+(cd /var/www/$app && sleep 15 && exec /bin/sh -c "echo $admin_pass | NODE_CONFIG_DIR=/var/www/$app/config NODE_ENV=production PATH=/opt/node_n/bin:$PATH npm run reset-password -- -u root")
 
 #=================================================
 # RELOAD NGINX

@@ -1,0 +1,145 @@
+#!/bin/bash
+
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source _common.sh
+source /usr/share/yunohost/helpers
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_get $app domain)
+path_url="/"
+is_public=$(ynh_app_setting_get $app is_public)
+admin_email=$(ynh_app_setting_get $app admin_email)
+admin_pass=$(ynh_app_setting_get $app admin_pass)
+final_path=$(ynh_app_setting_get $app final_path)
+port=$(ynh_app_setting_get $app port)
+db_name=$(ynh_app_setting_get $app db_name)
+db_pwd=$(ynh_app_setting_get $app psqlpwd)
+
+#=================================================
+# ENSURE DOWNWARD COMPATIBILITY
+#=================================================
+
+# Fix is_public as a boolean value
+if [ "$is_public" = "Yes" ]; then
+	ynh_app_setting_set $app is_public 1
+	is_public=1
+elif [ "$is_public" = "No" ]; then
+	ynh_app_setting_set $app is_public 0
+	is_public=0
+fi
+
+#=================================================
+# REMOVE APP MAIN DIR
+#=================================================
+
+# Remove the app directory securely
+ynh_secure_remove "$final_path"
+
+# Define app's data directory
+datadir="/home/yunohost.app/${app}/storage"
+# Create app folders
+mkdir -p "$datadir"
+
+# Open this port
+yunohost firewall allow Both $port 2>&1
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+
+# Create a system user
+ynh_system_user_create $app
+
+#=================================================
+# CHECK THE PATH
+#=================================================
+
+# Normalize the URL path syntax
+path_url=$(ynh_normalize_url_path $path_url)
+
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source "$final_path"
+cp ../conf/production.yaml $final_path/config/production.yaml
+(cd $final_path && yarn install --production --pure-lockfile)
+
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+
+# Create a dedicated nginx config
+ynh_add_nginx_config
+
+
+chown -R $app:$app "$final_path" "$datadir"
+
+# Reload Nginx
+systemctl reload nginx
+
+#=================================================
+# MODIFY A CONFIG FILE
+#=================================================
+
+ynh_replace_string "__domain__" "$domain" "$final_path/config/production.yaml"
+ynh_replace_string "__db_name__" "$app" "$final_path/config/production.yaml"
+ynh_replace_string "__app__" "$app" "$final_path/config/production.yaml"
+ynh_replace_string "__db_pwd__" "$db_pwd" "$final_path/config/production.yaml"
+ynh_replace_string "__email__" "$admin_email" "$final_path/config/production.yaml"
+ynh_replace_string "__PORT__" "$port" "$final_path/config/production.yaml"
+
+
+# Recalculate and store the config file checksum into the app settings
+ynh_store_file_checksum "$final_path/config/production.yaml"
+
+#=================================================
+# SETUP LOGROTATE
+#=================================================
+
+# Use logrotate to manage app-specific logfile(s)
+ynh_use_logrotate --non-append
+
+#=================================================
+# SETUP SYSTEMD
+#=================================================
+
+# Create a dedicated systemd config
+ynh_add_systemd_config
+
+
+# Set right permissions for curl installation
+chown -R $app:$app "$final_path" "$datadir"
+
+
+#=================================================
+# SETUP SSOWAT
+#=================================================
+
+if [ $is_public -eq 0 ]
+then	# Remove the public access
+	ynh_app_setting_delete $app skipped_uris
+fi
+# Make app public if necessary
+if [ $is_public -eq 1 ]
+then
+	# unprotected_uris allows SSO credentials to be passed anyway
+	ynh_app_setting_set $app unprotected_uris "/"
+fi
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+
+systemctl reload nginx
+
+
+

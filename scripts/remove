@@ -62,6 +62,7 @@ ynh_psql_drop_user $app
 
 # Remove the app directory securely
 ynh_secure_remove "$final_path"
+ynh_secure_remove /home/yunohost.app/"$app"
 
 #=================================================
 # REMOVE NGINX CONFIGURATION
@@ -77,6 +78,7 @@ ynh_remove_nginx_config
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
 ynh_secure_remove /var/log/"$app"
+
 #=================================================
 # CLOSE A PORT
 #=================================================
@@ -84,7 +86,7 @@ ynh_secure_remove /var/log/"$app"
 if yunohost firewall list | grep -q "\- $port$"
 then
 	echo "Close port $port"
-	yunohost firewall disallow TCP $port 2>&1
+	yunohost firewall disallow Both $port 2>&1
 fi
 
 #=================================================

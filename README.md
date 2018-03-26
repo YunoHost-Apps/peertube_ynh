@@ -21,24 +21,20 @@ Want to see in action?
 
  1. Require dedicated domain like **peertube.domain.tld**.
  1. No LDAP support (blocked until upstream implements it)
- 1. No Multi-instance
  1. No url change possible
- 1. Peertube is under development stage, **don't use it for production**
+ 1. Peertube is under beta stage, **don't use it for production**
  1. Take notice that this YunoHost package *claims* the following features:
    - [x] Install
    - [x] Remove
-   - [ ] Upgrade
+   - [X] Upgrade
    - [ ] Backup
    - [ ] Restore
 
  1. **Install the app by following command:**
 
          $ sudo yunohost app install https://github.com/YunoHost-Apps/peertube_ynh
- 1. **root** is the admin username and the admin email is the email address given at the time of installation.
- 1. **After installation change the password by this command:**
-
-         $ cd /var/www/peertube && NODE_ENV=production npm run reset-password -- -u root
-
+ 1. Use **root** as the admin username and the password given while installation of the Peertube for the login.
+ 1. Don't forget to change the **port** if using a multi-instance for Peertube.
 
 ## Why
 

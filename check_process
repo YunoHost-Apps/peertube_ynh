@@ -17,7 +17,7 @@
 		setup_private=1
 		setup_public=1
 		upgrade=0
-		backup_restore=0
+		backup_restore=1
 		multi_instance=1
 		incorrect_path=0
 		port_already_use=1

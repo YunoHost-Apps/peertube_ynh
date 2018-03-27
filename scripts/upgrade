@@ -7,6 +7,8 @@
 #=================================================
 
 source _common.sh
+source psql.sh
+source nodejs.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -22,7 +24,7 @@ admin_email=$(ynh_app_setting_get $app admin_email)
 admin_pass=$(ynh_app_setting_get $app admin_pass)
 final_path=$(ynh_app_setting_get $app final_path)
 port=$(ynh_app_setting_get $app port)
-db_name=$(ynh_app_setting_get $app db_name)
+db_name=$(ynh_app_setting_get $app psql_db)
 db_pwd=$(ynh_app_setting_get $app psqlpwd)
 
 #=================================================

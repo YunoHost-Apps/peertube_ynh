@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 #=================================================
@@ -7,6 +8,8 @@
 #=================================================
 
 source _common.sh
+source ../settings/scripts/psql.sh
+source ../settings/scripts/nodejs.sh
 source psql.sh
 source nodejs.sh
 source /usr/share/yunohost/helpers
@@ -54,8 +57,7 @@ ynh_remove_nodejs
 #=================================================
 
 # Remove a database if it exists, along with the associated user
-ynh_psql_drop_db $db_name
-ynh_psql_drop_user $app
+ynh_psql_remove_db $db_name $app
 #=================================================
 # REMOVE APP MAIN DIR
 #=================================================

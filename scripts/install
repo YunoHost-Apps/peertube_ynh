@@ -7,6 +7,8 @@
 #=================================================
 
 source _common.sh
+source ../settings/scripts/psql.sh
+source ../settings/scripts/nodejs.sh
 source psql.sh
 source nodejs.sh
 source /usr/share/yunohost/helpers

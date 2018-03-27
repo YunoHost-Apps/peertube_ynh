@@ -21,14 +21,14 @@ Want to see in action?
 
  1. Require dedicated domain like **peertube.domain.tld**.
  1. No LDAP support (blocked until upstream implements it)
- 1. No url change possible
+ 1. URL can not be changed once selected.
  1. Peertube is under beta stage, **don't use it for production**
  1. Take notice that this YunoHost package *claims* the following features:
    - [x] Install
    - [x] Remove
    - [X] Upgrade
-   - [ ] Backup
-   - [ ] Restore
+   - [X] Backup
+   - [X] Restore
 
  1. **Install the app by following command:**
 

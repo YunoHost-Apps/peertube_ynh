@@ -37,15 +37,6 @@
                 "example": "johndoe@example.com"
             },
             {
-                "name": "pass",
-                "type": "password",
-                "ask": {
-                    "en": "Enter password of this administrator(username:root).Should be greater then 6 character",
-                    "fr": "Ajouter le mot de passe pour cette administrateur ≥ 6 charactères"
-                },
-                "example": "battery horse staple nenuphar"
-            },
-            {
                 "name": "port",
                 "ask": {
                     "en": "Enter a port(default:9000).If the port is occupied by other app change it to any other value."

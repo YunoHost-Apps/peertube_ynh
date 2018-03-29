@@ -30,7 +30,7 @@ ynh_abort_if_errors
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 admin_email=$YNH_APP_ARG_EMAIL
-admin_pass=$YNH_APP_ARG_PASS
+admin_pass=$(ynh_string_random 24)
 port=$YNH_APP_ARG_PORT
 is_public=$YNH_APP_ARG_IS_PUBLIC
 
@@ -58,11 +58,6 @@ test ! -e "$final_path" || ynh_die "This path already contains a folder"
 ynh_webpath_available $domain $path_url
 # Register (book) web path
 ynh_webpath_register $app $domain $path_url
-
-# Check password strength
-[[ ${#admin_pass} -gt 6 ]] || ynh_die \
-"The password is too weak, it must be longer than 6 characters"
-
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
@@ -226,3 +221,17 @@ sudo systemctl start $app
 #=================================================
 
 systemctl reload nginx
+
+#=================================================
+# SEND A README FOR THE ADMIN
+#=================================================
+
+message="PeerTube was successfully installed :)
+
+Please open "https://$domain$path_url"
+
+Here is the admin password: "$admin_pass"
+
+If you facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/peertube_ynh"
+
+ynh_send_readme_to_admin "$message"

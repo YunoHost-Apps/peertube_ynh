@@ -46,7 +46,7 @@ ynh_backup "$final_path"
 
 # Copy the data directory
 
-ynh_backup /home/yunohost.app/${app}
+ynh_backup "/home/yunohost.app/${app}"
 
 
 #=================================================

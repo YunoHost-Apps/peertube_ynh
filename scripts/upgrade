@@ -17,15 +17,15 @@ source /usr/share/yunohost/helpers
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get $app domain)
+domain=$(ynh_app_setting_get "$app" domain)
 path_url="/"
-is_public=$(ynh_app_setting_get $app is_public)
-admin_email=$(ynh_app_setting_get $app admin_email)
-admin_pass=$(ynh_app_setting_get $app admin_pass)
-final_path=$(ynh_app_setting_get $app final_path)
-port=$(ynh_app_setting_get $app port)
-db_name=$(ynh_app_setting_get $app psql_db)
-db_pwd=$(ynh_app_setting_get $app psqlpwd)
+is_public=$(ynh_app_setting_get "$app" is_public)
+admin_email=$(ynh_app_setting_get "$app" admin_email)
+admin_pass=$(ynh_app_setting_get "$app" admin_pass)
+final_path=$(ynh_app_setting_get "$app" final_path)
+port=$(ynh_app_setting_get "$app" port)
+db_name=$(ynh_app_setting_get "$app" psql_db)
+db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -33,12 +33,25 @@ db_pwd=$(ynh_app_setting_get $app psqlpwd)
 
 # Fix is_public as a boolean value
 if [ "$is_public" = "Yes" ]; then
-	ynh_app_setting_set $app is_public 1
+	ynh_app_setting_set "$app" is_public 1
 	is_public=1
 elif [ "$is_public" = "No" ]; then
-	ynh_app_setting_set $app is_public 0
+	ynh_app_setting_set "$app" is_public 0
 	is_public=0
 fi
+
+#=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
+
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+	# restore it if the upgrade fails
+	ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
 
 #=================================================
 # REMOVE APP MAIN DIR
@@ -53,26 +66,26 @@ datadir="/home/yunohost.app/${app}/storage"
 mkdir -p "$datadir"
 
 # Open this port
-yunohost firewall allow Both $port 2>&1
+yunohost firewall allow Both "$port" 2>&1
 
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
 
 # Create a system user
-ynh_system_user_create $app
+ynh_system_user_create "$app"
 
 #=================================================
 # CHECK THE PATH
 #=================================================
 
 # Normalize the URL path syntax
-path_url=$(ynh_normalize_url_path $path_url)
+path_url=$(ynh_normalize_url_path "$path_url")
 
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
-cp ../conf/production.yaml $final_path/config/production.yaml
-(cd $final_path && yarn install --production --pure-lockfile)
+cp ../conf/production.yaml "$final_path/config/production.yaml"
+(cd "$final_path" && yarn install --production --pure-lockfile)
 
 
 #=================================================
@@ -82,8 +95,8 @@ cp ../conf/production.yaml $final_path/config/production.yaml
 # Create a dedicated nginx config
 ynh_add_nginx_config
 
-
-chown -R $app:$app "$final_path" "$datadir"
+chown -R root:root   "$final_path"
+chown -R "$app" "$datadir"
 
 # Reload Nginx
 systemctl reload nginx
@@ -119,7 +132,7 @@ ynh_add_systemd_config
 
 
 # Set right permissions for curl installation
-chown -R $app:$app "$final_path" "$datadir"
+chown -R "$app":$app "$final_path" "$datadir"
 
 
 #=================================================
@@ -128,13 +141,13 @@ chown -R $app:$app "$final_path" "$datadir"
 
 if [ $is_public -eq 0 ]
 then	# Remove the public access
-	ynh_app_setting_delete $app skipped_uris
+	ynh_app_setting_delete "$app" skipped_uris
 fi
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
 	# unprotected_uris allows SSO credentials to be passed anyway
-	ynh_app_setting_set $app unprotected_uris "/"
+	ynh_app_setting_set "$app" unprotected_uris "/"
 fi
 
 #=================================================

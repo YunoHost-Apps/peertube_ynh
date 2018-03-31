@@ -16,7 +16,7 @@
 		setup_nourl=0
 		setup_private=1
 		setup_public=1
-		upgrade=0
+		upgrade=1
 		backup_restore=1
 		multi_instance=1
 		incorrect_path=0
@@ -26,8 +26,8 @@
 	Level 1=auto
 	Level 2=auto
 	Level 3=auto
-# Level 4:
-	Level 4=0
+# Level 4: not supported by upstream
+	Level 4=N/A
 # Level 5:
 	Level 5=auto
 	Level 6=auto

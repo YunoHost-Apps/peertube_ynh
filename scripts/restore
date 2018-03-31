@@ -31,21 +31,21 @@ ynh_abort_if_errors
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get $app domain)
+domain=$(ynh_app_setting_get "$app" domain)
 path_url="/"
-final_path=$(ynh_app_setting_get $app final_path)
-port=$(ynh_app_setting_get $app port)
-db_name=$(ynh_app_setting_get $app psql_db)
-db_pwd=$(ynh_app_setting_get $app psqlpwd)
+final_path=$(ynh_app_setting_get "$app" final_path)
+port=$(ynh_app_setting_get "$app" port)
+db_name=$(ynh_app_setting_get "$app" psql_db)
+db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
 
 
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
 #=================================================
 
-ynh_webpath_available $domain $path_url \
+ynh_webpath_available "$domain" "$path_url" \
 	|| ynh_die "Path not available: ${domain}${path_url}"
-test ! -d $final_path \
+test ! -d "$final_path" \
 	|| ynh_die "There is already a directory: $final_path "
 	
 ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
@@ -55,10 +55,10 @@ ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 
 # Find a free port
-ynh_find_port $port
+ynh_find_port "$port"
 # Open this port
-yunohost firewall allow Both $port 2>&1
-ynh_app_setting_set $app port $port
+yunohost firewall allow Both "$port" 2>&1
+ynh_app_setting_set "$app" port "$port"
 
 
 #=================================================
@@ -73,12 +73,12 @@ ynh_restore_file "/home/yunohost.app/${app}"
 #=================================================
 
 # Create the dedicated user (if not existing)
-ynh_system_user_create $app
+ynh_system_user_create "$app"
 
 
 # Set right permissions for curl install
 datadir="/home/yunohost.app/${app}/storage"
-chown -R $app:$app "$final_path" "$datadir"
+chown -R "$app" "$datadir"
 
 #=================================================
 # RESTORE THE PostgreSQL DATABASE
@@ -87,8 +87,6 @@ chown -R $app:$app "$final_path" "$datadir"
 ynh_psql_test_if_first_run
 ynh_psql_setup_db "$app" "$db_name" "$db_pwd"
 ynh_psql_execute_file_as_root ./db.sql "$db_name"
-
-
 
 #=================================================
 # SPECIFIC RESTORATION
@@ -99,10 +97,10 @@ ynh_psql_execute_file_as_root ./db.sql "$db_name"
 # install yarn
 wget https://github.com/yarnpkg/yarn/releases/download/v1.5.1/yarn_1.5.1_all.deb
 echo "a4770cd8dcb13dc9a9218940dbd24b510ddf5eec78adb4e0da9ef3760b55a76e yarn_1.5.1_all.deb" | sha256sum -c || ynh_die
-sudo dpkg -i yarn_1.5.1_all.deb
+dpkg -i yarn_1.5.1_all.deb
 
 # add backports (required to install ffmpeg)
-echo "deb http://httpredir.debian.org/debian jessie-backports main" | sudo tee /etc/apt/sources.list.d/jessie-backports.list
+echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/jessie-backports.list
 ynh_package_update
 
 # Define and install dependencies
@@ -116,7 +114,7 @@ ynh_install_nodejs 8
 #=================================================
 
 ynh_restore_file "/etc/systemd/system/$app.service"
-systemctl enable $app.service
+systemctl enable "$app.service"
 
 #=================================================
 # RESTORE THE LOGROTATE CONFIGURATION
@@ -127,6 +125,6 @@ ynh_restore_file "/etc/logrotate.d/$app"
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-(cd $final_path && yarn install --production --pure-lockfile)
+(cd "$final_path" && yarn install --production --pure-lockfile)
 systemctl reload nginx
-service  $app restart
+service  "$app" restart

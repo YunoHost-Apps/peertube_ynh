@@ -7,9 +7,9 @@
 #=================================================
 
 source _common.sh
+source /usr/share/yunohost/helpers
 source psql.sh
 source nodejs.sh
-source /usr/share/yunohost/helpers
 
 #=================================================
 # LOAD SETTINGS
@@ -74,6 +74,25 @@ yunohost firewall allow Both "$port" 2>&1
 
 # Create a system user
 ynh_system_user_create "$app"
+
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+
+# install yarn
+wget https://github.com/yarnpkg/yarn/releases/download/v1.5.1/yarn_1.5.1_all.deb
+echo "a4770cd8dcb13dc9a9218940dbd24b510ddf5eec78adb4e0da9ef3760b55a76e yarn_1.5.1_all.deb" | sha256sum -c || ynh_die
+dpkg -i yarn_1.5.1_all.deb
+
+# add backports (required to install ffmpeg)
+echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/jessie-backports.list
+ynh_package_update
+
+# install postgresql, ffmpeg, redis
+ynh_install_app_dependencies postgresql-9.4 ffmpeg redis-server redis-tools
+
+# install nodejs
+ynh_install_nodejs 8
 
 #=================================================
 # CHECK THE PATH

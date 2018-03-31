@@ -7,11 +7,9 @@
 #=================================================
 
 source _common.sh
-source ../settings/scripts/psql.sh
-source ../settings/scripts/nodejs.sh
+source /usr/share/yunohost/helpers
 source psql.sh
 source nodejs.sh
-source /usr/share/yunohost/helpers
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -19,9 +17,6 @@ source /usr/share/yunohost/helpers
 
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
-#ynh_clean_setup () {
-#
-#}
 
 #=================================================
 # RETRIEVE ARGUMENTS FROM THE MANIFEST

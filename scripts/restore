@@ -9,14 +9,15 @@
 if [ ! -e _common.sh ]; then
 	# Get the _common.sh file if it's not in the current directory
 	cp ../settings/scripts/_common.sh ./_common.sh
-	chmod a+rx _common.sh
+	cp ../settings/scripts/psql.sh ./psql.sh
+	cp ../settings/scripts/nodejs.sh ./nodejs.sh
+	chmod a+rx _common.sh psql.sh nodejs.sh
 fi
+
 source _common.sh
-source psql.sh
-source ../settings/scripts/psql.sh
-source ../settings/scripts/nodejs.sh
-source nodejs.sh
 source /usr/share/yunohost/helpers
+source psql.sh
+source nodejs.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -54,12 +55,9 @@ ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 # FIND AND OPEN A PORT
 #=================================================
 
-# Find a free port
-ynh_find_port "$port"
 # Open this port
 yunohost firewall allow Both "$port" 2>&1
 ynh_app_setting_set "$app" port "$port"
-
 
 #=================================================
 # RESTORE THE APP MAIN DIR
@@ -79,14 +77,6 @@ ynh_system_user_create "$app"
 # Set right permissions for curl install
 datadir="/home/yunohost.app/${app}/storage"
 chown -R "$app" "$datadir"
-
-#=================================================
-# RESTORE THE PostgreSQL DATABASE
-#=================================================
-
-ynh_psql_test_if_first_run
-ynh_psql_setup_db "$app" "$db_name" "$db_pwd"
-ynh_psql_execute_file_as_root ./db.sql "$db_name"
 
 #=================================================
 # SPECIFIC RESTORATION
@@ -110,6 +100,14 @@ ynh_install_app_dependencies postgresql-9.4 ffmpeg redis-server redis-tools
 ynh_install_nodejs 8
 
 #=================================================
+# RESTORE THE PostgreSQL DATABASE
+#=================================================
+
+ynh_psql_test_if_first_run
+ynh_psql_setup_db "$app" "$db_name" "$db_pwd"
+ynh_psql_execute_file_as_root ./db.sql "$db_name"
+
+#=================================================
 # RESTORE SYSTEMD
 #=================================================
 
@@ -125,6 +123,9 @@ ynh_restore_file "/etc/logrotate.d/$app"
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
+
+chown -R "$app" "$datadir"
+
 (cd "$final_path" && yarn install --production --pure-lockfile)
 systemctl reload nginx
 service  "$app" restart

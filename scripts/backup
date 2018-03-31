@@ -36,7 +36,6 @@ final_path=$(ynh_app_setting_get $app final_path)
 domain=$(ynh_app_setting_get $app domain)
 db_name=$(ynh_app_setting_get $app psql_db)
 
-
 #=================================================
 # STANDARD BACKUP STEPS
 #=================================================
@@ -47,8 +46,8 @@ ynh_backup "$final_path"
 
 # Copy the data directory
 
-ynh_backup "/home/yunohost.app/${app}"
-
+datadir="/home/yunohost.app/${app}/storage"
+ynh_backup "$datadir"
 
 #=================================================
 # BACKUP THE NGINX CONFIGURATION
@@ -70,7 +69,6 @@ ynh_backup "db.sql"
 #=================================================
 
 ynh_backup "/etc/logrotate.d/$app"
-
 
 #=================================================
 # BACKUP SYSTEMD

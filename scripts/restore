@@ -48,23 +48,23 @@ ynh_webpath_available "$domain" "$path_url" \
 	|| ynh_die "Path not available: ${domain}${path_url}"
 test ! -d "$final_path" \
 	|| ynh_die "There is already a directory: $final_path "
-	
+
+#=================================================
+# STANDARD RESTORATION STEPS
+#=================================================
+# RESTORE THE NGINX CONFIGURATION
+#=================================================
+
 ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
-
-#=================================================
-# FIND AND OPEN A PORT
-#=================================================
-
-# Open this port
-yunohost firewall allow Both "$port" 2>&1
-ynh_app_setting_set "$app" port "$port"
 
 #=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
 
 ynh_restore_file "$final_path"
-ynh_restore_file "/home/yunohost.app/${app}"
+
+datadir="/home/yunohost.app/${app}/storage"
+ynh_restore_file "$datadir"
 
 #=================================================
 # RECREATE THE DEDICATED USER
@@ -73,6 +73,9 @@ ynh_restore_file "/home/yunohost.app/${app}"
 # Create the dedicated user (if not existing)
 ynh_system_user_create "$app"
 
+#=================================================
+# RESTORE USER RIGHTS
+#=================================================
 
 # Set right permissions for curl install
 datadir="/home/yunohost.app/${app}/storage"
@@ -121,11 +124,16 @@ systemctl enable "$app.service"
 ynh_restore_file "/etc/logrotate.d/$app"
 
 #=================================================
-# GENERIC FINALIZATION
+# RESTORE THE LOGROTATE CONFIGURATION
 #=================================================
 
-chown -R "$app" "$datadir"
-
 (cd "$final_path" && yarn install --production --pure-lockfile)
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# RELOAD NGINX AND PeerTube
+#=================================================
+
 systemctl reload nginx
 service  "$app" restart

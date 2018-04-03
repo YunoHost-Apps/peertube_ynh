@@ -5,17 +5,17 @@
     "description": {
         "en": "Video streaming platform using P2P directly in the web browser, connected to a federated network"
     },
-    "version": "1.1",
+    "version": "1.0.0-beta.3-1",
     "url": "https://github.com/Chocobozzz/PeerTube",
-    "license": "free",
+    "license": "AGPL-3.0-only",
     "maintainer": {
         "name": "Anmol Sharma",
         "email": "anmol@datamol.org"
     },
     "requirements": {
-        "yunohost": ">= 2.7.2"
+        "yunohost": ">= 2.7.9"
     },
-    "multi_instance": false,
+    "multi_instance": true,
     "services": [
         "nginx"
     ],
@@ -32,18 +32,9 @@
             {
                 "name": "email",
                 "ask": {
-                    "en": "Choose an admin(root) email(Can be other then LDAP emails and can't be changed after installation)"
+                    "en": "Choose an admin email (can be changed after installation)"
                 },
                 "example": "johndoe@example.com"
-            },
-            {
-                "name": "pass",
-                "type": "password",
-                "ask": {
-                    "en": "Enter password of this administrator ≥ 6 character",
-                    "fr": "Ajouter le mot de passe pour cette administrateur ≥ 6 charactères"
-                },
-                "example": "battery horse staple nenuphar"
             },
             {
                 "name": "is_public",

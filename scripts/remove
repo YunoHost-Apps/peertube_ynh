@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 #=================================================
@@ -7,9 +8,9 @@
 #=================================================
 
 source _common.sh
+source /usr/share/yunohost/helpers
 source psql.sh
 source nodejs.sh
-source /usr/share/yunohost/helpers
 
 #=================================================
 # LOAD SETTINGS
@@ -17,10 +18,10 @@ source /usr/share/yunohost/helpers
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get $app domain)
-port=$(ynh_app_setting_get $app port)
-db_name=$(ynh_app_setting_get $app psql_db)
-final_path=$(ynh_app_setting_get $app final_path)
+domain=$(ynh_app_setting_get "$app" domain)
+port=$(ynh_app_setting_get "$app" port)
+db_name=$(ynh_app_setting_get "$app" psql_db)
+final_path=$(ynh_app_setting_get "$app" final_path)
 
 #=================================================
 # STANDARD REMOVE
@@ -35,10 +36,10 @@ ynh_remove_systemd_config
 # REMOVE SERVICE FROM ADMIN PANEL
 #=================================================
 
-if yunohost service status | grep -q $app
+if yunohost service status | grep -q "$app"
 then
 	echo "Remove $app service"
-	yunohost service remove $app
+	yunohost service remove "$app"
 fi
 
 #=================================================
@@ -54,14 +55,14 @@ ynh_remove_nodejs
 #=================================================
 
 # Remove a database if it exists, along with the associated user
-ynh_psql_drop_db $db_name
-ynh_psql_drop_user $app
+ynh_psql_remove_db "$db_name" "$app"
 #=================================================
 # REMOVE APP MAIN DIR
 #=================================================
 
 # Remove the app directory securely
 ynh_secure_remove "$final_path"
+ynh_secure_remove /home/yunohost.app/"$app"
 
 #=================================================
 # REMOVE NGINX CONFIGURATION
@@ -77,6 +78,7 @@ ynh_remove_nginx_config
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
 ynh_secure_remove /var/log/"$app"
+
 #=================================================
 # CLOSE A PORT
 #=================================================
@@ -84,7 +86,7 @@ ynh_secure_remove /var/log/"$app"
 if yunohost firewall list | grep -q "\- $port$"
 then
 	echo "Close port $port"
-	yunohost firewall disallow TCP $port 2>&1
+	yunohost firewall disallow Both "$port" 2>&1
 fi
 
 #=================================================
@@ -98,4 +100,4 @@ fi
 #=================================================
 
 # Delete a system user
-ynh_system_user_delete $app
+ynh_system_user_delete "$app"

@@ -37,13 +37,6 @@
                 "example": "johndoe@example.com"
             },
             {
-                "name": "port",
-                "ask": {
-                    "en": "Enter a port(default:9000). If the port is occupied by any other app, the installation will chose another one."
-				},
-                "default": "9000"
-            },
-            {
                 "name": "is_public",
                 "type": "boolean",
                 "ask": {

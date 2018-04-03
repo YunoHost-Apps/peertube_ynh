@@ -9,14 +9,15 @@
 if [ ! -e _common.sh ]; then
 	# Get the _common.sh file if it's not in the current directory
 	cp ../settings/scripts/_common.sh ./_common.sh
-	chmod a+rx _common.sh
+	cp ../settings/scripts/psql.sh ./psql.sh
+	cp ../settings/scripts/nodejs.sh ./nodejs.sh
+	chmod a+rx _common.sh psql.sh nodejs.sh
 fi
+
 source _common.sh
-source psql.sh
-source ../settings/scripts/psql.sh
-source ../settings/scripts/nodejs.sh
-source nodejs.sh
 source /usr/share/yunohost/helpers
+source psql.sh
+source nodejs.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -35,7 +36,6 @@ final_path=$(ynh_app_setting_get $app final_path)
 domain=$(ynh_app_setting_get $app domain)
 db_name=$(ynh_app_setting_get $app psql_db)
 
-
 #=================================================
 # STANDARD BACKUP STEPS
 #=================================================
@@ -46,8 +46,8 @@ ynh_backup "$final_path"
 
 # Copy the data directory
 
-ynh_backup "/home/yunohost.app/${app}"
-
+datadir="/home/yunohost.app/${app}/storage"
+ynh_backup "$datadir"
 
 #=================================================
 # BACKUP THE NGINX CONFIGURATION
@@ -69,7 +69,6 @@ ynh_backup "db.sql"
 #=================================================
 
 ynh_backup "/etc/logrotate.d/$app"
-
 
 #=================================================
 # BACKUP SYSTEMD

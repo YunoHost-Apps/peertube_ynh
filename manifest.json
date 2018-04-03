@@ -5,15 +5,15 @@
     "description": {
         "en": "Video streaming platform using P2P directly in the web browser, connected to a federated network"
     },
-    "version": "1.1",
+    "version": "1.0.0-beta.3-1",
     "url": "https://github.com/Chocobozzz/PeerTube",
-    "license": "free",
+    "license": "AGPL-3.0-only",
     "maintainer": {
         "name": "Anmol Sharma",
         "email": "anmol@datamol.org"
     },
     "requirements": {
-        "yunohost": ">= 2.7.2"
+        "yunohost": ">= 2.7.9"
     },
     "multi_instance": true,
     "services": [
@@ -32,14 +32,14 @@
             {
                 "name": "email",
                 "ask": {
-                    "en": "Choose an admin email(Can be other then the LDAP emails and can be changed after installation)"
+                    "en": "Choose an admin email (can be changed after installation)"
                 },
                 "example": "johndoe@example.com"
             },
             {
                 "name": "port",
                 "ask": {
-                    "en": "Enter a port(default:9000).If the port is occupied by other app change it to any other value."
+                    "en": "Enter a port(default:9000). If the port is occupied by any other app, the installation will chose another one."
 				},
                 "default": "9000"
             },

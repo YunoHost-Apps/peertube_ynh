@@ -27,7 +27,7 @@
 	Level 2=auto
 	Level 3=auto
 # Level 4: not supported by upstream
-	Level 4=N/A
+	Level 4=1
 # Level 5:
 	Level 5=auto
 	Level 6=auto

@@ -26,7 +26,6 @@ domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 admin_email=$YNH_APP_ARG_EMAIL
 admin_pass=$(ynh_string_random 24)
-port=$YNH_APP_ARG_PORT
 is_public=$YNH_APP_ARG_IS_PUBLIC
 
 
@@ -70,7 +69,7 @@ ynh_app_setting_set "$app" is_public "$is_public"
 #=================================================
 
 # Find a free port
-ynh_find_port "$port"
+port=(ynh_find_port "9000")
 # Open this port
 yunohost firewall allow Both "$port" 2>&1
 ynh_app_setting_set "$app" port "$port"

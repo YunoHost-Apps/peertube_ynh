@@ -66,6 +66,9 @@ ynh_restore_file "$final_path"
 datadir="/home/yunohost.app/${app}/storage"
 ynh_restore_file "$datadir"
 
+# Open this port
+yunohost firewall allow Both "$port" 2>&1
+
 #=================================================
 # RECREATE THE DEDICATED USER
 #=================================================

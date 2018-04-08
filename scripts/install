@@ -69,7 +69,8 @@ ynh_app_setting_set "$app" is_public "$is_public"
 #=================================================
 
 # Find a free port
-port=$(ynh_find_port "9000")
+port=$(ynh_find_port 9000)
+
 # Open this port
 yunohost firewall allow Both "$port" 2>&1
 ynh_app_setting_set "$app" port "$port"
@@ -100,7 +101,7 @@ echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/a
 ynh_package_update
 
 # install postgresql, ffmpeg, redis
-ynh_install_app_dependencies postgresql-9.4 ffmpeg redis-server redis-tools
+ynh_install_app_dependencies postgresql-9.4 ffmpeg redis-server redis-tools mailutils
 
 #=================================================
 # DATABASE SETUP

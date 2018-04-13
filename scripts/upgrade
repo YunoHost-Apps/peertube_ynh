@@ -56,7 +56,11 @@ ynh_abort_if_errors
 #=================================================
 # REMOVE APP MAIN DIR
 #=================================================
-
+ 
+# Create a temporary directory
+tmpdir="$(mktemp -d)"
+# Backup the config file in the temp dir
+cp -a "$final_path/config/local-production.json" "$tmpdir/local-production.json"
 # Remove the app directory securely
 ynh_secure_remove "$final_path"
 
@@ -104,6 +108,12 @@ path_url=$(ynh_normalize_url_path "$path_url")
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
 cp ../conf/production.yaml "$final_path/config/production.yaml"
+
+#Copy the admin saved settings from tmp directory to final path
+cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json"
+
+# Remove the tmp directory securely
+ynh_secure_remove "$tmpdir"
 (cd "$final_path" && yarn install --production --pure-lockfile)
 
 

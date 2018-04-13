@@ -132,6 +132,7 @@ ynh_app_setting_set "$app" final_path "$final_path"
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
 cp ../conf/production.yaml "$final_path/config/production.yaml"
+touch "$final_path/config/local-production.json"
 (cd "$final_path" && yarn install --production --pure-lockfile)
 
 #=================================================

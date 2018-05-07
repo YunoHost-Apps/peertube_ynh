@@ -1,6 +1,8 @@
 # PeerTube app for YunoHost
 [![Install Peertube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=Peertube)<br><br>
 
+**Version 1.0.0-beta.4**
+
 ## Installation
  1. Require dedicated domain like **peertube.domain.tld**.
  1. No LDAP support (blocked until upstream implements it)

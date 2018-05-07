@@ -1,4 +1,5 @@
 listen:
+  hostname: 'localhost'
   port: __PORT__
 
 # Correspond to your reverse proxy "listen" configuration
@@ -6,6 +7,13 @@ webserver:
   https: true
   hostname: '__domain__'
   port: 443
+ 
+# Proxies to trust to get real client IP
+# If you run PeerTube just behind a local proxy (nginx), keep 'loopback'
+# If you run PeerTube behind a remote proxy, add the proxy IP address (or subnet)
+trust_proxy:
+  - 'loopback'
+
 
 # Your database name will be "peertube"+database.suffix
 database:
@@ -79,11 +87,11 @@ transcoding:
   enabled: false
   threads: 2
   resolutions: # Only created if the original video has a higher resolution
-    240p: true
-    360p: true
-    480p: true
-    720p: true
-    1080p: true
+    240p: false
+    360p: false
+    480p: false
+    720p: false
+    1080p: false
 
 # Instance settings
 instance:
@@ -92,6 +100,9 @@ instance:
   description: '' # Support markdown
   terms: '' # Support markdown
   default_client_route: '/videos/trending'
+  # By default, "do_not_list" or "blur" or "display" NSFW videos
+  # Could be overridden per user with a setting
+  default_nsfw_policy: 'do_not_list'
   customizations:
     javascript: '' # Directly your JavaScript code (without <script> tags). Will be eval at runtime
     css: '' # Directly your CSS code (without <style> tags). Will be injected at runtime

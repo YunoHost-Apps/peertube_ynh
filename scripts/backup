@@ -10,14 +10,12 @@ if [ ! -e _common.sh ]; then
 	# Get the _common.sh file if it's not in the current directory
 	cp ../settings/scripts/_common.sh ./_common.sh
 	cp ../settings/scripts/psql.sh ./psql.sh
-	cp ../settings/scripts/nodejs.sh ./nodejs.sh
-	chmod a+rx _common.sh psql.sh nodejs.sh
+	chmod a+rx _common.sh psql.sh 
 fi
 
 source _common.sh
 source /usr/share/yunohost/helpers
 source psql.sh
-source nodejs.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE

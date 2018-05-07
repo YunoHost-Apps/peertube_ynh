@@ -159,8 +159,8 @@ ynh_use_logrotate --non-append
 ynh_add_systemd_config
 
 
-# Set right permissions for curl installation
-chown -R "$app":$app "$final_path" "$datadir"
+# Set right permissions 
+chown -R "$app":"$app" "$final_path" "$datadir"
 
 
 #=================================================

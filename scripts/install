@@ -142,12 +142,9 @@ touch "$final_path/config/local-production.json"
 mkdir -p "/etc/nginx/conf.d/${domain}.d"
 ynh_add_nginx_config
 
-#=================================================
-# SETUP APPLICATION WITH CURL
-#=================================================
 
 # Set right permissions for curl install
-chown -R "$app" "$datadir"
+chown -R "$app":"app" "$datadir"
 
 # Reload Nginx
 systemctl reload nginx
@@ -179,7 +176,7 @@ ynh_store_file_checksum "$final_path/config/production.yaml"
 #=================================================
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate
+ynh_use_logrotate "/home/yunohost.app/${app}/storage/logs/peertube.log"
 
 #=================================================
 # SETUP SSOWAT
@@ -210,6 +207,9 @@ systemctl start "$app"
 
 # we need to wait for the service to init peertube's database
 (cd "/var/www/$app" && sleep 15 && exec /bin/sh -c "echo $admin_pass | NODE_CONFIG_DIR=/var/www/$app/config NODE_ENV=production PATH=/opt/node_n/bin:$PATH npm run reset-password -- -u root")
+
+# Give permisiion to the final_path
+chown -R "$app":"$app" "$final_path" "$datadir"
 
 #=================================================
 # RELOAD NGINX

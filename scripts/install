@@ -114,7 +114,7 @@ ynh_app_setting_set "$app" psqlpwd "$db_pwd"
 ynh_psql_test_if_first_run
 ynh_psql_create_user "$app" "$db_pwd"
 ynh_psql_execute_as_root \
-"CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER "$app";"
+"CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $app;"
 
 #=================================================
 # CREATE DEDICATED USER
@@ -144,7 +144,7 @@ ynh_add_nginx_config
 
 
 # Set right permissions for curl install
-chown -R ""$app":"$app""$datadir"
+chown -R "$app":"$app" "$datadir"
 
 # Reload Nginx
 systemctl reload nginx
@@ -153,12 +153,12 @@ systemctl reload nginx
 # MODIFY A CONFIG FILE
 #=================================================
 
-ynh_replace_string "__domain__" "$domain" "$final_path/config/production.yaml"
-ynh_replace_string "__db_name__" "$app" "$final_path/config/production.yaml"
-ynh_replace_string "__app__" "$app" "$final_path/config/production.yaml"
-ynh_replace_string "__db_pwd__" "$db_pwd" "$final_path/config/production.yaml"
-ynh_replace_string "__email__" "$admin_email" "$final_path/config/production.yaml"
-ynh_replace_string "__PORT__" "$port" "$final_path/config/production.yaml"
+ynh_replace_string "__domain__"  "$domain"      "$final_path/config/production.yaml"
+ynh_replace_string "__db_name__" "$app"         "$final_path/config/production.yaml"
+ynh_replace_string "__app__"     "$app"         "$final_path/config/production.yaml"
+ynh_replace_string "__db_pwd__"  "$db_pwd"      "$final_path/config/production.yaml"
+ynh_replace_string "__email__"   "$admin_email" "$final_path/config/production.yaml"
+ynh_replace_string "__PORT__"    "$port"        "$final_path/config/production.yaml"
 
 
 #=================================================
@@ -223,9 +223,9 @@ systemctl reload nginx
 
 message="PeerTube was successfully installed :)
 
-Please open "https://$domain$path_url"
+Please open 'https://$domain$path_url'
 
-Here is the admin password: "$admin_pass"
+Here is the admin password: '$admin_pass'
 
 If you facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/peertube_ynh"
 

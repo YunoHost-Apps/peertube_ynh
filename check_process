@@ -16,9 +16,9 @@
 		setup_nourl=0
 		setup_private=1
 		setup_public=1
-		upgrade=0
-		backup_restore=0
-		multi_instance=0
+		upgrade=1
+		backup_restore=1
+		multi_instance=1
 		incorrect_path=0
 		port_already_use=1
 		change_url=0
@@ -26,8 +26,8 @@
 	Level 1=auto
 	Level 2=auto
 	Level 3=auto
-# Level 4:
-	Level 4=0
+# Level 4: not supported by upstream
+	Level 4=1
 # Level 5:
 	Level 5=auto
 	Level 6=auto
@@ -36,5 +36,5 @@
 	Level 9=0
 	Level 10=0
 ;;; Options
-Email=
-Notification=none
+Email=anmol@datamol.org
+Notification=yes

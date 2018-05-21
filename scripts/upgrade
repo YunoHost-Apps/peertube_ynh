@@ -1,0 +1,188 @@
+#!/bin/bash
+
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source _common.sh
+source /usr/share/yunohost/helpers
+source psql.sh
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_get "$app" domain)
+path_url="/"
+is_public=$(ynh_app_setting_get "$app" is_public)
+admin_email=$(ynh_app_setting_get "$app" admin_email)
+admin_pass=$(ynh_app_setting_get "$app" admin_pass)
+final_path=$(ynh_app_setting_get "$app" final_path)
+port=$(ynh_app_setting_get "$app" port)
+db_name=$(ynh_app_setting_get "$app" psql_db)
+db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
+
+#=================================================
+# ENSURE DOWNWARD COMPATIBILITY
+#=================================================
+
+# Fix is_public as a boolean value
+if [ "$is_public" = "Yes" ]; then
+	ynh_app_setting_set "$app" is_public 1
+	is_public=1
+elif [ "$is_public" = "No" ]; then
+	ynh_app_setting_set "$app" is_public 0
+	is_public=0
+fi
+
+#=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
+
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+	# restore it if the upgrade fails
+	ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
+# REMOVE APP MAIN DIR
+#=================================================
+ 
+# Create a temporary directory
+tmpdir="$(mktemp -d)"
+# Backup the config file in the temp dir
+cp -a "$final_path/config/local-production.json" "$tmpdir/local-production.json"
+# Remove the app directory securely
+ynh_secure_remove "$final_path"
+
+# Define app's data directory
+datadir="/home/yunohost.app/${app}/storage"
+# Create app folders
+mkdir -p "$datadir"
+
+# Open this port
+yunohost firewall allow Both "$port" 2>&1
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+
+# Create a system user
+ynh_system_user_create "$app"
+
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+
+# install nodejs
+ynh_install_nodejs 8
+
+# install yarn
+wget https://github.com/yarnpkg/yarn/releases/download/v1.5.1/yarn_1.5.1_all.deb
+echo "a4770cd8dcb13dc9a9218940dbd24b510ddf5eec78adb4e0da9ef3760b55a76e yarn_1.5.1_all.deb" | sha256sum -c || ynh_die
+dpkg -i yarn_1.5.1_all.deb
+
+# add backports (required to install ffmpeg)
+echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/jessie-backports.list
+ynh_package_update
+
+# install postgresql, ffmpeg, redis
+ynh_install_app_dependencies postgresql-9.4 ffmpeg redis-server redis-tools mailutils
+
+#=================================================
+# CHECK THE PATH
+#=================================================
+
+# Normalize the URL path syntax
+path_url=$(ynh_normalize_url_path "$path_url")
+
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source "$final_path"
+cp ../conf/production.yaml "$final_path/config/production.yaml"
+
+#Copy the admin saved settings from tmp directory to final path
+cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json"
+
+# Remove the tmp directory securely
+ynh_secure_remove "$tmpdir"
+(cd "$final_path" && yarn install --production --pure-lockfile)
+
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+
+# Create a dedicated nginx config
+ynh_add_nginx_config
+
+chown -R root:root   "$final_path"
+chown -R "$app" "$datadir"
+
+# Reload Nginx
+systemctl reload nginx
+
+#=================================================
+# MODIFY A CONFIG FILE
+#=================================================
+
+ynh_replace_string "__domain__" "$domain" "$final_path/config/production.yaml"
+ynh_replace_string "__db_name__" "$app" "$final_path/config/production.yaml"
+ynh_replace_string "__app__" "$app" "$final_path/config/production.yaml"
+ynh_replace_string "__db_pwd__" "$db_pwd" "$final_path/config/production.yaml"
+ynh_replace_string "__email__" "$admin_email" "$final_path/config/production.yaml"
+ynh_replace_string "__PORT__" "$port" "$final_path/config/production.yaml"
+
+
+# Recalculate and store the config file checksum into the app settings
+ynh_store_file_checksum "$final_path/config/production.yaml"
+
+#=================================================
+# SETUP LOGROTATE
+#=================================================
+
+# Use logrotate to manage app-specific logfile(s)
+ynh_use_logrotate --non-append
+
+#=================================================
+# SETUP SYSTEMD
+#=================================================
+
+# Create a dedicated systemd config
+ynh_add_systemd_config
+
+
+# Set right permissions 
+chown -R "$app":"$app" "$final_path" "$datadir"
+
+
+#=================================================
+# SETUP SSOWAT
+#=================================================
+
+if [ $is_public -eq 0 ]
+then	# Remove the public access
+	ynh_app_setting_delete "$app" skipped_uris
+fi
+# Make app public if necessary
+if [ $is_public -eq 1 ]
+then
+	# unprotected_uris allows SSO credentials to be passed anyway
+	ynh_app_setting_set "$app" unprotected_uris "/"
+fi
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+
+systemctl reload nginx
+
+
+

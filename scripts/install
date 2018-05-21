@@ -144,7 +144,7 @@ ynh_add_nginx_config
 
 
 # Set right permissions for curl install
-chown -R "$app":"app" "$datadir"
+chown -R "$app":"$app" "$datadir"
 
 # Reload Nginx
 systemctl reload nginx

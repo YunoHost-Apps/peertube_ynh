@@ -81,7 +81,7 @@ ynh_system_user_create "$app"
 
 # Set right permissions 
 datadir="/home/yunohost.app/${app}/storage"
-chown -R "$app":"app" "$datadir"
+chown -R "$app":"$app" "$datadir"
 
 #=================================================
 # SPECIFIC RESTORATION
@@ -133,7 +133,7 @@ ynh_restore_file "/etc/logrotate.d/$app"
 (cd "$final_path" && yarn install --production --pure-lockfile)
 
 # Set right permissions for curl install
-chown -R "$app":"app" "$datadir"
+chown -R "$app":"$app" "$datadir"
 
 #=================================================
 # GENERIC FINALIZATION

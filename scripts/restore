@@ -103,7 +103,7 @@ echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/a
 ynh_package_update
 
 # Define and install dependencies
-ynh_install_app_dependencies postgresql-9.4 ffmpeg redis-server redis-tools mailutils
+ynh_install_app_dependencies postgresql ffmpeg redis-server redis-tools mailutils
 
 #=================================================
 # RESTORE THE PostgreSQL DATABASE

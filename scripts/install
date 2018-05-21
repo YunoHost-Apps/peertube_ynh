@@ -100,7 +100,7 @@ echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/a
 ynh_package_update
 
 # install postgresql, ffmpeg, redis
-ynh_install_app_dependencies postgresql-9.4 ffmpeg redis-server redis-tools mailutils
+ynh_install_app_dependencies postgresql ffmpeg redis-server redis-tools mailutils
 
 #=================================================
 # DATABASE SETUP
@@ -144,7 +144,7 @@ ynh_add_nginx_config
 
 
 # Set right permissions for curl install
-chown -R "$app":"$app" "$datadir"
+chown -R ""$app":"$app""$datadir"
 
 # Reload Nginx
 systemctl reload nginx

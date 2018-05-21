@@ -103,6 +103,10 @@ ynh_install_app_dependencies postgresql ffmpeg redis-server redis-tools mailutil
 # Normalize the URL path syntax
 path_url=$(ynh_normalize_url_path "$path_url")
 
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK PEERTUBE SOURCE
+#=================================================
+
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
 cp ../conf/production.yaml "$final_path/config/production.yaml"
@@ -112,7 +116,11 @@ cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json
 
 # Remove the tmp directory securely
 ynh_secure_remove "$tmpdir"
-(cd "$final_path" && yarn install --production --pure-lockfile)
+
+(
+	cd "$final_path"
+	yarn install --production --pure-lockfile --cache-folder /var/cache/yarn/
+)
 
 
 #=================================================

@@ -30,9 +30,9 @@ ynh_abort_if_errors
 
 app=$YNH_APP_INSTANCE_NAME
 
-final_path=$(ynh_app_setting_get $app final_path)
-domain=$(ynh_app_setting_get $app domain)
-db_name=$(ynh_app_setting_get $app psql_db)
+final_path=$(ynh_app_setting_get "$app" final_path)
+domain=$(ynh_app_setting_get "$app" domain)
+db_name=$(ynh_app_setting_get "$app" psql_db)
 
 #=================================================
 # STANDARD BACKUP STEPS

@@ -91,7 +91,7 @@ mkdir -p "$datadir"
 ynh_install_nodejs 8
 
 # install yarn
-wget https://github.com/yarnpkg/yarn/releases/download/v1.6.0/yarn_1.6.0_all.deb
+wget -nv https://github.com/yarnpkg/yarn/releases/download/v1.6.0/yarn_1.6.0_all.deb
 echo "96866d835da94a1f01a616f3d637c9100e826f65cb38a65e5d96ccf01ff6d692  yarn_1.6.0_all.deb" | sha256sum -c || ynh_die
 dpkg -i yarn_1.6.0_all.deb
 
@@ -100,7 +100,7 @@ echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/a
 ynh_package_update
 
 # install postgresql, ffmpeg, redis
-ynh_install_app_dependencies postgresql-9.4 ffmpeg redis-server redis-tools mailutils
+ynh_install_app_dependencies postgresql ffmpeg redis-server redis-tools mailutils
 
 #=================================================
 # DATABASE SETUP
@@ -114,7 +114,7 @@ ynh_app_setting_set "$app" psqlpwd "$db_pwd"
 ynh_psql_test_if_first_run
 ynh_psql_create_user "$app" "$db_pwd"
 ynh_psql_execute_as_root \
-"CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER "$app";"
+"CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $app;"
 
 #=================================================
 # CREATE DEDICATED USER
@@ -130,9 +130,18 @@ ynh_system_user_create "$app"
 ynh_app_setting_set "$app" final_path "$final_path"
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
+
+#=================================================
+# BUILD YARN DEPENDENCIES
+#=================================================
+
 cp ../conf/production.yaml "$final_path/config/production.yaml"
 touch "$final_path/config/local-production.json"
-(cd "$final_path" && yarn install --production --pure-lockfile)
+
+(
+	cd "$final_path"
+	yarn install --production --pure-lockfile --silent --cache-folder /var/cache/yarn/
+)
 
 #=================================================
 # NGINX CONFIGURATION
@@ -144,7 +153,7 @@ ynh_add_nginx_config
 
 
 # Set right permissions for curl install
-chown -R "$app":"app" "$datadir"
+chown -R "$app":"$app" "$datadir"
 
 # Reload Nginx
 systemctl reload nginx
@@ -153,12 +162,12 @@ systemctl reload nginx
 # MODIFY A CONFIG FILE
 #=================================================
 
-ynh_replace_string "__domain__" "$domain" "$final_path/config/production.yaml"
-ynh_replace_string "__db_name__" "$app" "$final_path/config/production.yaml"
-ynh_replace_string "__app__" "$app" "$final_path/config/production.yaml"
-ynh_replace_string "__db_pwd__" "$db_pwd" "$final_path/config/production.yaml"
-ynh_replace_string "__email__" "$admin_email" "$final_path/config/production.yaml"
-ynh_replace_string "__PORT__" "$port" "$final_path/config/production.yaml"
+ynh_replace_string "__domain__"  "$domain"      "$final_path/config/production.yaml"
+ynh_replace_string "__db_name__" "$app"         "$final_path/config/production.yaml"
+ynh_replace_string "__app__"     "$app"         "$final_path/config/production.yaml"
+ynh_replace_string "__db_pwd__"  "$db_pwd"      "$final_path/config/production.yaml"
+ynh_replace_string "__email__"   "$admin_email" "$final_path/config/production.yaml"
+ynh_replace_string "__PORT__"    "$port"        "$final_path/config/production.yaml"
 
 
 #=================================================
@@ -206,7 +215,11 @@ systemctl start "$app"
 #=================================================
 
 # we need to wait for the service to init peertube's database
-(cd "/var/www/$app" && sleep 15 && exec /bin/sh -c "echo $admin_pass | NODE_CONFIG_DIR=/var/www/$app/config NODE_ENV=production PATH=/opt/node_n/bin:$PATH npm run reset-password -- -u root")
+(
+	cd "$final_path"
+	sleep 15
+	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production PATH="/opt/node_n/bin:$PATH" npm run reset-password -- -u root
+)
 
 # Give permisiion to the final_path
 chown -R "$app":"$app" "$final_path" "$datadir"
@@ -223,9 +236,9 @@ systemctl reload nginx
 
 message="PeerTube was successfully installed :)
 
-Please open "https://$domain$path_url"
+Please open 'https://$domain$path_url'
 
-Here is the admin password: "$admin_pass"
+Here is the admin password: '$admin_pass'
 
 If you facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/peertube_ynh"
 

@@ -85,7 +85,7 @@ ynh_system_user_create "$app"
 ynh_install_nodejs 8
 
 # install yarn
-wget https://github.com/yarnpkg/yarn/releases/download/v1.6.0/yarn_1.6.0_all.deb
+wget -nv https://github.com/yarnpkg/yarn/releases/download/v1.6.0/yarn_1.6.0_all.deb
 echo "96866d835da94a1f01a616f3d637c9100e826f65cb38a65e5d96ccf01ff6d692  yarn_1.6.0_all.deb" | sha256sum -c || ynh_die
 dpkg -i yarn_1.6.0_all.deb
 
@@ -119,7 +119,7 @@ ynh_secure_remove "$tmpdir"
 
 (
 	cd "$final_path"
-	yarn install --production --pure-lockfile --cache-folder /var/cache/yarn/
+	yarn install --production --pure-lockfile --silent --cache-folder /var/cache/yarn/
 )
 
 

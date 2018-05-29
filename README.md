@@ -3,7 +3,7 @@
 [![Install Peertube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=Peertube)<br><br>
 =======
 
-**Version v1.0.0-beta.6**
+**Shipped Version:** 1.0.0-beta.7
 
 <h4>
 PeerTube is a decentralized video streaming platform using P2P (BitTorrent) directly in the web browser, using <a href="https://github.com/feross/webtorrent">WebTorrent</a>.

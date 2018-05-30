@@ -43,10 +43,15 @@ fi
 #=================================================
 # REMOVE DEPENDENCIES
 #=================================================
-
 # Remove metapackage and its dependencies
 ynh_remove_app_dependencies
 ynh_remove_nodejs
+
+# Remove yarn
+sudo apt-get remove --purge -y yarn
+
+# Delete backport from source.list 
+ynh_secure_remove /etc/apt/sources.list.d/jessie-backports.list
 
 #=================================================
 # REMOVE THE MYSQL DATABASE

@@ -85,4 +85,4 @@ systemctl reload nginx
 systemctl enable "$app"
 systemctl start "$app"
 # App needs time to start
-sleep 15
+sleep 30

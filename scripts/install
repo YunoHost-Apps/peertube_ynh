@@ -224,7 +224,7 @@ systemctl start "$app"
 # we need to wait for the service to init peertube's database
 (
 	cd "$final_path"
-	sleep 15
+	sleep 30
 	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production PATH="/opt/node_n/bin:$PATH" npm run reset-password -- -u root
 )
 

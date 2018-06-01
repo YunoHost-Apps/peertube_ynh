@@ -56,7 +56,15 @@ $app_message
 ---
 Automatic diagnosis data from YunoHost
 $(yunohost tools diagnosis | grep -B 100 "services:" | sed '/services:/d')"
+	
+	# Define binary to use for mail command
+	if [ -e /usr/bin/bsd-mailx ]
+	then
+		local mail_bin=/usr/bin/bsd-mailx
+	else
+		local mail_bin=/usr/bin/mail.mailutils
+	fi
 
 	# Send the email to the recipients
-	echo "$mail_message" | mail -a "Content-Type: text/plain; charset=UTF-8" -s "$mail_subject" "$recipients"
+	echo "$mail_message" | $mail_bin -a "Content-Type: text/plain; charset=UTF-8" -s "$mail_subject" "$recipients"
 }

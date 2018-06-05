@@ -4,13 +4,14 @@ Description=PeerTube daemon
 [Service]
 Type=simple
 Environment=NODE_ENV=production
+Environment=NODE_CONFIG_DIR=__FINALPATH__/config
 User=__APP__
 Group=__APP__
-ExecStart=/usr/bin/npm start
+ExecStart=/bin/sh -c 'PATH=/opt/node_n/bin:$PATH exec npm start'
 WorkingDirectory=__FINALPATH__/
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=peertube
+SyslogIdentifier=__APP__
 Restart=always
 
 [Install]

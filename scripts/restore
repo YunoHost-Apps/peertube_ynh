@@ -1,0 +1,155 @@
+#!/bin/bash
+
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+if [ ! -e _common.sh ]; then
+	# Get the _common.sh file if it's not in the current directory
+	cp ../settings/scripts/_common.sh ./_common.sh
+	cp ../settings/scripts/psql.sh ./psql.sh
+	chmod a+rx _common.sh psql.sh
+fi
+
+source _common.sh
+source /usr/share/yunohost/helpers
+source psql.sh
+
+
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_get "$app" domain)
+path_url="/"
+final_path=$(ynh_app_setting_get "$app" final_path)
+port=$(ynh_app_setting_get "$app" port)
+db_name=$(ynh_app_setting_get "$app" psql_db)
+db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
+
+
+#=================================================
+# CHECK IF THE APP CAN BE RESTORED
+#=================================================
+
+ynh_webpath_available "$domain" "$path_url" \
+	|| ynh_die "Path not available: ${domain}${path_url}"
+test ! -d "$final_path" \
+	|| ynh_die "There is already a directory: $final_path "
+
+#=================================================
+# STANDARD RESTORATION STEPS
+#=================================================
+# RESTORE THE NGINX CONFIGURATION
+#=================================================
+
+ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
+
+#=================================================
+# RESTORE THE APP MAIN DIR
+#=================================================
+
+ynh_restore_file "$final_path"
+
+datadir="/home/yunohost.app/${app}/storage"
+ynh_restore_file "$datadir"
+
+# Open this port
+yunohost firewall allow Both "$port" 2>&1
+
+#=================================================
+# RECREATE THE DEDICATED USER
+#=================================================
+
+# Create the dedicated user (if not existing)
+ynh_system_user_create "$app"
+
+#=================================================
+# RESTORE USER RIGHTS
+#=================================================
+
+# Set right permissions 
+datadir="/home/yunohost.app/${app}/storage"
+chown -R "$app":"$app" "$datadir"
+
+#=================================================
+# SPECIFIC RESTORATION
+#=================================================
+# REINSTALL DEPENDENCIES
+#=================================================
+
+# install yarn
+
+# install nodejs
+ynh_install_nodejs 8
+
+wget -nv https://github.com/yarnpkg/yarn/releases/download/v1.6.0/yarn_1.6.0_all.deb
+echo "96866d835da94a1f01a616f3d637c9100e826f65cb38a65e5d96ccf01ff6d692  yarn_1.6.0_all.deb" | sha256sum -c || ynh_die
+dpkg -i yarn_1.6.0_all.deb
+
+# add backports for Debian Jessie (required to install ffmpeg)
+if [ "$(lsb_release --codename --short)" == "jessie" ]; then
+	echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/jessie-backports.list
+    ynh_package_update
+fi
+
+# Define and install dependencies
+ynh_install_app_dependencies postgresql ffmpeg redis-server redis-tools mailutils
+
+#=================================================
+# RESTORE THE PostgreSQL DATABASE
+#=================================================
+
+ynh_psql_test_if_first_run
+ynh_psql_create_user "$app" "$db_pwd"
+ynh_psql_execute_as_root \
+"CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $app;"
+ynh_psql_execute_file_as_root ./db.sql "$db_name"
+
+#=================================================
+# RESTORE SYSTEMD
+#=================================================
+
+ynh_restore_file "/etc/systemd/system/$app.service"
+systemctl enable "$app.service"
+
+#=================================================
+# RESTORE THE LOGROTATE CONFIGURATION
+#=================================================
+
+ynh_restore_file "/etc/logrotate.d/$app"
+
+#=================================================
+# RESTORE THE LOGROTATE CONFIGURATION
+#=================================================
+
+(
+	cd "$final_path"
+	yarn install --production --pure-lockfile --silent --cache-folder /var/cache/yarn/
+)
+
+# Set right permissions for curl install
+chown -R "$app":"$app" "$datadir"
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# RELOAD NGINX AND PeerTube
+#=================================================
+
+systemctl reload nginx
+systemctl enable "$app"
+systemctl start "$app"
+# App needs time to start
+sleep 30

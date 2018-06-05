@@ -51,7 +51,7 @@ Want to see in action?
  1. App will backup the **home directory** for Peertube before updating which can take a lot of space on the system. It's advised to check the home folder's free space by
         
         $ df -h "/home" |  awk 'NR==2 { print $4 }'
-  and comapre it with space occupied by the Peertube home directory before updating.
+  and compare it with space occupied by the Peertube home directory before updating.
         
         $ du -hcs /home/yunohost.app/peertube | awk 'NR==2 { print $1 }'
  

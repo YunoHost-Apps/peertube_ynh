@@ -22,6 +22,8 @@ Want to see in action?
 
 ## Installation
 
+### Guidelines 
+
  1. Require dedicated domain like **peertube.domain.tld**.
  1. No LDAP support (blocked until upstream implements it)
  1. URL can not be changed once selected.
@@ -31,14 +33,29 @@ Want to see in action?
    - [X] Upgrade
    - [X] Backup
    - [X] Restore
+   - [X] Multi-instance
+   
+### Install
 
- 1. **Install the app by following command:**
+ 1. **App can be installed by YunoHost admin interface or by the following command:**
 
          $ sudo yunohost app install https://github.com/YunoHost-Apps/peertube_ynh
  1. **root** is the admin username.
- 1. **Password** will be sent through the email to the admin email account given at the time of installation of the app.
-
-## Why
+ 1. **root Password** will be sent to the email address given at the time of the installation.
+ 1. **TLS** and **starttls** are disabled for the outgoing mails. If you intent to use email address not hosted on your local server,it's advised to have a proper SMTP configured with tls and starttls settings by editing **/var/www/peertube/config/porduction.yml**.
+ 
+ ### Updation
+ 1. **App can be updated by YunoHost admin interface or by the following command:**
+          
+          $ sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/peertube_ynh peertube
+ 1. App will backup the **home directory** for Peertube before updating which can take a lot of space on the system. It's advised to check the home folder's free space by
+        
+        $ df -h "/home" |  awk 'NR==2 { print $4 }'
+  and comapre it with space occupied by the Peertube home directory before updating.
+        
+        $ du -hcs /home/yunohost.app/peertube | awk 'NR==2 { print $1 }'
+ 
+ ## Why
 
 We can't build a FOSS video streaming alternatives to YouTube, Dailymotion, Vimeo... with a centralized software. One organization alone cannot have enough money to pay bandwidth and video storage of its server.
 
@@ -49,8 +66,8 @@ Thanks to [WebTorrent](https://github.com/feross/webtorrent), we can make P2P (t
 
 ### Dependencies
 
-  * NodeJS, PostgreSQL
-  * It adds jessie-backports for ffmpeg
+  * NodeJS, PostgreSQL.
+  * On Debian Jessie,backport is added for the ffmpeg package.
 
 ## LICENSE
 

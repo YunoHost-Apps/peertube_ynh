@@ -5,20 +5,21 @@
 
 **Shipped Version:** 1.0.0-beta.7
 
+
 <h4>
 PeerTube is a decentralized video streaming platform using P2P (BitTorrent) directly in the web browser, using <a href="https://github.com/feross/webtorrent">WebTorrent</a>.
 </h4>
 
-**PeerTube is sponsored by [Framasoft](https://framatube.org/#en), a non-profit that promotes, spreads and develops free-libre software. If you want to support this project, please [consider donating them](https://soutenir.framasoft.org/en/).**
+<p>
+<strong>Peertube is running <a href="https://www.kisskissbankbank.com/en/projects/peertube-a-free-and-federated-video-platform">a crowdfunding campaign</a> to pave the road to version 1.0 of PeerTube! If you liked the app, please donate.</strong>
+</p>
 
 ## Demonstration
 
 Want to see in action?
 
-   * [Demo](http://peertube.cpy.re)
-   * [Video](https://peertube.cpy.re/videos/watch/f78a97f8-a142-4ce1-a5bd-154bf9386504) to see how the "decentralization feature" looks like
-   * [Video](https://peertube.valvin.fr/videos/watch/e510b421-92f3-4153-aaf9-baf5166f43e8) showcasing A2HS
-
+   * [Here](http://peertube.cpy.re) are the list of instances ran by people around the world. Be a part of it.
+   
 
 ## Installation
 

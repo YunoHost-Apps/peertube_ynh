@@ -1,6 +1,7 @@
 # PeerTube app for YunoHost
 
-[![Install Peertube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=Peertube)<br><br>
+[![Integration level](https://dash.yunohost.org/integration/peertube.svg)](https://ci-apps.yunohost.org/jenkins/job/peertube%20%28Community%29/lastBuild/consoleFull)  
+[![Install Peertube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=peertube)<br><br>
 =======
 
 **Shipped Version:** 1.0.0-beta.7

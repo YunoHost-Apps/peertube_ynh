@@ -91,9 +91,10 @@ mkdir -p "$datadir"
 ynh_install_nodejs 8
 
 # install yarn
-wget -nv https://github.com/yarnpkg/yarn/releases/download/v1.6.0/yarn_1.6.0_all.deb
-echo "96866d835da94a1f01a616f3d637c9100e826f65cb38a65e5d96ccf01ff6d692  yarn_1.6.0_all.deb" | sha256sum -c || ynh_die
-dpkg -i yarn_1.6.0_all.deb
+wget -nv https://github.com/yarnpkg/yarn/releases/download/v1.7.0/yarn_1.7.0_all.deb
+echo "5fecee8378905bbd0c09f9f49d81d427576e3ebdfe9e71ac47eb6c5c5fe35825  yarn_1.7.0_all.deb" | sha256sum -c || ynh_die
+dpkg -i yarn_1.7.0_all.deb
+
 
 # add backports for Debian Jessie (required to install ffmpeg)
 if [ "$(lsb_release --codename --short)" == "jessie" ]; then

@@ -28,7 +28,8 @@ redis:
   hostname: 'localhost'
   port: 6379
   auth: null
-
+  db: 0
+  
 # SMTP server to send emails
 smtp:
   hostname: 'localhost'
@@ -86,11 +87,12 @@ user:
   video_quota: -1
 
 # If enabled, the video will be transcoded to mp4 (x264) with "faststart" flag
-# Uses a lot of CPU!
+# In addition, if some resolutions are enabled the mp4 video file will be transcoded to these new resolutions.
+# Please, do not disable transcoding since many uploaded videos will not work
 transcoding:
-  enabled: false
+  enabled: true
   threads: 1
-  resolutions: # Only created if the original video has a higher resolution
+  resolutions: # Only created if the original video has a higher resolution, uses more storage!
     240p: false
     360p: false
     480p: false
@@ -99,7 +101,7 @@ transcoding:
 
 # Instance settings
 instance:
-  name: 'PeerTube'
+  name: 'YunoHost PeerTube'
   short_description: 'PeerTube, a federated (ActivityPub) video streaming platform using P2P (BitTorrent) directly in the web browser with WebTorrent and Angular.'
   description: '' # Support markdown
   terms: '' # Support markdown
@@ -118,7 +120,7 @@ instance:
 services:
   # Cards configuration to format video in Twitter
   twitter:
-    username: '' # The Twitter @username the card should be attributed to
+    username: '@yunohost' # Indicates the Twitter account for the website or platform on which the content was published
     # If true, a video player will be embedded in the Twitter feed on PeerTube video share
     # If false, we use an image link card that will redirect on your PeerTube instance
     # Test on https://cards-dev.twitter.com/validator to see if you are whitelisted

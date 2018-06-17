@@ -51,13 +51,13 @@ ynh_clean_setup () {
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
-# Stop Peertube for upgrade 
+# Stop Peertube for upgrade
 systemctl stop "$app"
 
 #=================================================
 # REMOVE APP MAIN DIR
 #=================================================
- 
+
 # Create a temporary directory
 tmpdir="$(mktemp -d)"
 # Backup the config file in the temp dir
@@ -87,19 +87,18 @@ ynh_system_user_create "$app"
 # install nodejs
 ynh_install_nodejs 8
 
-# install yarn
-wget -nv https://github.com/yarnpkg/yarn/releases/download/v1.7.0/yarn_1.7.0_all.deb
-echo "5fecee8378905bbd0c09f9f49d81d427576e3ebdfe9e71ac47eb6c5c5fe35825  yarn_1.7.0_all.deb" | sha256sum -c || ynh_die
-dpkg -i yarn_1.7.0_all.deb
-
 # add backports for Debian Jessie (required to install ffmpeg)
 if [ "$(lsb_release --codename --short)" == "jessie" ]; then
 	echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/jessie-backports.list
-    ynh_package_update
 fi
 
+# add yarn repo for Debian
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+ynh_package_update
+
 # install postgresql, ffmpeg, redis
-ynh_install_app_dependencies postgresql ffmpeg redis-server redis-tools mailutils
+ynh_install_app_dependencies postgresql ffmpeg redis-server redis-tools mailutils yarn
 
 #=================================================
 # CHECK THE PATH
@@ -171,7 +170,7 @@ ynh_use_logrotate --non-append
 ynh_add_systemd_config
 
 
-# Set right permissions 
+# Set right permissions
 chown -R "$app":"$app" "$final_path" "$datadir"
 
 

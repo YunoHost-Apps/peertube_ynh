@@ -47,11 +47,9 @@ fi
 ynh_remove_app_dependencies
 ynh_remove_nodejs
 
-# Remove yarn
-sudo apt-get remove --purge -y yarn
-
-# Delete backport from source.list 
+# Delete backport and yarn from source.list 
 ynh_secure_remove /etc/apt/sources.list.d/jessie-backports.list
+ynh_secure_remove /etc/apt/sources.list.d/yarn.list
 
 #=================================================
 # REMOVE THE MYSQL DATABASE

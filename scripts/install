@@ -207,6 +207,12 @@ fi
 chown -R "$app":"$app" "$final_path" "$datadir"
 
 #=================================================
+# RELOAD NGINX
+#=================================================
+
+systemctl reload nginx
+
+#=================================================
 # SETUP SYSTEMD
 #=================================================
 
@@ -226,13 +232,6 @@ systemctl start "$app"
 	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production PATH="/opt/node_n/bin:$PATH" npm run reset-password -- -u root
 )
 
-
-#=================================================
-# RELOAD NGINX
-#=================================================
-
-systemctl reload nginx
-
 #=================================================
 # SEND A README FOR THE ADMIN
 #=================================================
@@ -241,6 +240,7 @@ message="PeerTube was successfully installed :)
 
 Please open 'https://$domain$path_url'
 
+The admin username is: root
 Here is the admin password: '$admin_pass'
 
 If you facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/peertube_ynh"

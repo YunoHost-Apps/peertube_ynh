@@ -236,12 +236,12 @@ systemctl start "$app"
 # SEND A README FOR THE ADMIN
 #=================================================
 
-message="PeerTube was successfully installed :)
+message=" $app was successfully installed :)
 
-Please open 'https://$domain$path_url'
+Please open https://$domain$path_url
 
 The admin username is: root
-Here is the admin password: '$admin_pass'
+Here is the admin password: $admin_pass
 
 If you facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/peertube_ynh"
 

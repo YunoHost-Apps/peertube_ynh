@@ -45,11 +45,6 @@ systemctl stop "$app"
 
 ynh_backup "$final_path"
 
-# Copy the data directory
-
-datadir="/home/yunohost.app/${app}/storage"
-ynh_backup "$datadir"
-
 #=================================================
 # BACKUP THE NGINX CONFIGURATION
 #=================================================

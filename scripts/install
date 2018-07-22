@@ -141,7 +141,7 @@ touch "$final_path/config/local-production.json"
 
 (
 	cd "$final_path"
-	yarn install --production --pure-lockfile --silent --cache-folder /var/cache/yarn/
+	yarn install --production --pure-lockfile 
 )
 
 #=================================================

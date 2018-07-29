@@ -70,7 +70,7 @@ log:
 cache:
   previews:
     size: 500 # Max number of previews you want to cache
-    captions:
+  captions:
     size: 500 # Max number of video captions/subtitles you want to cache
     
 

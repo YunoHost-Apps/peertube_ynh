@@ -107,9 +107,9 @@ ynh_system_user_delete "$app"
 
 message="$app was successfully removed :)
 
-$app was successfully removed and domain https://$domain$path_url is free for other apps now.
+$app was successfully removed. The domain https://$domain$path_url is free for other apps to be installed on it.
 
-But there is futher action needed from your side to completely remove the $app data. If you are planing to restore the app in the future don't run the command given below. If you are going to switch to othe server don't forget to copy /home/yunohost.app/$app to your new server.
+But a futher action is required from your side to completely remove the $app data folder. If you are planing to restore the app in the future don't run the command given below. And if you are going to switch to othe server you will have to move /home/yunohost.app/$app to your new server.
 
 
 You need to run this command to remove the data (warning all your videos will be removed) :

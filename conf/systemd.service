@@ -1,5 +1,6 @@
 [Unit]
-Description=PeerTube daemon
+Description=__APP__ daemon
+After=network.target postgresql.service redis-server.service
 
 [Service]
 Type=simple

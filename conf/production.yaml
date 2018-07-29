@@ -49,6 +49,7 @@ storage:
   previews: '/home/yunohost.app/__app__/storage/previews/'
   thumbnails: '/home/yunohost.app/__app__/storage/thumbnails/'
   torrents: '/home/yunohost.app/__app__/storage/torrents/'
+  captions: '/home/yunohost.app/__app__/storage/captions/'
   cache: '/home/yunohost.app/__app__/storage/cache/'
 
 log:
@@ -68,7 +69,10 @@ log:
 
 cache:
   previews:
-    size: 100 # Max number of previews you want to cache
+    size: 500 # Max number of previews you want to cache
+    captions:
+    size: 500 # Max number of video captions/subtitles you want to cache
+    
 
 admin:
   email: '__email__'

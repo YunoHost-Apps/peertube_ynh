@@ -48,7 +48,7 @@ ynh_send_readme_to_admin() {
 	}
 	recipients=$(find_mails "$recipients")
 
-	local mail_subject="☁️🆈🅽🅷☁️: \`$app\` was just installed!"
+	local mail_subject="☁️🆈🅽🅷☁️: \`$app\` has important message for you"
 
 	local mail_message="This is an automated message from your beloved YunoHost server.
 Specific information for the application $app.

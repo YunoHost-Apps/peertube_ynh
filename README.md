@@ -4,16 +4,11 @@
 [![Install Peertube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=peertube)<br><br>
 =======
 
-Shipped Version: **v1.0.0-beta.9**
+Shipped Version: **v1.0.0-beta.10.pre.2**
 
 
 ## What is Peertube ?
 PeerTube is a federated (ActivityPub) video streaming platform using P2P (BitTorrent) directly in the web browser, using <a href="https://github.com/feross/webtorrent">WebTorrent</a>.
-
-
-<p>
-<strong>Peertube is running <a href="https://www.kisskissbankbank.com/en/projects/peertube-a-free-and-federated-video-platform">a crowdfunding campaign</a> to pave the road to version 1.0 of PeerTube! If you liked the app, please donate.</strong>
-</p>
 
  ## Why Peertube ?
 

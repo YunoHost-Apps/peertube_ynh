@@ -133,8 +133,8 @@ ynh_restore_file "/etc/logrotate.d/$app"
 	yarn install --production --pure-lockfile --silent --cache-folder /var/cache/yarn/
 )
 
-# Set right permissions for curl install
-chown -R "$app":"$app" "$datadir"
+# Set right permissions 
+chown -R "$app":"$app" "$final_path"
 
 #=================================================
 # GENERIC FINALIZATION

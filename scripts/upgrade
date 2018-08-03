@@ -58,10 +58,8 @@ systemctl stop "$app"
 # Add PostgreSQL extension for v1.0.0-beta.10.pre.1
 #===================================================
 
-ynh_psql_execute_as_root \
-"CREATE EXTENSION IF NOT EXISTS unaccent;" "$db_name"
-ynh_psql_execute_as_root \
-"CREATE EXTENSION IF NOT EXISTS pg_trgm;" "$db_name"
+sudo --login --user=postgres psql "$db_name" "CREATE EXTENSION IF NOT EXISTS unaccent;" 
+sudo --login --user=postgres psql "$db_name" "CREATE EXTENSION IF NOT EXISTS pg_trgm;" 
 
 #=================================================
 # REMOVE APP MAIN DIR

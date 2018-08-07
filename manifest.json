@@ -5,7 +5,7 @@
     "description": {
         "en": "Video streaming platform using P2P directly in the web browser, connected to a federated network"
     },
-    "version": "1.0.0-beta.10.pre.3",
+    "version": "1.0.0-beta.10",
     "url": "https://github.com/Chocobozzz/PeerTube",
     "license": "AGPL-3.0-only",
     "maintainer": {

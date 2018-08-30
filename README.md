@@ -4,7 +4,7 @@
 [![Install Peertube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=peertube)<br><br>
 =======
 
-Shipped Version: **1.0.0-beta.10**
+Shipped Version: **1.0.0-beta.11**
 
 
 ## What is Peertube ?

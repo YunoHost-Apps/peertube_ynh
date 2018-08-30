@@ -22,8 +22,12 @@ database:
   suffix: '___db_name__'
   username: '__db_name__'
   password: '__db_pwd__'
+pool:
+    max: 5
 
-# Your object store
+# Redis server for short time storage
+# You can also specify a 'socket' path to a unix socket but first need to
+# comment out hostname and port
 redis:
   hostname: 'localhost'
   port: 6379
@@ -33,10 +37,10 @@ redis:
 # SMTP server to send emails
 smtp:
   hostname: 'localhost'
-  port: 25
+  port: 25 # If you use StartTLS: 587
   username: null
   password: null
-  tls: false
+  tls: false # If you use StartTLS: false
   disable_starttls: true
   ca_file: null # Used for self signed certificates
   from_address: 'admin@__domain__'
@@ -57,7 +61,7 @@ log:
 
 ###############################################################################
 #
-# From this point, all the following keys can be overriden by the web interface
+# From this point, all the following keys can be overridden by the web interface
 # (local-production.json file). If you need to change some values, prefer to
 # use the web interface because the configuration will be automatically
 # reloaded without any need to restart PeerTube.
@@ -102,6 +106,14 @@ transcoding:
     480p: false
     720p: false
     1080p: false
+    
+import:
+  # Add ability for your users to import remote videos (from YouTube, torrent...)
+  videos:
+    http: # Classic HTTP or all sites supported by youtube-dl https://rg3.github.io/youtube-dl/supportedsites.html
+      enabled: false
+    torrent: # Magnet URI or torrent file (use classic TCP/UDP/WebSeed to download the file)
+      enabled: false
 
 # Instance settings
 instance:

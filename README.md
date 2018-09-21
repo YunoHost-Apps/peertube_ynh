@@ -35,28 +35,28 @@ Want to see in action?
 
 ### Guidelines 
 
- 1. Require dedicated domain like **peertube.domain.tld**.
- 1. No LDAP support (blocked until upstream implements it)
- 1. URL can not be changed once selected.
+ 1. Require **dedicated domain** like **peertube.domain.tld**.
+ 1. **No LDAP** support (blocked until Peertube core upstream implements it)
+ 1. URL can not be changed once selected. Choose the domain wisely.
  1. You need more then **1GB** of ram. If you don't have it, please create a **swap memory**.
  
         $ dd if=/dev/zero of=/swapfile bs=1024 count=1048576
         $ mkswap /swapfile
         $ swapon /swapfile
         $ echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
- 1. This app is multi-instance (you can have more then one Peertube instance running on a YunoHost server)
+ 1. This app is **multi-instance** (you can have more then one Peertube instance running on a YunoHost server)
    
-### Install
+### Installing guide
 
- 1. **App can be installed by YunoHost admin interface or by the following command:**
+ 1. App can be installed by YunoHost **admin web-interface** or by **running following command**:
 
          $ sudo yunohost app install https://github.com/YunoHost-Apps/peertube_ynh
- 1. **root** is the admin username.
- 1. **root Password** will be sent to the email address given at the time of the installation.
+ 1. Admin username is : **root**.
+ 1. **Admin password** will be sent to the email address given at the time of the installation.
  1. **TLS** and **starttls** are disabled for the outgoing mails. If you intent to use email address not hosted on your local server,it's advised to have a proper SMTP configured with tls and starttls settings by editing **/var/www/peertube/config/porduction.yml**.
  
- ### Updation
- 1. **App can be updated by YunoHost admin interface or with the following command:**
+ ### Update Guide
+ 1. App can be updated by YunoHost **admin web-interface** or with the following command**:
           
           $ sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/peertube_ynh peertube
 

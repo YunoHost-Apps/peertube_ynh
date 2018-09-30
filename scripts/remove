@@ -109,7 +109,8 @@ message="$app was successfully removed :)
 
 $app was successfully removed. The domain https://$domain$path_url is free for other apps to be installed on it.
 
-But a futher action is required from your side to completely remove the $app data folder. If you are planing to restore the app in the future don't run the command given below. And if you are going to switch to othe server you will have to move /home/yunohost.app/$app to your new server.
+But a futher action is required from your side to completely remove the $app data folder. If you have backup and plan to restore this app in the future DON'T RUN THIS COMMAND. 
+And if you are going to migrate to othe server you will have to move /home/yunohost.app/$app to your new server.
 
 
 You need to run this command to remove the data (warning all your videos will be removed) :
@@ -117,6 +118,6 @@ You need to run this command to remove the data (warning all your videos will be
 rm -R /home/yunohost.app/$app -f
 
 
-If you facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/peertube_ynh"
+If you facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh"
 
 ynh_send_readme_to_admin "$message"

@@ -56,10 +56,10 @@ ynh_webpath_register "$app" "$domain" "$path_url"
 # STORE SETTINGS FROM MANIFEST
 #=================================================
 
-ynh_app_setting_set "$app" domain "$domain"
+ynh_app_setting_set "$app" domain      "$domain"
 ynh_app_setting_set "$app" admin_email "$admin_email"
-ynh_app_setting_set "$app" admin_pass "$admin_pass"
-ynh_app_setting_set "$app" is_public "$is_public"
+ynh_app_setting_set "$app" admin_pass  "$admin_pass"
+ynh_app_setting_set "$app" is_public   "$is_public"
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -90,18 +90,18 @@ mkdir -p "$datadir"
 # install nodejs
 ynh_install_nodejs 8
 
-# add backports for Debian Jessie (required to install ffmpeg)
+# Add backports for Debian Jessie (required to install ffmpeg)
 if [ "$(lsb_release --codename --short)" == "jessie" ]; then
 	echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/jessie-backports.list
 fi
 
-# add yarn repo for Debian
+# Add yarn repo for Debian
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 ynh_package_update
 
-# install postgresql, ffmpeg, redis
-ynh_install_app_dependencies postgresql ffmpeg redis-server redis-tools mailutils yarn
+# install dependencies
+ynh_install_app_dependencies postgresql postgresql-contrib openssl g++ ffmpeg redis-server redis-tools mailutils yarn apt-transport-https
 
 #=================================================
 # DATABASE SETUP
@@ -151,11 +151,11 @@ touch "$final_path/config/local-production.json"
 #=================================================
 
 # Create a dedicated nginx config
-mkdir -p "/etc/nginx/conf.d/${domain}.d"
+mkdir -p "/etc/nginx/conf.d/${domain}.d" # ( I don't remember why this is here, I think can be removed)
 ynh_add_nginx_config
 
 
-# Set right permissions for curl install
+# Set right permissions for the app
 chown -R "$app":"$app" "$datadir"
 
 # Reload Nginx
@@ -214,10 +214,13 @@ chown -R "$app":"$app" "$final_path" "$datadir"
 
 systemctl reload nginx
 
+
+
 #=================================================
 # SETUP SYSTEMD
 #=================================================
 
+ynh_replace_string "__ENV_PATH__" "$PATH" "../conf/systemd.service"
 # Create a dedicated systemd config
 ynh_add_systemd_config
 systemctl enable "$app"
@@ -231,7 +234,7 @@ systemctl start "$app"
 (
 	cd "$final_path"
 	sleep 30
-	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production PATH="/opt/node_n/bin:$PATH" npm run reset-password -- -u root
+	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run reset-password -- -u root
 )
 
 #=================================================
@@ -240,11 +243,11 @@ systemctl start "$app"
 
 message=" $app was successfully installed :)
 
-Please open https://$domain$path_url
+Please open your $app domain: https://$domain$path_url
 
 The admin username is: root
-Here is the admin password: $admin_pass
+The admin password is: $admin_pass
 
-If you facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/peertube_ynh"
+If you are facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh"
 
 ynh_send_readme_to_admin "$message"

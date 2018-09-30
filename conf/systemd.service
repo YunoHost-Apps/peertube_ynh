@@ -8,8 +8,7 @@ Environment=NODE_ENV=production
 Environment=NODE_CONFIG_DIR=__FINALPATH__/config
 User=__APP__
 Group=__APP__
-Environment="PATH=__ENV_PATH__"
-ExecStart=/bin/sh -c 'npm start'
+ExecStart=/bin/sh -c '/usr/bin/npm start'
 WorkingDirectory=__FINALPATH__/
 StandardOutput=syslog
 StandardError=syslog

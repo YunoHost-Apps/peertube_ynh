@@ -231,7 +231,7 @@ systemctl start "$app"
 (
 	cd "$final_path"
 	sleep 30
-	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production PATH="/opt/node_n/bin:$PATH" npm run reset-password -- -u root
+	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production PATH="/usr/bin/npm:$PATH" npm run reset-password -- -u root
 )
 
 #=================================================

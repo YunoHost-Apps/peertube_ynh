@@ -214,10 +214,13 @@ chown -R "$app":"$app" "$final_path" "$datadir"
 
 systemctl reload nginx
 
+
+
 #=================================================
 # SETUP SYSTEMD
 #=================================================
 
+ynh_replace_string "__ENV_PATH__" "$PATH" "../conf/systemd.service"
 # Create a dedicated systemd config
 ynh_add_systemd_config
 systemctl enable "$app"
@@ -231,7 +234,7 @@ systemctl start "$app"
 (
 	cd "$final_path"
 	sleep 30
-	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production PATH="/opt/node_n/bin:$PATH" npm run reset-password -- -u root
+	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run reset-password -- -u root
 )
 
 #=================================================

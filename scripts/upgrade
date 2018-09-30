@@ -130,7 +130,7 @@ ynh_secure_remove "$tmpdir"
 
 (
 	cd "$final_path"
-	yarn install --production --pure-lockfile --silent --cache-folder /var/cache/yarn/
+	yarn install --production --pure-lockfile 
 )
 
 
@@ -172,7 +172,7 @@ ynh_use_logrotate --non-append
 #=================================================
 # SETUP SYSTEMD
 #=================================================
-
+ynh_replace_string "__ENV_PATH__" "$PATH" "../conf/systemd.service"
 # Create a dedicated systemd config
 ynh_add_systemd_config
 

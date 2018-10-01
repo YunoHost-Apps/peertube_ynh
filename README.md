@@ -6,6 +6,55 @@
 
 Shipped Version: **1.0.0-beta.15**
 
+# Nodejs branch for servers giving error on yarn install (OVH)
+
+You will have to run few **commands in the terminal to run Peertube**. **Nodejs** will not be installed by **shell** and **passowrd** will not be created by shell. So you have to do these **things manually**.
+
+## Steps for installing
+
+1. Install **nodejs**
+   
+    $ curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - <br>
+    $ sudo apt-get install -y nodejs
+1. Install the peertube with **OVH fix** branch.
+
+    $ yunohost app install --debug https://github.com/YunoHost-Apps/peertube_ynh/edit/ovh_fix
+1. After installation is complete run **yarn install**.
+    
+    $ cd /var/www/peertube && yarn install --production --pure-lockfile
+1. Give proper **permissions** to peertube
+
+    $ chwon -R peertube:peertube /var/www/peertube
+1. **Restart peertube** and check if there is any error message.
+
+    $ service peertube restart
+    $ journalctl -feu peertube
+1. If there is no **error in red** in the last lines of log. Press **ctrl+c** to stop the logs.
+1. Go to your **domain** to check if peertube is running and everthing is ok.
+1. Change your **root password** by this command:
+    
+    $ cd /var/www/peertube && NODE_CONFIG_DIR="/var/www/peertube/config/" NODE_ENV=production /opt/node_n/bin/npm run reset-password -- -u root
+    
+    Username: **root**
+    password: **created in above step**
+    
+## Updating peertube
+1. Stop peertube
+  
+    $ service peertube stop
+1. Upgrade the package:
+    
+    $ yunohost app upgrade -u https://github.com/YunoHost-Apps/peertube_ynh/edit/ovh_fix/
+1. After installation is complete run **yarn install**.
+    
+    $ cd /var/www/peertube && yarn install --production --pure-lockfile
+1. Give proper **permissions** to peertube
+    
+    $ chwon -R peertube:peertube /var/www/peertube
+1. Start service.
+   
+    $ service peertub peerutbe
+    
 
 ## What is Peertube ?
 PeerTube is a federated (ActivityPub) video streaming platform using P2P (BitTorrent) directly in the web browser, using <a href="https://github.com/feross/webtorrent">WebTorrent</a>.

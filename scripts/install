@@ -228,28 +228,4 @@ ynh_add_systemd_config
 systemctl enable "$app"
 systemctl start "$app"
 
-#=================================================
-# CHANGE PEERTUBE ADMIN PASSWORD AFTER INITIAL GEN
-#=================================================
 
-# we need to wait for the service to init peertube's database
-(
-	cd "$final_path"
-	sleep 30
-	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run reset-password -- -u root
-)
-
-#=================================================
-# SEND A README FOR THE ADMIN
-#=================================================
-
-message=" $app was successfully installed :)
-
-Please open your $app domain: https://$domain$path_url
-
-The admin username is: root
-The admin password is: $admin_pass
-
-If you are facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh"
-
-ynh_send_readme_to_admin "$message"

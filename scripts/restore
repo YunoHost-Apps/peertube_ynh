@@ -85,8 +85,6 @@ chown -R "$app":"$app" "/home/yunohost.app/${app}/storage"
 # REINSTALL DEPENDENCIES
 #=================================================
 
-# install nodejs
-ynh_install_nodejs 8
 
 # add backports for Debian Jessie (required to install ffmpeg)
 if [ "$(lsb_release --codename --short)" == "jessie" ]; then
@@ -127,11 +125,6 @@ ynh_restore_file "/etc/logrotate.d/$app"
 #=================================================
 # RESTORE THE LOGROTATE CONFIGURATION
 #=================================================
-
-(
-	cd "$final_path"
-	yarn install --production --pure-lockfile --silent --cache-folder /var/cache/yarn/
-)
 
 # Set right permissions 
 chown -R "$app":"$app" "$final_path"

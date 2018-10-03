@@ -6,7 +6,6 @@
 
 Shipped Version: **1.0.0-rc.2**
 
-
 ## What is Peertube ?
 PeerTube is a federated (ActivityPub) video streaming platform using P2P (BitTorrent) directly in the web browser, using <a href="https://github.com/feross/webtorrent">WebTorrent</a>.
 

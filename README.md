@@ -4,7 +4,7 @@
 [![Install Peertube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=peertube)<br><br>
 =======
 
-Shipped Version: **1.0.0-beta.15**
+Shipped Version: **1.0.0-beta.16**
 
 # Nodejs branch for servers giving error on yarn install (OVH)
 
@@ -18,7 +18,7 @@ You will have to run few **commands in the terminal to run Peertube**. **Nodejs*
     $ sudo apt-get install -y nodejs
 1. Install the peertube with **OVH fix** branch.
 
-    $ yunohost app install --debug https://github.com/YunoHost-Apps/peertube_ynh/edit/ovh_fix
+    $ yunohost app --debug install --debug https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix
 1. After installation is complete run **yarn install**.
     
     $ cd /var/www/peertube && yarn install --production --pure-lockfile
@@ -33,7 +33,7 @@ You will have to run few **commands in the terminal to run Peertube**. **Nodejs*
 1. Go to your **domain** to check if peertube is running and everthing is ok.
 1. Change your **root password** by this command:
     
-    $ cd /var/www/peertube && NODE_CONFIG_DIR="/var/www/peertube/config/" NODE_ENV=production /opt/node_n/bin/npm run reset-password -- -u root
+    $ cd /var/www/peertube && NODE_CONFIG_DIR="/var/www/peertube/config/" NODE_ENV=production npm run reset-password -- -u root
     
     Username: **root**
     password: **created in above step**
@@ -44,7 +44,7 @@ You will have to run few **commands in the terminal to run Peertube**. **Nodejs*
     $ service peertube stop
 1. Upgrade the package:
     
-    $ yunohost app upgrade -u https://github.com/YunoHost-Apps/peertube_ynh/edit/ovh_fix/
+    $ yunohost app upgrade --debug -u https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix peertube
 1. After installation is complete run **yarn install**.
     
     $ cd /var/www/peertube && yarn install --production --pure-lockfile
@@ -53,7 +53,7 @@ You will have to run few **commands in the terminal to run Peertube**. **Nodejs*
     $ chwon -R peertube:peertube /var/www/peertube
 1. Start service.
    
-    $ service peertub peerutbe
+    $ service peertube start
     
 
 ## What is Peertube ?

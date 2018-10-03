@@ -88,8 +88,6 @@ trending:
 #       strategy: 'recently-added' # Cache recently added videos
 #       minViews: 10 # Having at least x views
 
-
-
 ###############################################################################
 #
 # From this point, all the following keys can be overridden by the web interface

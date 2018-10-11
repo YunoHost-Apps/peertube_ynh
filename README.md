@@ -24,11 +24,11 @@ You will have to run few **commands in the terminal to run Peertube**. **Nodejs*
     $ cd /var/www/peertube && yarn install --production --pure-lockfile
 1. Give proper **permissions** to peertube
 
-    $ chwon -R peertube:peertube /var/www/peertube
+    $ chown -R peertube:peertube /var/www/peertube
 1. **Restart peertube** and check if there is any error message.
 
-    $ service peertube restart
-    $ journalctl -feu peertube
+    $ service peertube restart && journalctl -feu peertube
+
 1. If there is no **error in red** in the last lines of log. Press **ctrl+c** to stop the logs.
 1. Go to your **domain** to check if peertube is running and everthing is ok.
 1. Change your **root password** by this command:
@@ -50,7 +50,7 @@ You will have to run few **commands in the terminal to run Peertube**. **Nodejs*
     $ cd /var/www/peertube && yarn install --production --pure-lockfile
 1. Give proper **permissions** to peertube
     
-    $ chwon -R peertube:peertube /var/www/peertube
+    $ chown -R peertube:peertube /var/www/peertube
 1. Start service.
    
     $ service peertube start

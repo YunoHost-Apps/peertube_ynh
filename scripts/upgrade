@@ -77,8 +77,15 @@ datadir="/home/yunohost.app/${app}/storage"
 # Create app folders
 mkdir -p "$datadir"
 
-# Open this port
-yunohost firewall allow Both "$port" 2>&1
+#=================================================
+# CLOSE A PORT
+#=================================================
+
+if yunohost firewall list | grep -q "\- $port$"
+then
+	echo "Close port $port"
+	yunohost firewall disallow Both "$port" 2>&1
+fi
 
 #=================================================
 # CREATE DEDICATED USER

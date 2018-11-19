@@ -62,9 +62,6 @@ ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 ynh_restore_file "$final_path"
 
-# Open this port
-yunohost firewall allow Both "$port" 2>&1
-
 #=================================================
 # RECREATE THE DEDICATED USER
 #=================================================

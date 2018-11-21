@@ -74,6 +74,9 @@ ynh_system_user_create "$app"
 #=================================================
 
 # Set right permissions
+if [ ! -d "/home/yunohost.app/$app" ]; then
+	mkdir -p "/home/yunohost.app/${app}/storage"
+fi
 chown -R "$app":"$app" "/home/yunohost.app/${app}/storage"
 
 #=================================================

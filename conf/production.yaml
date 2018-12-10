@@ -60,7 +60,10 @@ log:
   level: 'info' # debug/info/warning/error
 
 search:
-  remote_uri: # Add ability to search remote videos/actors by URI, that may not be federated with your instance
+# Add ability to fetch remote videos/actors by their URI, that may not be federated with your instance
+# If enabled, the associated group will be able to "escape" from the instance follows
+# That means they will be able to follow channels, watch videos, list videos of non followed instances
+  remote_uri:
     users: true
     anonymous: false
 
@@ -83,12 +86,10 @@ trending:
 #      strategy: 'trending' # Cache trending videos
 #    -
 #       size: '1GB'
-       # Minimum time the video must remain in the cache. Only accept values > 10 hours (to not overload remote instances)
+#       # Minimum time the video must remain in the cache. Only accept values > 10 hours (to not overload remote instances)
 #       min_lifetime: '48 hours'
 #       strategy: 'recently-added' # Cache recently added videos
-#       minViews: 10 # Having at least x views
-
-
+#       min_views: 10 # Having at least x views
 
 ###############################################################################
 #
@@ -176,4 +177,4 @@ services:
     # If true, a video player will be embedded in the Twitter feed on PeerTube video share
     # If false, we use an image link card that will redirect on your PeerTube instance
     # Test on https://cards-dev.twitter.com/validator to see if you are whitelisted
-    whitelisted: false
+whitelisted: false

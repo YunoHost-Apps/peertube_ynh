@@ -13,6 +13,7 @@ source psql.sh
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -24,25 +25,37 @@ final_path=$(ynh_app_setting_get "$app" final_path)
 #=================================================
 # STANDARD REMOVE
 #=================================================
+# REMOVE SERVICE FROM ADMIN PANEL
+#=================================================
+
+# Remove a service from the admin panel, added by `yunohost service add`
+if yunohost service status $app >/dev/null 2>&1
+then
+	ynh_print_info "Removing $app service"
+	yunohost service remove "$app"
+fi
+
+#=================================================
 # STOP AND REMOVE SERVICE
 #=================================================
+ynh_print_info "Stopping and removing the systemd service"
 
 # Remove the dedicated systemd config
 ynh_remove_systemd_config
 
 #=================================================
-# REMOVE SERVICE FROM ADMIN PANEL
+# REMOVE THE POSTGRESQL DATABASE
 #=================================================
+ynh_print_info "Removing the PostgreSQL database"
 
-if yunohost service status | grep -q "$app"
-then
-	echo "Remove $app service"
-	yunohost service remove "$app"
-fi
+# Remove a database if it exists, along with the associated user
+ynh_psql_remove_db "$db_name" "$app"
 
 #=================================================
 # REMOVE DEPENDENCIES
 #=================================================
+ynh_print_info "Removing dependencies"
+
 # Remove metapackage and its dependencies
 ynh_remove_app_dependencies
 ynh_remove_nodejs
@@ -52,14 +65,9 @@ ynh_secure_remove /etc/apt/sources.list.d/jessie-backports.list
 ynh_secure_remove /etc/apt/sources.list.d/yarn.list
 
 #=================================================
-# REMOVE THE MYSQL DATABASE
-#=================================================
-
-# Remove a database if it exists, along with the associated user
-ynh_psql_remove_db "$db_name" "$app"
-#=================================================
 # REMOVE APP MAIN DIR
 #=================================================
+ynh_print_info "Removing app main directory"
 
 # Remove the app directory securely
 ynh_secure_remove "$final_path"
@@ -67,6 +75,7 @@ ynh_secure_remove "$final_path"
 #=================================================
 # REMOVE NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Removing nginx web server configuration"
 
 # Remove the dedicated nginx config
 ynh_remove_nginx_config
@@ -74,6 +83,7 @@ ynh_remove_nginx_config
 #=================================================
 # REMOVE LOGROTATE CONFIGURATION
 #=================================================
+ynh_print_info "Removing logrotate configuration"
 
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
@@ -84,8 +94,8 @@ ynh_remove_logrotate
 
 if yunohost firewall list | grep -q "\- $port$"
 then
-	echo "Close port $port"
-	yunohost firewall disallow Both "$port" 2>&1
+	ynh_print_info "Closing port $port"
+	ynh_exec_warn_less yunohost firewall disallow TCP $port
 fi
 
 #=================================================
@@ -97,6 +107,7 @@ fi
 #=================================================
 # REMOVE DEDICATED USER
 #=================================================
+ynh_print_info "Removing the dedicated system user"
 
 # Delete a system user
 ynh_system_user_delete "$app"
@@ -121,3 +132,9 @@ rm -R /home/yunohost.app/$app -f
 If you facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh"
 
 ynh_send_readme_to_admin "$message"
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Removal of $app completed"

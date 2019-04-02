@@ -64,16 +64,6 @@ port=$(ynh_find_port 9000)
 ynh_app_setting_set "$app" port "$port"
 
 #=================================================
-# CREATE THE DATA DIRECTORY
-#=================================================
-ynh_print_info "Create the data directory..."
-
-# Define app's data directory
-datadir="/home/yunohost.app/${app}/storage"
-# Create app folders
-mkdir -p "$datadir"
-
-#=================================================
 # INSTALL DEPENDENCIES
 #=================================================
 ynh_print_info "Installing dependencies..."
@@ -112,32 +102,12 @@ ynh_psql_execute_as_root "\connect $db_name
 CREATE EXTENSION IF NOT EXISTS unaccent;CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 
 #=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_print_info "Configuring system user..."
-
-# Create a system user
-ynh_system_user_create "$app"
-
-#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_print_info "Setting up source files..."
 
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
-
-#=================================================
-# BUILD YARN DEPENDENCIES
-#=================================================
-
-cp ../conf/production.yaml "$final_path/config/production.yaml"
-touch "$final_path/config/local-production.json"
-
-(
-	cd "$final_path"
-	yarn install --production --pure-lockfile 
-)
 
 #=================================================
 # NGINX CONFIGURATION
@@ -154,6 +124,38 @@ chown -R "$app":"$app" "$datadir"
 
 # Reload Nginx
 systemctl reload nginx
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_print_info "Configuring system user..."
+
+# Create a system user
+ynh_system_user_create "$app"
+
+#=================================================
+# SPECIFIC SETUP
+#=================================================
+# CREATE THE DATA DIRECTORY
+#=================================================
+ynh_print_info "Create the data directory..."
+
+# Define app's data directory
+datadir="/home/yunohost.app/${app}/storage"
+# Create app folders
+mkdir -p "$datadir"
+
+#=================================================
+# BUILD YARN DEPENDENCIES
+#=================================================
+
+cp ../conf/production.yaml "$final_path/config/production.yaml"
+touch "$final_path/config/local-production.json"
+
+(
+	cd "$final_path"
+	yarn install --production --pure-lockfile 
+)
 
 #=================================================
 # MODIFY A CONFIG FILE
@@ -174,50 +176,12 @@ ynh_replace_string "__PORT__"    "$port"        "$final_path/config/production.y
 ynh_store_file_checksum "$final_path/config/production.yaml"
 
 #=================================================
-# GENERIC FINALIZATION
-#=================================================
-#=================================================
-# SETUP LOGROTATE
-#=================================================
-
-# Use logrotate to manage application logfile(s)
-ynh_use_logrotate "/home/yunohost.app/${app}/storage/logs/peertube.log"
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-ynh_print_info "Configuring SSOwat..."
-
-if [ "$is_public" -eq 0 ]
-then	# Remove the public access
-	ynh_app_setting_delete "$app" skipped_uris
-fi
-# Make app public if necessary
-if [ "$is_public" -eq 1 ]
-then
-	# unprotected_uris allows SSO credentials to be passed anyway.
-	ynh_app_setting_set "$app" unprotected_uris "/"
-fi
-
-# Give permisiion to the final_path
-chown -R "$app":"$app" "$final_path" "$datadir"
-
-#=================================================
-# RELOAD NGINX
-#=================================================
-ynh_print_info "Reloading nginx web server..."
-
-systemctl reload nginx
-
-#=================================================
 # SETUP SYSTEMD
 #=================================================
 
 ynh_replace_string "__ENV_PATH__" "$PATH" "../conf/systemd.service"
 # Create a dedicated systemd config
 ynh_add_systemd_config
-systemctl enable "$app"
-systemctl start "$app"
 
 #=================================================
 # CHANGE PEERTUBE ADMIN PASSWORD AFTER INITIAL GEN
@@ -244,6 +208,61 @@ The admin password is: $admin_pass
 If you are facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh"
 
 ynh_send_readme_to_admin "$message"
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# SECURE FILES AND DIRECTORIES
+#=================================================
+
+### For security reason, any app should set the permissions to root: before anything else.
+### Then, if write authorization is needed, any access should be given only to directories
+### that really need such authorization.
+
+# Set permissions to app files
+chown -R "$app":"$app" $final_path
+
+# Give permission to the datadir
+chown -R "$app":"$app" "$datadir"
+
+#=================================================
+# SETUP LOGROTATE
+#=================================================
+ynh_print_info "Configuring log rotation..."
+
+# Use logrotate to manage application logfile(s)
+ynh_use_logrotate "/home/yunohost.app/${app}/storage/logs/peertube.log"
+
+#=================================================
+# SETUP SSOWAT
+#=================================================
+ynh_print_info "Configuring SSOwat..."
+
+if [ "$is_public" -eq 0 ]
+then	# Remove the public access
+	ynh_app_setting_delete "$app" skipped_uris
+fi
+# Make app public if necessary
+if [ "$is_public" -eq 1 ]
+then
+	# unprotected_uris allows SSO credentials to be passed anyway.
+	ynh_app_setting_set "$app" unprotected_uris "/"
+fi
+
+#=================================================
+# START SERVICE
+#=================================================
+ynh_print_info "Start service..."
+
+systemctl enable "$app"
+systemctl start "$app"
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+ynh_print_info "Reloading nginx web server..."
+
+systemctl reload nginx
 
 #=================================================
 # END OF SCRIPT

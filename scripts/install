@@ -27,22 +27,12 @@ admin_email=$YNH_APP_ARG_EMAIL
 admin_pass=$(ynh_string_random 24)
 is_public=$YNH_APP_ARG_IS_PUBLIC
 
-
-# This is a multi-instance app, meaning it can be installed several times independently
-# The id of the app as stated in the manifest is available as $YNH_APP_ID
-# The instance number is available as $YNH_APP_INSTANCE_NUMBER (equals "1", "2", ...)
-# The app instance name is available as $YNH_APP_INSTANCE_NAME
-#    - the first time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample
-#    - the second time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample__2
-#    - ynhexample__{N} for the subsequent installations, with N=3,4, ...
-# The app instance name is probably what you are interested the most, since this is
-# guaranteed to be unique. This is a good unique identifier to define installation path,
-# db names, ...
 app=$YNH_APP_INSTANCE_NAME
 
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
+ynh_print_info "Validating installation parameters..."
 
 final_path=/var/www/$app
 test ! -e "$final_path" || ynh_die "This path already contains a folder"
@@ -55,6 +45,7 @@ ynh_webpath_register "$app" "$domain" "$path_url"
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
+ynh_print_info "Storing installation settings..."
 
 ynh_app_setting_set "$app" domain      "$domain"
 ynh_app_setting_set "$app" admin_email "$admin_email"
@@ -66,6 +57,7 @@ ynh_app_setting_set "$app" is_public   "$is_public"
 #=================================================
 # FIND AND OPEN A PORT
 #=================================================
+ynh_print_info "Configuring firewall..."
 
 # Find a free port
 port=$(ynh_find_port 9000)
@@ -74,6 +66,7 @@ ynh_app_setting_set "$app" port "$port"
 #=================================================
 # CREATE THE DATA DIRECTORY
 #=================================================
+ynh_print_info "Create the data directory..."
 
 # Define app's data directory
 datadir="/home/yunohost.app/${app}/storage"
@@ -83,6 +76,7 @@ mkdir -p "$datadir"
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
+ynh_print_info "Installing dependencies..."
 
 # install nodejs
 ynh_install_nodejs 8
@@ -101,8 +95,9 @@ ynh_package_update
 ynh_install_app_dependencies postgresql postgresql-contrib openssl g++ ffmpeg redis-server redis-tools mailutils yarn apt-transport-https
 
 #=================================================
-# DATABASE SETUP
+# CREATE A POSTGRESQL DATABASE
 #=================================================
+ynh_print_info "Creating a PostgreSQL database..."
 
 # Create postgresql database
 db_name="peertube_${app}"
@@ -119,15 +114,16 @@ CREATE EXTENSION IF NOT EXISTS unaccent;CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
+ynh_print_info "Configuring system user..."
 
 # Create a system user
 ynh_system_user_create "$app"
 
 #=================================================
-# DOWNLOAD, CHECK AND UNPACK PEERTUBE SOURCE
+# DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
+ynh_print_info "Setting up source files..."
 
-ynh_app_setting_set "$app" final_path "$final_path"
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
 
@@ -146,6 +142,7 @@ touch "$final_path/config/local-production.json"
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Configuring nginx web server..."
 
 # Create a dedicated nginx config
 mkdir -p "/etc/nginx/conf.d/${domain}.d" # ( I don't remember why this is here, I think can be removed)
@@ -169,7 +166,6 @@ ynh_replace_string "__db_pwd__"  "$db_pwd"      "$final_path/config/production.y
 ynh_replace_string "__email__"   "$admin_email" "$final_path/config/production.yaml"
 ynh_replace_string "__PORT__"    "$port"        "$final_path/config/production.yaml"
 
-
 #=================================================
 # STORE THE CHECKSUM OF THE CONFIG FILE
 #=================================================
@@ -190,6 +186,7 @@ ynh_use_logrotate "/home/yunohost.app/${app}/storage/logs/peertube.log"
 #=================================================
 # SETUP SSOWAT
 #=================================================
+ynh_print_info "Configuring SSOwat..."
 
 if [ "$is_public" -eq 0 ]
 then	# Remove the public access
@@ -208,10 +205,9 @@ chown -R "$app":"$app" "$final_path" "$datadir"
 #=================================================
 # RELOAD NGINX
 #=================================================
+ynh_print_info "Reloading nginx web server..."
 
 systemctl reload nginx
-
-
 
 #=================================================
 # SETUP SYSTEMD
@@ -248,3 +244,9 @@ The admin password is: $admin_pass
 If you are facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh"
 
 ynh_send_readme_to_admin "$message"
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Installation of $app completed"

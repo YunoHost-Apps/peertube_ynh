@@ -103,7 +103,7 @@ echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.lis
 ynh_package_update
 
 # install postgresql, ffmpeg, redis
-ynh_install_app_dependencies  postgresql postgresql-contrib openssl g++ ffmpeg redis-server redis-tools mailutils yarn apt-transport-https
+ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # RESTORE THE POSTGRESQL DATABASE

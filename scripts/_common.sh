@@ -5,7 +5,7 @@
 #=================================================
 
 # dependencies used by the app
-pkg_dependencies="deb1 deb2"
+pkg_dependencies="postgresql postgresql-contrib openssl g++ ffmpeg redis-server redis-tools mailutils yarn apt-transport-https"
 
 #=================================================
 # PERSONAL HELPERS

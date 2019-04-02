@@ -13,6 +13,7 @@ source psql.sh
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -28,6 +29,7 @@ db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
+ynh_print_info "Ensuring downward compatibility..."
 
 # Fix is_public as a boolean value
 if [ "$is_public" = "Yes" ]; then
@@ -41,6 +43,7 @@ fi
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
+ynh_print_info "Backing up the app before upgrading (may take a while)..."
 
 # Backup the current version of the app
 ynh_backup_before_upgrade
@@ -90,13 +93,15 @@ fi
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
+ynh_print_info "Making sure dedicated system user exists..."
 
 # Create a system user
 ynh_system_user_create "$app"
 
 #=================================================
-# INSTALL DEPENDENCIES
+# UPGRADE DEPENDENCIES
 #=================================================
+ynh_print_info "Upgrading dependencies..."
 
 # install nodejs
 ynh_install_nodejs 8
@@ -122,8 +127,9 @@ ynh_install_app_dependencies postgresql postgresql-contrib openssl g++ ffmpeg re
 path_url=$(ynh_normalize_url_path "$path_url")
 
 #=================================================
-# DOWNLOAD, CHECK AND UNPACK PEERTUBE SOURCE
+# DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
+ynh_print_info "Upgrading source files..."
 
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
@@ -144,6 +150,7 @@ ynh_secure_remove "$tmpdir"
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Upgrading nginx web server configuration..."
 
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -172,6 +179,7 @@ ynh_store_file_checksum "$final_path/config/production.yaml"
 #=================================================
 # SETUP LOGROTATE
 #=================================================
+ynh_print_info "Upgrading logrotate configuration..."
 
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
@@ -179,6 +187,8 @@ ynh_use_logrotate --non-append
 #=================================================
 # SETUP SYSTEMD
 #=================================================
+ynh_print_info "Upgrading systemd configuration..."
+
 ynh_replace_string "__ENV_PATH__" "$PATH" "../conf/systemd.service"
 # Create a dedicated systemd config
 ynh_add_systemd_config
@@ -191,6 +201,7 @@ chown -R "$app":"$app" "$final_path" "$datadir"
 #=================================================
 # SETUP SSOWAT
 #=================================================
+ynh_print_info "Upgrading SSOwat configuration..."
 
 if [ "$is_public" -eq 0 ]
 then	# Remove the public access
@@ -206,9 +217,16 @@ fi
 #=================================================
 # RELOAD NGINX
 #=================================================
+ynh_print_info "Reloading nginx web server..."
 
 systemctl reload nginx
 systemctl enable "$app"
 systemctl start "$app"
 # App needs time to start
 sleep 30
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Upgrade of $app completed"

@@ -6,14 +6,8 @@
 # IMPORT GENERIC HELPERS
 #=================================================
 
-if [ ! -e _common.sh ]; then
-	# Get the _common.sh file if it's not in the current directory
-	cp ../settings/scripts/_common.sh ./_common.sh
-	cp ../settings/scripts/psql.sh ./psql.sh
-	chmod a+rx _common.sh psql.sh 
-fi
-
-source _common.sh
+#Keep this path for calling _common.sh inside the execution's context of backup and restore scripts
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 source psql.sh
 
@@ -27,6 +21,7 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -42,18 +37,21 @@ systemctl stop "$app"
 #=================================================
 # BACKUP THE APP MAIN DIR
 #=================================================
+ynh_print_info "Backing up the main app directory..."
 
 ynh_backup "$final_path"
 
 #=================================================
 # BACKUP THE NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Backing up nginx web server configuration..."
 
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
-# BACKUP THE PostgreSQL DATABASE
+# BACKUP THE POSTGRESQL DATABASE
 #=================================================
+ynh_print_info "Backing up the PostgreSQL database..."
 
 ynh_psql_dump_db "$db_name" > db.sql
 ynh_backup "db.sql"
@@ -63,12 +61,14 @@ ynh_backup "db.sql"
 #=================================================
 # BACKUP LOGROTATE
 #=================================================
+ynh_print_info "Backing up logrotate configuration..."
 
 ynh_backup "/etc/logrotate.d/$app"
 
 #=================================================
 # BACKUP SYSTEMD
 #=================================================
+ynh_print_info "Backing up systemd configuration..."
 
 ynh_backup "/etc/systemd/system/$app.service"
 
@@ -81,3 +81,9 @@ systemctl enable "$app"
 systemctl start "$app"
 # App needs time to start
 sleep 30
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."

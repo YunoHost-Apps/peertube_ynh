@@ -28,6 +28,7 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -38,10 +39,10 @@ port=$(ynh_app_setting_get "$app" port)
 db_name=$(ynh_app_setting_get "$app" psql_db)
 db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
 
-
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
 #=================================================
+ynh_print_info "Validating restoration parameters..."
 
 ynh_webpath_available "$domain" "$path_url" \
 	|| ynh_die "Path not available: ${domain}${path_url}"
@@ -59,12 +60,14 @@ ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
+ynh_print_info "Restoring the app main directory..."
 
 ynh_restore_file "$final_path"
 
 #=================================================
 # RECREATE THE DEDICATED USER
 #=================================================
+ynh_print_info "Recreating the dedicated system user..."
 
 # Create the dedicated user (if not existing)
 ynh_system_user_create "$app"
@@ -84,6 +87,7 @@ chown -R "$app":"$app" "/home/yunohost.app/${app}/storage"
 #=================================================
 # REINSTALL DEPENDENCIES
 #=================================================
+ynh_print_info "Reinstalling dependencies..."
 
 # install nodejs
 ynh_install_nodejs 8
@@ -102,8 +106,9 @@ ynh_package_update
 ynh_install_app_dependencies  postgresql postgresql-contrib openssl g++ ffmpeg redis-server redis-tools mailutils yarn apt-transport-https
 
 #=================================================
-# RESTORE THE PostgreSQL DATABASE
+# RESTORE THE POSTGRESQL DATABASE
 #=================================================
+ynh_print_info "Restoring the PostgreSQL database..."
 
 ynh_psql_test_if_first_run
 ynh_psql_create_user "$app" "$db_pwd"
@@ -114,6 +119,7 @@ ynh_psql_execute_file_as_root ./db.sql "$db_name"
 #=================================================
 # RESTORE SYSTEMD
 #=================================================
+ynh_print_info "Restoring the systemd configuration..."
 
 ynh_restore_file "/etc/systemd/system/$app.service"
 systemctl enable "$app.service"
@@ -139,11 +145,18 @@ chown -R "$app":"$app" "$final_path"
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-# RELOAD NGINX AND PeerTube
+# RELOAD NGINX AND PEERTUBE
 #=================================================
+ynh_print_info "Reloading nginx web server and peertube..."
 
 systemctl reload nginx
 systemctl enable "$app"
 systemctl start "$app"
 # App needs time to start
 sleep 30
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Restoration completed for $app"

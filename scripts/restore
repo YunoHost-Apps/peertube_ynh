@@ -29,7 +29,7 @@ ynh_print_info "Loading settings..."
 app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get "$app" domain)
-path_url="/"
+path_url=$(ynh_app_setting_get $app path)
 final_path=$(ynh_app_setting_get "$app" final_path)
 port=$(ynh_app_setting_get "$app" port)
 db_name=$(ynh_app_setting_get "$app" psql_db)
@@ -133,23 +133,11 @@ yunohost service add $app --description "$app daemon for Peertube" --log "/home/
 ynh_restore_file "/etc/logrotate.d/$app"
 
 #=================================================
-# BUILD YARN DEPENDENCIES
-#=================================================
-
-(
-	cd "$final_path"
-	yarn install --production --pure-lockfile --silent --cache-folder /var/cache/yarn/
-)
-
-# Set right permissions 
-chown -R "$app":"$app" "$final_path"
-
-#=================================================
 # GENERIC FINALIZATION
 #=================================================
-# RELOAD NGINX AND PEERTUBE
+# RELOAD NGINX
 #=================================================
-ynh_print_info "Reloading nginx web server and peertube..."
+ynh_print_info "Reloading nginx web server..."
 
 systemctl reload nginx
 

@@ -118,8 +118,6 @@ mkdir -p "/etc/nginx/conf.d/${domain}.d" # ( I don't remember why this is here, 
 ynh_add_nginx_config
 
 
-# Set right permissions for the app
-chown -R "$app":"$app" "$datadir"
 
 # Reload Nginx
 systemctl reload nginx
@@ -146,6 +144,9 @@ mkdir -p "$datadir"
 
 
 # Give permission to the datadir
+chown -R "$app":"$app" "$datadir"
+
+# Set right permissions for the app
 chown -R "$app":"$app" "$datadir"
 
 #=================================================

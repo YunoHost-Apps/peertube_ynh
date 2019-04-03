@@ -41,6 +41,13 @@ elif [ "$is_public" = "No" ]; then
 	is_public=0
 fi
 
+# Close a port
+if yunohost firewall list | grep -q "\- $port$"
+then
+	ynh_print_info "Closing port $port"
+	ynh_exec_warn_less yunohost firewall disallow TCP $port
+fi
+
 # Remove repository
 ynh_secure_remove /etc/apt/sources.list.d/jessie-backports.list
 ynh_secure_remove /etc/apt/sources.list.d/yarn.list
@@ -90,23 +97,6 @@ datadir="/home/yunohost.app/${app}/storage"
 mkdir -p "$datadir"
 
 #=================================================
-# CLOSE A PORT
-#=================================================
-
-if yunohost firewall list | grep -q "\- $port$"
-then
-	echo "Close port $port"
-	yunohost firewall disallow Both "$port" 2>&1
-fi
-
-#=================================================
-# CHECK THE PATH
-#=================================================
-
-# Normalize the URL path syntax
-path_url=$(ynh_normalize_url_path "$path_url")
-
-#=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -115,6 +105,7 @@ ynh_print_info "Upgrading source files..."
 
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
+
 cp ../conf/production.yaml "$final_path/config/production.yaml"
 
 #Copy the admin saved settings from tmp directory to final path
@@ -123,11 +114,6 @@ cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json
 # Remove the tmp directory securely
 ynh_secure_remove "$tmpdir"
 
-(
-	cd "$final_path"
-	yarn install --production --pure-lockfile 
-)
-
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
@@ -135,12 +121,6 @@ ynh_print_info "Upgrading nginx web server configuration..."
 
 # Create a dedicated nginx config
 ynh_add_nginx_config
-
-chown -R root:root   "$final_path"
-chown -R "$app" "$datadir"
-
-# Reload Nginx
-systemctl reload nginx
 
 #=================================================
 # UPGRADE DEPENDENCIES
@@ -174,18 +154,15 @@ ynh_system_user_create "$app"
 #=================================================
 # SPECIFIC UPGRADE
 #=================================================
-# MODIFY A CONFIG FILE
+# BUILD YARN DEPENDENCIES
 #=================================================
 
-ynh_replace_string "__domain__"  "$domain"      "$final_path/config/production.yaml"
-ynh_replace_string "__db_name__" "$app"         "$final_path/config/production.yaml"
-ynh_replace_string "__app__"     "$app"         "$final_path/config/production.yaml"
-ynh_replace_string "__db_pwd__"  "$db_pwd"      "$final_path/config/production.yaml"
-ynh_replace_string "__email__"   "$admin_email" "$final_path/config/production.yaml"
-ynh_replace_string "__PORT__"    "$port"        "$final_path/config/production.yaml"
+pushd "$final_path"
+	yarn install --production --pure-lockfile 
+popd
 
-
-# Recalculate and store the config file checksum into the app settings
+ynh_backup_if_checksum_is_different "$final_path/config/production.yaml"
+# Recalculate and store the checksum of the file for the next upgrade.
 ynh_store_file_checksum "$final_path/config/production.yaml"
 
 #=================================================
@@ -211,19 +188,15 @@ ynh_add_systemd_config
 # SECURE FILES AND DIRECTORIES
 #=================================================
 
-# Set right permissions
-chown -R "$app":"$app" "$final_path" "$datadir"
-
+# Set permissions on app files
+chown -R "$app":"$app" "$final_path"
+chown -R "$app":"$app" "$datadir"
 
 #=================================================
 # SETUP SSOWAT
 #=================================================
 ynh_print_info "Upgrading SSOwat configuration..."
 
-if [ "$is_public" -eq 0 ]
-then	# Remove the public access
-	ynh_app_setting_delete "$app" skipped_uris
-fi
 # Make app public if necessary
 if [ "$is_public" -eq 1 ]
 then

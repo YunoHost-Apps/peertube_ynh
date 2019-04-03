@@ -213,6 +213,13 @@ then
 fi
 
 #=================================================
+# RELOAD NGINX
+#=================================================
+ynh_print_info "Reloading nginx web server..."
+
+systemctl reload nginx
+
+#=================================================
 # START SERVICE
 #=================================================
 ynh_print_info "Start service..."
@@ -244,13 +251,6 @@ The admin password is: $admin_pass
 If you are facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh"
 
 ynh_send_readme_to_admin "$message"
-
-#=================================================
-# RELOAD NGINX
-#=================================================
-ynh_print_info "Reloading nginx web server..."
-
-systemctl reload nginx
 
 #=================================================
 # END OF SCRIPT

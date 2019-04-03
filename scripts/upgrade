@@ -7,12 +7,14 @@
 #=================================================
 
 source _common.sh
+source ynh_add_secure_repos__3
+source ynh_systemd_action
 source /usr/share/yunohost/helpers
-source psql.sh
 
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -28,6 +30,7 @@ db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
+ynh_print_info "Ensuring downward compatibility..."
 
 # Fix is_public as a boolean value
 if [ "$is_public" = "Yes" ]; then
@@ -38,21 +41,30 @@ elif [ "$is_public" = "No" ]; then
 	is_public=0
 fi
 
+# Remove repository
+ynh_secure_remove /etc/apt/sources.list.d/jessie-backports.list
+ynh_secure_remove /etc/apt/sources.list.d/yarn.list
+
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
+ynh_print_info "Backing up the app before upgrading (may take a while)..."
 
 # Backup the current version of the app
 ynh_backup_before_upgrade
 ynh_clean_setup () {
 	# restore it if the upgrade fails
+	ynh_clean_check_starting
 	ynh_restore_upgradebackup
 }
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
-# Stop Peertube for upgrade
-systemctl stop "$app"
+#=================================================
+# STOP PEERTUBE FOR UPGRADE
+#=================================================
+
+ynh_systemd_action --service_name="$app" --action="stop"
 
 #===================================================
 # Add PostgreSQL extension for v1.0.0-beta.10.pre.1
@@ -88,33 +100,6 @@ then
 fi
 
 #=================================================
-# CREATE DEDICATED USER
-#=================================================
-
-# Create a system user
-ynh_system_user_create "$app"
-
-#=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-
-# install nodejs
-ynh_install_nodejs 8
-
-# add backports for Debian Jessie (required to install ffmpeg)
-if [ "$(lsb_release --codename --short)" == "jessie" ]; then
-	echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/jessie-backports.list
-fi
-
-# add yarn repo for Debian
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-ynh_package_update
-
-# install postgresql, ffmpeg, redis
-ynh_install_app_dependencies postgresql postgresql-contrib openssl g++ ffmpeg redis-server redis-tools mailutils yarn apt-transport-https
-
-#=================================================
 # CHECK THE PATH
 #=================================================
 
@@ -122,8 +107,11 @@ ynh_install_app_dependencies postgresql postgresql-contrib openssl g++ ffmpeg re
 path_url=$(ynh_normalize_url_path "$path_url")
 
 #=================================================
-# DOWNLOAD, CHECK AND UNPACK PEERTUBE SOURCE
+# STANDARD UPGRADE STEPS
 #=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+ynh_print_info "Upgrading source files..."
 
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
@@ -140,10 +128,10 @@ ynh_secure_remove "$tmpdir"
 	yarn install --production --pure-lockfile 
 )
 
-
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Upgrading nginx web server configuration..."
 
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -154,6 +142,37 @@ chown -R "$app" "$datadir"
 # Reload Nginx
 systemctl reload nginx
 
+#=================================================
+# UPGRADE DEPENDENCIES
+#=================================================
+ynh_print_info "Upgrading dependencies..."
+
+# Install nodejs
+ynh_install_nodejs 8
+
+# Install dependencies
+ynh_install_app_dependencies $pkg_dependencies
+
+# Install ffmpeg from backports for Debian Jessie and from main for others
+if [ "$(lsb_release --codename --short)" == "jessie" ]; then
+	ynh_install_extra_app_dependencies --repo="deb http://httpredir.debian.org/debian jessie-backports main" --package="ffmpeg"
+else
+	ynh_add_app_dependencies --package="ffmpeg"
+fi
+
+# Install Yarn
+ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_print_info "Making sure dedicated system user exists..."
+
+# Create a system user
+ynh_system_user_create "$app"
+
+#=================================================
+# SPECIFIC UPGRADE
 #=================================================
 # MODIFY A CONFIG FILE
 #=================================================
@@ -172,6 +191,7 @@ ynh_store_file_checksum "$final_path/config/production.yaml"
 #=================================================
 # SETUP LOGROTATE
 #=================================================
+ynh_print_info "Upgrading logrotate configuration..."
 
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
@@ -179,10 +199,17 @@ ynh_use_logrotate --non-append
 #=================================================
 # SETUP SYSTEMD
 #=================================================
+ynh_print_info "Upgrading systemd configuration..."
+
 ynh_replace_string "__ENV_PATH__" "$PATH" "../conf/systemd.service"
 # Create a dedicated systemd config
 ynh_add_systemd_config
 
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# SECURE FILES AND DIRECTORIES
+#=================================================
 
 # Set right permissions
 chown -R "$app":"$app" "$final_path" "$datadir"
@@ -191,6 +218,7 @@ chown -R "$app":"$app" "$final_path" "$datadir"
 #=================================================
 # SETUP SSOWAT
 #=================================================
+ynh_print_info "Upgrading SSOwat configuration..."
 
 if [ "$is_public" -eq 0 ]
 then	# Remove the public access
@@ -206,9 +234,19 @@ fi
 #=================================================
 # RELOAD NGINX
 #=================================================
+ynh_print_info "Reloading nginx web server..."
 
 systemctl reload nginx
-systemctl enable "$app"
-systemctl start "$app"
-# App needs time to start
-sleep 30
+
+#=================================================
+# START SERVICE
+#=================================================
+ynh_print_info "Start service..."
+
+ynh_systemd_action --service_name="$app" --action="start"
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Upgrade of $app completed"

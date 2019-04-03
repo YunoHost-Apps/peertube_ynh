@@ -1,6 +1,24 @@
 #!/bin/bash
 
-# ============= FUTURE YUNOHOST HELPER =============
+#=================================================
+# COMMON VARIABLES
+#=================================================
+
+# dependencies used by the app
+pkg_dependencies="postgresql postgresql-contrib openssl g++ redis-server redis-tools mailutils apt-transport-https"
+
+#=================================================
+# PERSONAL HELPERS
+#=================================================
+
+#=================================================
+# EXPERIMENTAL HELPERS
+#=================================================
+
+#=================================================
+# FUTURE OFFICIAL HELPERS
+#=================================================
+
 # Delete a file checksum from the app settings
 #
 # $app should be defined when calling this helper

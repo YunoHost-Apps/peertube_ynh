@@ -6,42 +6,39 @@
 # IMPORT GENERIC HELPERS
 #=================================================
 
-if [ ! -e _common.sh ]; then
-	# Get the _common.sh file if it's not in the current directory
-	cp ../settings/scripts/_common.sh ./_common.sh
-	cp ../settings/scripts/psql.sh ./psql.sh
-	chmod a+rx _common.sh psql.sh
-fi
-
-source _common.sh
+source ../settings/scripts/_common.sh
+source ../settings/scripts/ynh_add_secure_repos__3
+source ../settings/scripts/ynh_systemd_action
 source /usr/share/yunohost/helpers
-source psql.sh
-
 
 #=================================================
 # MANAGE SCRIPT FAILURE
 #=================================================
 
+ynh_clean_setup () {
+	ynh_clean_check_starting
+}
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get "$app" domain)
-path_url="/"
+path_url=$(ynh_app_setting_get $app path)
 final_path=$(ynh_app_setting_get "$app" final_path)
 port=$(ynh_app_setting_get "$app" port)
 db_name=$(ynh_app_setting_get "$app" psql_db)
 db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
 
-
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
 #=================================================
+ynh_print_info "Validating restoration parameters..."
 
 ynh_webpath_available "$domain" "$path_url" \
 	|| ynh_die "Path not available: ${domain}${path_url}"
@@ -59,12 +56,14 @@ ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
+ynh_print_info "Restoring the app main directory..."
 
 ynh_restore_file "$final_path"
 
 #=================================================
 # RECREATE THE DEDICATED USER
 #=================================================
+ynh_print_info "Recreating the dedicated system user..."
 
 # Create the dedicated user (if not existing)
 ynh_system_user_create "$app"
@@ -84,26 +83,28 @@ chown -R "$app":"$app" "/home/yunohost.app/${app}/storage"
 #=================================================
 # REINSTALL DEPENDENCIES
 #=================================================
+ynh_print_info "Reinstalling dependencies..."
 
-# install nodejs
+# Install nodejs
 ynh_install_nodejs 8
 
-# add backports for Debian Jessie (required to install ffmpeg)
+# Install dependencies
+ynh_install_app_dependencies $pkg_dependencies
+
+# Install ffmpeg from backports for Debian Jessie and from main for others
 if [ "$(lsb_release --codename --short)" == "jessie" ]; then
-	echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/jessie-backports.list
+	ynh_install_extra_app_dependencies --repo="deb http://httpredir.debian.org/debian jessie-backports main" --package="ffmpeg"
+else
+	ynh_add_app_dependencies --package="ffmpeg"
 fi
 
-# add yarn repo for Debian
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-ynh_package_update
-
-# install postgresql, ffmpeg, redis
-ynh_install_app_dependencies  postgresql postgresql-contrib openssl g++ ffmpeg redis-server redis-tools mailutils yarn apt-transport-https
+# Install Yarn
+ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
 #=================================================
-# RESTORE THE PostgreSQL DATABASE
+# RESTORE THE POSTGRESQL DATABASE
 #=================================================
+ynh_print_info "Restoring the PostgreSQL database..."
 
 ynh_psql_test_if_first_run
 ynh_psql_create_user "$app" "$db_pwd"
@@ -114,9 +115,16 @@ ynh_psql_execute_file_as_root ./db.sql "$db_name"
 #=================================================
 # RESTORE SYSTEMD
 #=================================================
+ynh_print_info "Restoring the systemd configuration..."
 
 ynh_restore_file "/etc/systemd/system/$app.service"
 systemctl enable "$app.service"
+
+#=================================================
+# ADVERTISE SERVICE IN ADMIN PANEL
+#=================================================
+
+yunohost service add $app --description "$app daemon for Peertube" --log "/home/yunohost.app/${app}/storage/logs/peertube.log"
 
 #=================================================
 # RESTORE THE LOGROTATE CONFIGURATION
@@ -125,25 +133,23 @@ systemctl enable "$app.service"
 ynh_restore_file "/etc/logrotate.d/$app"
 
 #=================================================
-# RESTORE THE LOGROTATE CONFIGURATION
-#=================================================
-
-(
-	cd "$final_path"
-	yarn install --production --pure-lockfile --silent --cache-folder /var/cache/yarn/
-)
-
-# Set right permissions 
-chown -R "$app":"$app" "$final_path"
-
-#=================================================
 # GENERIC FINALIZATION
 #=================================================
-# RELOAD NGINX AND PeerTube
+# RELOAD NGINX
 #=================================================
+ynh_print_info "Reloading nginx web server..."
 
 systemctl reload nginx
-systemctl enable "$app"
-systemctl start "$app"
-# App needs time to start
-sleep 30
+
+#=================================================
+# START SERVICE
+#=================================================
+ynh_print_info "Start service..."
+
+ynh_systemd_action --service_name="$app" --action="start"
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Restoration completed for $app"

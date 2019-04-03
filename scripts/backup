@@ -29,7 +29,10 @@ final_path=$(ynh_app_setting_get "$app" final_path)
 domain=$(ynh_app_setting_get "$app" domain)
 db_name=$(ynh_app_setting_get "$app" psql_db)
 
-# Stop Peertube for backup 
+#=================================================
+# STOP PEERTUBE FOR BACKUP
+#=================================================
+
 systemctl stop "$app"
 
 #=================================================
@@ -73,11 +76,9 @@ ynh_print_info "Backing up systemd configuration..."
 ynh_backup "/etc/systemd/system/$app.service"
 
 #=================================================
-# RELOAD NGINX
+# START PEERTUBE
 #=================================================
 
-systemctl reload nginx
-systemctl enable "$app"
 systemctl start "$app"
 # App needs time to start
 sleep 30

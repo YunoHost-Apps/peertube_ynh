@@ -201,15 +201,11 @@ ynh_use_logrotate "/home/yunohost.app/${app}/storage/logs/peertube.log"
 #=================================================
 ynh_print_info "Configuring SSOwat..."
 
-if [ "$is_public" -eq 0 ]
-then	# Remove the public access
-	ynh_app_setting_delete "$app" skipped_uris
-fi
 # Make app public if necessary
-if [ "$is_public" -eq 1 ]
+if [ $is_public -eq 1 ]
 then
 	# unprotected_uris allows SSO credentials to be passed anyway.
-	ynh_app_setting_set "$app" unprotected_uris "/"
+	ynh_app_setting_set $app unprotected_uris "/"
 fi
 
 #=================================================

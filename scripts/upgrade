@@ -70,6 +70,7 @@ ynh_abort_if_errors
 #=================================================
 # STOP PEERTUBE FOR UPGRADE
 #=================================================
+ynh_print_info "Stop $app service..."
 
 ynh_systemd_action --service_name="$app" --action="stop"
 
@@ -106,7 +107,17 @@ ynh_print_info "Upgrading source files..."
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source "$final_path"
 
+#=================================================
+# MODIFY A CONFIG FILE
+#=================================================
+
 cp ../conf/production.yaml "$final_path/config/production.yaml"
+ynh_replace_string "__domain__"  "$domain"      "$final_path/config/production.yaml"
+ynh_replace_string "__db_name__" "$app"         "$final_path/config/production.yaml"
+ynh_replace_string "__app__"     "$app"         "$final_path/config/production.yaml"
+ynh_replace_string "__db_pwd__"  "$db_pwd"      "$final_path/config/production.yaml"
+ynh_replace_string "__email__"   "$admin_email" "$final_path/config/production.yaml"
+ynh_replace_string "__PORT__"    "$port"        "$final_path/config/production.yaml"
 
 #Copy the admin saved settings from tmp directory to final path
 cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json"
@@ -214,9 +225,9 @@ systemctl reload nginx
 #=================================================
 # START SERVICE
 #=================================================
-ynh_print_info "Start service..."
+ynh_print_info "Start $app service..."
 
-ynh_systemd_action --service_name="$app" --action="start"
+ynh_systemd_action --service_name="$app" --action="start" --log_path="systemd" --line_match="Server listening on localhost:9000"
 
 #=================================================
 # END OF SCRIPT

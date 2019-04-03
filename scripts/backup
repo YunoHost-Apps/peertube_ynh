@@ -35,6 +35,7 @@ db_name=$(ynh_app_setting_get "$app" psql_db)
 #=================================================
 # STOP PEERTUBE FOR BACKUP
 #=================================================
+ynh_print_info "Stop $app service..."
 
 ynh_systemd_action --service_name="$app" --action="stop"
 
@@ -80,8 +81,9 @@ ynh_backup "/etc/systemd/system/$app.service"
 #=================================================
 # START PEERTUBE
 #=================================================
+ynh_print_info "Start $app service..."
 
-ynh_systemd_action --service_name="$app" --action="start"
+ynh_systemd_action --service_name="$app" --action="start" --log_path="systemd" --line_match="Server listening on localhost:9000"
 
 #=================================================
 # END OF SCRIPT

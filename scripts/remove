@@ -47,6 +47,9 @@ ynh_remove_systemd_config
 #=================================================
 ynh_print_info "Removing the PostgreSQL database"
 
+ynh_psql_execute_as_root "\connect $db_name 
+SELECT pg_terminate_backend (pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = '$db_name';"
+
 # Remove a database if it exists, along with the associated user
 ynh_psql_remove_db "$db_name" "$app"
 

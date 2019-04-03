@@ -144,6 +144,10 @@ datadir="/home/yunohost.app/${app}/storage"
 # Create app folders
 mkdir -p "$datadir"
 
+
+# Give permission to the datadir
+chown -R "$app":"$app" "$datadir"
+
 #=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
@@ -221,8 +225,6 @@ ynh_send_readme_to_admin "$message"
 # Set permissions to app files
 chown -R "$app":"$app" $final_path
 
-# Give permission to the datadir
-chown -R "$app":"$app" "$datadir"
 
 #=================================================
 # SETUP LOGROTATE

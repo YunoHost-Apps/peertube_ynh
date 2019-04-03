@@ -59,10 +59,6 @@ ynh_print_info "Removing dependencies"
 ynh_remove_app_dependencies
 ynh_remove_nodejs
 
-# Delete backport and yarn from source.list 
-ynh_secure_remove /etc/apt/sources.list.d/jessie-backports.list
-ynh_secure_remove /etc/apt/sources.list.d/yarn.list
-
 #=================================================
 # REMOVE APP MAIN DIR
 #=================================================

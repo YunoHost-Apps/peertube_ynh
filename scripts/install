@@ -8,6 +8,7 @@
 
 source _common.sh
 source /usr/share/yunohost/helpers
+source ynh_add_secure_repos__3
 
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -67,21 +68,21 @@ ynh_app_setting_set "$app" port "$port"
 #=================================================
 ynh_print_info "Installing dependencies..."
 
-# install nodejs
+# Install nodejs
 ynh_install_nodejs 8
 
-# Add backports for Debian Jessie (required to install ffmpeg)
+# Install dependencies
+ynh_install_app_dependencies $pkg_dependencies
+
+# Install ffmpeg from backports for Debian Jessie and from main for others
 if [ "$(lsb_release --codename --short)" == "jessie" ]; then
-	echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/jessie-backports.list
+	ynh_install_extra_app_dependencies --repo="deb http://httpredir.debian.org/debian jessie-backports main" --package="ffmpeg"
+else
+	ynh_add_app_dependencies --package="ffmpeg"
 fi
 
-# Add yarn repo for Debian
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-ynh_package_update
-
-# install dependencies
-ynh_install_app_dependencies $pkg_dependencies
+# Install Yarn
+ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
 #=================================================
 # CREATE A POSTGRESQL DATABASE

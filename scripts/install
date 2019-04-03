@@ -163,13 +163,9 @@ ynh_store_file_checksum "$final_path/config/production.yaml"
 # BUILD YARN DEPENDENCIES
 #=================================================
 
-
-touch "$final_path/config/local-production.json"
-
-(
-	cd "$final_path"
+pushd "$final_path"
 	yarn install --production --pure-lockfile 
-)
+popd
 
 #=================================================
 # SETUP SYSTEMD
@@ -178,32 +174,6 @@ touch "$final_path/config/local-production.json"
 ynh_replace_string "__ENV_PATH__" "$PATH" "../conf/systemd.service"
 # Create a dedicated systemd config
 ynh_add_systemd_config
-
-#=================================================
-# CHANGE PEERTUBE ADMIN PASSWORD AFTER INITIAL GEN
-#=================================================
-
-# we need to wait for the service to init peertube's database
-(
-	cd "$final_path"
-	sleep 30
-	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run reset-password -- -u root
-)
-
-#=================================================
-# SEND A README FOR THE ADMIN
-#=================================================
-
-message=" $app was successfully installed :)
-
-Please open your $app domain: https://$domain$path_url
-
-The admin username is: root
-The admin password is: $admin_pass
-
-If you are facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh"
-
-ynh_send_readme_to_admin "$message"
 
 #=================================================
 # GENERIC FINALIZATION
@@ -217,7 +187,6 @@ ynh_send_readme_to_admin "$message"
 
 # Set permissions to app files
 chown -R "$app":"$app" $final_path
-
 
 #=================================================
 # SETUP LOGROTATE
@@ -250,6 +219,31 @@ ynh_print_info "Start service..."
 
 systemctl enable "$app"
 systemctl start "$app"
+sleep 30
+
+#=================================================
+# CHANGE PEERTUBE ADMIN PASSWORD AFTER INITIAL GEN
+#=================================================
+
+# we need to wait for the service to init peertube's database
+pushd "$final_path"
+	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run reset-password -- -u root
+popd
+
+#=================================================
+# SEND A README FOR THE ADMIN
+#=================================================
+
+message=" $app was successfully installed :)
+
+Please open your $app domain: https://$domain$path_url
+
+The admin username is: root
+The admin password is: $admin_pass
+
+If you are facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh"
+
+ynh_send_readme_to_admin "$message"
 
 #=================================================
 # RELOAD NGINX

@@ -141,21 +141,10 @@ mkdir -p "$datadir"
 chown -R "$app":"$app" "$datadir"
 
 #=================================================
-# BUILD YARN DEPENDENCIES
-#=================================================
-
-cp ../conf/production.yaml "$final_path/config/production.yaml"
-touch "$final_path/config/local-production.json"
-
-(
-	cd "$final_path"
-	yarn install --production --pure-lockfile 
-)
-
-#=================================================
 # MODIFY A CONFIG FILE
 #=================================================
 
+cp ../conf/production.yaml "$final_path/config/production.yaml"
 ynh_replace_string "__domain__"  "$domain"      "$final_path/config/production.yaml"
 ynh_replace_string "__db_name__" "$app"         "$final_path/config/production.yaml"
 ynh_replace_string "__app__"     "$app"         "$final_path/config/production.yaml"
@@ -169,6 +158,18 @@ ynh_replace_string "__PORT__"    "$port"        "$final_path/config/production.y
 
 # Calculate and store the config file checksum into the app settings
 ynh_store_file_checksum "$final_path/config/production.yaml"
+
+#=================================================
+# BUILD YARN DEPENDENCIES
+#=================================================
+
+
+touch "$final_path/config/local-production.json"
+
+(
+	cd "$final_path"
+	yarn install --production --pure-lockfile 
+)
 
 #=================================================
 # SETUP SYSTEMD

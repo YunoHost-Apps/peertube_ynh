@@ -114,13 +114,7 @@ ynh_setup_source "$final_path"
 ynh_print_info "Configuring nginx web server..."
 
 # Create a dedicated nginx config
-mkdir -p "/etc/nginx/conf.d/${domain}.d" # ( I don't remember why this is here, I think can be removed)
 ynh_add_nginx_config
-
-
-
-# Reload Nginx
-systemctl reload nginx
 
 #=================================================
 # CREATE DEDICATED USER

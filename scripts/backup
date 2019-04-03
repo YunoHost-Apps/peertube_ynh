@@ -60,7 +60,6 @@ ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_print_info "Backing up the PostgreSQL database..."
 
 ynh_psql_dump_db "$db_name" > db.sql
-ynh_backup "db.sql"
 
 #=================================================
 # SPECIFIC BACKUP

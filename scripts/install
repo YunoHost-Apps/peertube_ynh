@@ -89,8 +89,7 @@ ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ st
 #=================================================
 ynh_print_info "Creating a PostgreSQL database..."
 
-# Create postgresql database
-db_name="peertube_${app}"
+db_name=$(ynh_sanitize_dbid $app)
 db_pwd=$(ynh_string_random 30)
 ynh_app_setting_set "$app" psql_db "$db_name"
 ynh_app_setting_set "$app" psqlpwd "$db_pwd"

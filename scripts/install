@@ -154,6 +154,9 @@ ynh_replace_string "__db_pwd__"  "$db_pwd"      "$final_path/config/production.y
 ynh_replace_string "__email__"   "$admin_email" "$final_path/config/production.yaml"
 ynh_replace_string "__PORT__"    "$port"        "$final_path/config/production.yaml"
 
+#Create the admin settings file
+touch "$final_path/config/local-production.json"
+
 #=================================================
 # STORE THE CHECKSUM OF THE CONFIG FILE
 #=================================================

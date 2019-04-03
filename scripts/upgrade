@@ -54,7 +54,10 @@ ynh_clean_setup () {
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
-# Stop Peertube for upgrade
+#=================================================
+# STOP PEERTUBE FOR UPGRADE
+#=================================================
+
 systemctl stop "$app"
 
 #===================================================
@@ -91,12 +94,47 @@ then
 fi
 
 #=================================================
-# CREATE DEDICATED USER
+# CHECK THE PATH
 #=================================================
-ynh_print_info "Making sure dedicated system user exists..."
 
-# Create a system user
-ynh_system_user_create "$app"
+# Normalize the URL path syntax
+path_url=$(ynh_normalize_url_path "$path_url")
+
+#=================================================
+# STANDARD UPGRADE STEPS
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+ynh_print_info "Upgrading source files..."
+
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source "$final_path"
+cp ../conf/production.yaml "$final_path/config/production.yaml"
+
+#Copy the admin saved settings from tmp directory to final path
+cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json"
+
+# Remove the tmp directory securely
+ynh_secure_remove "$tmpdir"
+
+(
+	cd "$final_path"
+	yarn install --production --pure-lockfile 
+)
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_print_info "Upgrading nginx web server configuration..."
+
+# Create a dedicated nginx config
+ynh_add_nginx_config
+
+chown -R root:root   "$final_path"
+chown -R "$app" "$datadir"
+
+# Reload Nginx
+systemctl reload nginx
 
 #=================================================
 # UPGRADE DEPENDENCIES
@@ -120,47 +158,15 @@ ynh_package_update
 ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
-# CHECK THE PATH
+# CREATE DEDICATED USER
 #=================================================
+ynh_print_info "Making sure dedicated system user exists..."
 
-# Normalize the URL path syntax
-path_url=$(ynh_normalize_url_path "$path_url")
-
-#=================================================
-# DOWNLOAD, CHECK AND UNPACK SOURCE
-#=================================================
-ynh_print_info "Upgrading source files..."
-
-# Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source "$final_path"
-cp ../conf/production.yaml "$final_path/config/production.yaml"
-
-#Copy the admin saved settings from tmp directory to final path
-cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json"
-
-# Remove the tmp directory securely
-ynh_secure_remove "$tmpdir"
-
-(
-	cd "$final_path"
-	yarn install --production --pure-lockfile 
-)
-
+# Create a system user
+ynh_system_user_create "$app"
 
 #=================================================
-# NGINX CONFIGURATION
-#=================================================
-ynh_print_info "Upgrading nginx web server configuration..."
-
-# Create a dedicated nginx config
-ynh_add_nginx_config
-
-chown -R root:root   "$final_path"
-chown -R "$app" "$datadir"
-
-# Reload Nginx
-systemctl reload nginx
-
+# SPECIFIC UPGRADE
 #=================================================
 # MODIFY A CONFIG FILE
 #=================================================
@@ -193,6 +199,11 @@ ynh_replace_string "__ENV_PATH__" "$PATH" "../conf/systemd.service"
 # Create a dedicated systemd config
 ynh_add_systemd_config
 
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# SECURE FILES AND DIRECTORIES
+#=================================================
 
 # Set right permissions
 chown -R "$app":"$app" "$final_path" "$datadir"
@@ -220,6 +231,12 @@ fi
 ynh_print_info "Reloading nginx web server..."
 
 systemctl reload nginx
+
+#=================================================
+# START SERVICE
+#=================================================
+ynh_print_info "Start service..."
+
 systemctl enable "$app"
 systemctl start "$app"
 # App needs time to start

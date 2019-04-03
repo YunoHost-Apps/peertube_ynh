@@ -24,6 +24,10 @@ By watching a video, you help the hosting provider to broadcast it by becoming a
 
 Shipped Version: **1.2.1**
 
+## Screenshots
+
+![](https://framablog.org/wp-content/uploads/2018/03/Framatube-au-lancement.png)
+
 ## Demo
 
 Want to see in action?

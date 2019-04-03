@@ -131,7 +131,7 @@ systemctl enable "$app.service"
 ynh_restore_file "/etc/logrotate.d/$app"
 
 #=================================================
-# RESTORE THE LOGROTATE CONFIGURATION
+# BUILD YARN DEPENDENCIES
 #=================================================
 
 (
@@ -150,6 +150,12 @@ chown -R "$app":"$app" "$final_path"
 ynh_print_info "Reloading nginx web server and peertube..."
 
 systemctl reload nginx
+
+#=================================================
+# START SERVICE
+#=================================================
+ynh_print_info "Start service..."
+
 systemctl enable "$app"
 systemctl start "$app"
 # App needs time to start

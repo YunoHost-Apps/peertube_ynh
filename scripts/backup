@@ -9,11 +9,15 @@
 #Keep this path for calling _common.sh inside the execution's context of backup and restore scripts
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
+source ../settings/scripts/ynh_systemd_action
 
 #=================================================
 # MANAGE SCRIPT FAILURE
 #=================================================
 
+ynh_clean_setup () {
+	ynh_clean_check_starting
+}
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
@@ -32,7 +36,7 @@ db_name=$(ynh_app_setting_get "$app" psql_db)
 # STOP PEERTUBE FOR BACKUP
 #=================================================
 
-systemctl stop "$app"
+ynh_systemd_action --service_name="$app" --action="stop"
 
 #=================================================
 # STANDARD BACKUP STEPS
@@ -78,9 +82,7 @@ ynh_backup "/etc/systemd/system/$app.service"
 # START PEERTUBE
 #=================================================
 
-systemctl start "$app"
-# App needs time to start
-sleep 30
+ynh_systemd_action --service_name="$app" --action="start"
 
 #=================================================
 # END OF SCRIPT

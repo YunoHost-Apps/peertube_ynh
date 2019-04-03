@@ -14,11 +14,15 @@ fi
 source _common.sh
 source /usr/share/yunohost/helpers
 source ynh_add_secure_repos__3
+source ynh_systemd_action
 
 #=================================================
 # MANAGE SCRIPT FAILURE
 #=================================================
 
+ynh_clean_setup () {
+	ynh_clean_check_starting
+}
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
@@ -159,10 +163,7 @@ systemctl reload nginx
 #=================================================
 ynh_print_info "Start service..."
 
-systemctl enable "$app"
-systemctl start "$app"
-# App needs time to start
-sleep 30
+ynh_systemd_action --service_name="$app" --action="start"
 
 #=================================================
 # END OF SCRIPT

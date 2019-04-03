@@ -9,6 +9,7 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 source ynh_add_secure_repos__3
+source ynh_systemd_action
 
 #=================================================
 # LOAD SETTINGS
@@ -53,6 +54,7 @@ ynh_print_info "Backing up the app before upgrading (may take a while)..."
 ynh_backup_before_upgrade
 ynh_clean_setup () {
 	# restore it if the upgrade fails
+	ynh_clean_check_starting
 	ynh_restore_upgradebackup
 }
 # Exit if an error occurs during the execution of the script
@@ -62,7 +64,7 @@ ynh_abort_if_errors
 # STOP PEERTUBE FOR UPGRADE
 #=================================================
 
-systemctl stop "$app"
+ynh_systemd_action --service_name="$app" --action="stop"
 
 #===================================================
 # Add PostgreSQL extension for v1.0.0-beta.10.pre.1
@@ -241,10 +243,7 @@ systemctl reload nginx
 #=================================================
 ynh_print_info "Start service..."
 
-systemctl enable "$app"
-systemctl start "$app"
-# App needs time to start
-sleep 30
+ynh_systemd_action --service_name="$app" --action="start"
 
 #=================================================
 # END OF SCRIPT

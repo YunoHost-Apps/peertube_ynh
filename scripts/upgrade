@@ -7,9 +7,9 @@
 #=================================================
 
 source _common.sh
-source /usr/share/yunohost/helpers
 source ynh_add_secure_repos__3
 source ynh_systemd_action
+source /usr/share/yunohost/helpers
 
 #=================================================
 # LOAD SETTINGS

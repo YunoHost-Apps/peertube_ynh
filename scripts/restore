@@ -6,15 +6,10 @@
 # IMPORT GENERIC HELPERS
 #=================================================
 
-if [ ! -e _common.sh ]; then
-	# Get the _common.sh file if it's not in the current directory
-	cp ../settings/scripts/_common.sh ./_common.sh
-fi
-
-source _common.sh
+source ../settings/scripts/_common.sh
+source ../settings/scripts/ynh_add_secure_repos__3
+source ../settings/scripts/ynh_systemd_action
 source /usr/share/yunohost/helpers
-source ynh_add_secure_repos__3
-source ynh_systemd_action
 
 #=================================================
 # MANAGE SCRIPT FAILURE

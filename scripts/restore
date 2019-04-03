@@ -122,6 +122,12 @@ ynh_restore_file "/etc/systemd/system/$app.service"
 systemctl enable "$app.service"
 
 #=================================================
+# ADVERTISE SERVICE IN ADMIN PANEL
+#=================================================
+
+yunohost service add $app --description "$app daemon for Peertube" --log "/home/yunohost.app/${app}/storage/logs/peertube.log"
+
+#=================================================
 # RESTORE THE LOGROTATE CONFIGURATION
 #=================================================
 

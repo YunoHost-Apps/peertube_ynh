@@ -197,6 +197,13 @@ ynh_print_info "Configuring log rotation..."
 ynh_use_logrotate "/home/yunohost.app/${app}/storage/logs/peertube.log"
 
 #=================================================
+# ADVERTISE SERVICE IN ADMIN PANEL
+#=================================================
+
+# if using yunohost version 3.2 or more in the 'manifest.json', a description can be added
+yunohost service add $app --description "$app daemon for Peertube" --log "/home/yunohost.app/${app}/storage/logs/peertube.log"
+
+#=================================================
 # SETUP SSOWAT
 #=================================================
 ynh_print_info "Configuring SSOwat..."

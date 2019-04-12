@@ -1,15 +1,14 @@
 # PeerTube app for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/peertube.svg)](https://ci-apps.yunohost.org/jenkins/job/peertube%20%28Community%29/lastBuild/consoleFull)  
-[![Install Peertube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=peertube)<br><br>
-=======
+[![Integration level](https://dash.yunohost.org/integration/peertube.svg)](https://dash.yunohost.org/appci/app/peertube)  
+[![Install peertube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=peertube)
 
-Shipped Version: **1.2.1**
+## Overview
 
-## What is Peertube ?
+### What is Peertube ?
 PeerTube is a federated (ActivityPub) video streaming platform using P2P (BitTorrent) directly in the web browser, using <a href="https://github.com/feross/webtorrent">WebTorrent</a>.
 
- ## Why Peertube ?
+### Why Peertube ?
 
 We can't build a FOSS video streaming alternatives to YouTube, Dailymotion, Vimeo... with a centralized software. One organization alone cannot have enough money to pay bandwidth and video storage of its server.
 
@@ -18,17 +17,22 @@ But it's not enough because one video could become famous and overload the serve
 It's the reason why we need to use a P2P protocol to limit the server load.
 Thanks to [WebTorrent](https://github.com/feross/webtorrent), we can make P2P (thus BitTorrent) inside the web browser, as of today.
 
-## Why is that cool ?
+### Why is that cool ?
 Servers are run independently by different people and organizations. They can apply wildly different moderation policies, so you can find or make one that fits your taste perfectly.
 
 By watching a video, you help the hosting provider to broadcast it by becoming a broadcaster of the video yourself. Each instance doesn’t need much money to broadcast the videos of its users.
 
-## Demonstration
+**Shipped version:** 1.2.1
+
+## Screenshots
+
+![](https://framablog.org/wp-content/uploads/2018/03/Framatube-au-lancement.png)
+
+## Demo
 
 Want to see in action?
 
    * [Here](http://peertube.cpy.re) are the list of instances ran by people around the world. Be a part of it.
-   
 
 ## Installation
 
@@ -59,12 +63,41 @@ Want to see in action?
           
           $ sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/peertube_ynh peertube
 
-
 ### Dependencies
 
   * NodeJS, PostgreSQL.
   * On Debian Jessie,backport is added for the ffmpeg package.
 
-## LICENSE
+## Documentation
 
-PeerTube is licensed under the GNU Affero General Public License v3.0.
+ * Official documentation: https://docs.joinpeertube.org/
+
+## YunoHost specific features
+
+#### Supported architectures
+
+* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/peertube%20%28Community%29.svg)](https://ci-apps.yunohost.org/ci/apps/peertube/)
+* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/peertube%20%28Community%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/peertube/)
+* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/peertube%20%28Community%29.svg)](https://ci-stretch.nohost.me/ci/apps/peertube/)
+
+## Links
+
+ * Report a bug: https://github.com/YunoHost-Apps/peertube_ynh/issues
+ * App website: https://joinpeertube.org/fr/
+ * GitHub App website: https://github.com/Chocobozzz/PeerTube/
+ * YunoHost website: https://yunohost.org/
+
+---
+
+Developers info
+----------------
+
+**Only if you want to use a testing branch for coding, instead of merging directly into master.**
+Please do your pull request to the [testing branch](https://github.com/YunoHost-Apps/peertube_ynh/tree/testing).
+
+To try the testing branch, please proceed like that.
+```
+sudo yunohost app install https://github.com/YunoHost-Apps/peertube_ynh/tree/testing --debug
+or
+sudo yunohost app upgrade peertube -u https://github.com/YunoHost-Apps/peertube_ynh/tree/testing --debug
+```

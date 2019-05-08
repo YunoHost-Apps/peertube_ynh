@@ -7,13 +7,18 @@
 #=================================================
 
 source _common.sh
+source ynh_add_secure_repos__3
+source ynh_systemd_action
 source /usr/share/yunohost/helpers
-source psql.sh
 
 #=================================================
 # MANAGE SCRIPT FAILURE
 #=================================================
 
+ynh_clean_setup () {
+	read-p "key"
+	ynh_clean_check_starting
+}
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
 
@@ -27,34 +32,23 @@ admin_email=$YNH_APP_ARG_EMAIL
 admin_pass=$(ynh_string_random 24)
 is_public=$YNH_APP_ARG_IS_PUBLIC
 
-
-# This is a multi-instance app, meaning it can be installed several times independently
-# The id of the app as stated in the manifest is available as $YNH_APP_ID
-# The instance number is available as $YNH_APP_INSTANCE_NUMBER (equals "1", "2", ...)
-# The app instance name is available as $YNH_APP_INSTANCE_NAME
-#    - the first time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample
-#    - the second time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample__2
-#    - ynhexample__{N} for the subsequent installations, with N=3,4, ...
-# The app instance name is probably what you are interested the most, since this is
-# guaranteed to be unique. This is a good unique identifier to define installation path,
-# db names, ...
 app=$YNH_APP_INSTANCE_NAME
 
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
+ynh_print_info "Validating installation parameters..."
 
 final_path=/var/www/$app
 test ! -e "$final_path" || ynh_die "This path already contains a folder"
 
-# Check web path availability
-ynh_webpath_available "$domain" "$path_url"
 # Register (book) web path
 ynh_webpath_register "$app" "$domain" "$path_url"
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
+ynh_print_info "Storing installation settings..."
 
 ynh_app_setting_set "$app" domain      "$domain"
 ynh_app_setting_set "$app" admin_email "$admin_email"
@@ -66,45 +60,38 @@ ynh_app_setting_set "$app" is_public   "$is_public"
 #=================================================
 # FIND AND OPEN A PORT
 #=================================================
+ynh_print_info "Configuring firewall..."
 
 # Find a free port
 port=$(ynh_find_port 9000)
 ynh_app_setting_set "$app" port "$port"
 
 #=================================================
-# CREATE THE DATA DIRECTORY
-#=================================================
-
-# Define app's data directory
-datadir="/home/yunohost.app/${app}/storage"
-# Create app folders
-mkdir -p "$datadir"
-
-#=================================================
 # INSTALL DEPENDENCIES
 #=================================================
+ynh_print_info "Installing dependencies..."
 
-# install nodejs
+# Install nodejs
 ynh_install_nodejs 8
 
-# Add backports for Debian Jessie (required to install ffmpeg)
+# Install dependencies
+ynh_install_app_dependencies $pkg_dependencies
+
+# Install ffmpeg from backports for Debian Jessie and from main for others
 if [ "$(lsb_release --codename --short)" == "jessie" ]; then
-	echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/jessie-backports.list
+	ynh_install_extra_app_dependencies --repo="deb http://httpredir.debian.org/debian jessie-backports main" --package="ffmpeg"
+else
+	ynh_add_app_dependencies --package="ffmpeg"
 fi
 
-# Add yarn repo for Debian
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-ynh_package_update
-
-# install dependencies
-ynh_install_app_dependencies postgresql postgresql-contrib openssl g++ ffmpeg redis-server redis-tools mailutils yarn apt-transport-https
+# Install Yarn
+ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
 #=================================================
-# DATABASE SETUP
+# CREATE A POSTGRESQL DATABASE
 #=================================================
+ynh_print_info "Creating a PostgreSQL database..."
 
-# Create postgresql database
 db_name="peertube_${app}"
 db_pwd=$(ynh_string_random 30)
 ynh_app_setting_set "$app" psql_db "$db_name"
@@ -117,51 +104,51 @@ ynh_psql_execute_as_root "\connect $db_name
 CREATE EXTENSION IF NOT EXISTS unaccent;CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 
 #=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+ynh_print_info "Setting up source files..."
+
+ynh_app_setting_set $app final_path $final_path
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source "$final_path"
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_print_info "Configuring nginx web server..."
+
+# Create a dedicated nginx config
+ynh_add_nginx_config
+
+#=================================================
 # CREATE DEDICATED USER
 #=================================================
+ynh_print_info "Configuring system user..."
 
 # Create a system user
 ynh_system_user_create "$app"
 
 #=================================================
-# DOWNLOAD, CHECK AND UNPACK PEERTUBE SOURCE
+# SPECIFIC SETUP
 #=================================================
-
-ynh_app_setting_set "$app" final_path "$final_path"
-# Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source "$final_path"
-
+# CREATE THE DATA DIRECTORY
 #=================================================
-# BUILD YARN DEPENDENCIES
-#=================================================
+ynh_print_info "Create the data directory..."
 
-cp ../conf/production.yaml "$final_path/config/production.yaml"
-touch "$final_path/config/local-production.json"
+# Define app's data directory
+datadir="/home/yunohost.app/${app}/storage"
 
-(
-	cd "$final_path"
-	yarn install --production --pure-lockfile 
-)
+# Create app folders
+mkdir -p "$datadir"
 
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-
-# Create a dedicated nginx config
-mkdir -p "/etc/nginx/conf.d/${domain}.d" # ( I don't remember why this is here, I think can be removed)
-ynh_add_nginx_config
-
-
-# Set right permissions for the app
+# Give permission to the datadir
 chown -R "$app":"$app" "$datadir"
-
-# Reload Nginx
-systemctl reload nginx
 
 #=================================================
 # MODIFY A CONFIG FILE
 #=================================================
 
+cp ../conf/production.yaml "$final_path/config/production.yaml"
 ynh_replace_string "__domain__"  "$domain"      "$final_path/config/production.yaml"
 ynh_replace_string "__db_name__" "$app"         "$final_path/config/production.yaml"
 ynh_replace_string "__app__"     "$app"         "$final_path/config/production.yaml"
@@ -169,6 +156,8 @@ ynh_replace_string "__db_pwd__"  "$db_pwd"      "$final_path/config/production.y
 ynh_replace_string "__email__"   "$admin_email" "$final_path/config/production.yaml"
 ynh_replace_string "__PORT__"    "$port"        "$final_path/config/production.yaml"
 
+#Create the admin settings file
+touch "$final_path/config/local-production.json"
 
 #=================================================
 # STORE THE CHECKSUM OF THE CONFIG FILE
@@ -178,40 +167,12 @@ ynh_replace_string "__PORT__"    "$port"        "$final_path/config/production.y
 ynh_store_file_checksum "$final_path/config/production.yaml"
 
 #=================================================
-# GENERIC FINALIZATION
-#=================================================
-#=================================================
-# SETUP LOGROTATE
+# BUILD YARN DEPENDENCIES
 #=================================================
 
-# Use logrotate to manage application logfile(s)
-ynh_use_logrotate "/home/yunohost.app/${app}/storage/logs/peertube.log"
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-
-if [ "$is_public" -eq 0 ]
-then	# Remove the public access
-	ynh_app_setting_delete "$app" skipped_uris
-fi
-# Make app public if necessary
-if [ "$is_public" -eq 1 ]
-then
-	# unprotected_uris allows SSO credentials to be passed anyway.
-	ynh_app_setting_set "$app" unprotected_uris "/"
-fi
-
-# Give permisiion to the final_path
-chown -R "$app":"$app" "$final_path" "$datadir"
-
-#=================================================
-# RELOAD NGINX
-#=================================================
-
-systemctl reload nginx
-
-
+pushd "$final_path"
+	yarn install --production --pure-lockfile 
+popd
 
 #=================================================
 # SETUP SYSTEMD
@@ -220,19 +181,65 @@ systemctl reload nginx
 ynh_replace_string "__ENV_PATH__" "$PATH" "../conf/systemd.service"
 # Create a dedicated systemd config
 ynh_add_systemd_config
-systemctl enable "$app"
-systemctl start "$app"
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# SECURE FILES AND DIRECTORIES
+#=================================================
+
+# Set permissions to app files
+chown -R "$app":"$app" $final_path
+
+#=================================================
+# SETUP LOGROTATE
+#=================================================
+ynh_print_info "Configuring log rotation..."
+
+# Use logrotate to manage application logfile(s)
+ynh_use_logrotate "/home/yunohost.app/${app}/storage/logs/peertube.log"
+
+#=================================================
+# ADVERTISE SERVICE IN ADMIN PANEL
+#=================================================
+
+# if using yunohost version 3.2 or more in the 'manifest.json', a description can be added
+yunohost service add $app --description "$app daemon for Peertube" --log "/home/yunohost.app/${app}/storage/logs/peertube.log"
+
+#=================================================
+# SETUP SSOWAT
+#=================================================
+ynh_print_info "Configuring SSOwat..."
+
+# Make app public if necessary
+if [ $is_public -eq 1 ]
+then
+	# unprotected_uris allows SSO credentials to be passed anyway.
+	ynh_app_setting_set $app unprotected_uris "/"
+fi
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+ynh_print_info "Reloading nginx web server..."
+
+systemctl reload nginx
+
+#=================================================
+# START SERVICE
+#=================================================
+ynh_print_info "Start $app service..."
+
+ynh_systemd_action --service_name="$app" --action="start" --log_path="systemd" --line_match="Server listening on localhost"
 
 #=================================================
 # CHANGE PEERTUBE ADMIN PASSWORD AFTER INITIAL GEN
 #=================================================
 
 # we need to wait for the service to init peertube's database
-(
-	cd "$final_path"
-	sleep 30
+pushd "$final_path"
 	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run reset-password -- -u root
-)
+popd
 
 #=================================================
 # SEND A README FOR THE ADMIN
@@ -248,3 +255,9 @@ The admin password is: $admin_pass
 If you are facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh"
 
 ynh_send_readme_to_admin "$message"
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Installation of $app completed"

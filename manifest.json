@@ -9,10 +9,15 @@
     "version": "1.2.1~ynh1",
     "url": "https://github.com/Chocobozzz/PeerTube",
     "license": "AGPL-3.0-only",
-    "maintainer": {
-        "name": "Anmol Sharma",
-        "email": "anmol@datamol.org"
-    },
+    "maintainer": [
+        {
+            "name": "Anmol Sharma",
+            "email": "anmol@datamol.org"
+        },
+        {
+            "name": "yalh76"
+        }
+    ],
     "requirements": {
         "yunohost": ">= 3.4"
     },

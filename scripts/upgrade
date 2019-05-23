@@ -7,7 +7,7 @@
 #=================================================
 
 source _common.sh
-source ynh_add_secure_repos__3
+source ynh_add_extra_apt_repos__3
 source ynh_systemd_action
 source /usr/share/yunohost/helpers
 

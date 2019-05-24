@@ -1,0 +1,7 @@
+language: python
+
+before_install:
+  - git clone https://github.com/YunoHost/package_linter /tmp/package_linter
+
+script:
+- /tmp/package_linter/package_linter.py ./

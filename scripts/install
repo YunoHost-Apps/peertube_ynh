@@ -165,6 +165,7 @@ touch "$final_path/config/local-production.json"
 
 # Calculate and store the config file checksum into the app settings
 ynh_store_file_checksum "$final_path/config/production.yaml"
+ynh_store_file_checksum "$final_path/config/local-production.json"
 
 #=================================================
 # BUILD YARN DEPENDENCIES

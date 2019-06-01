@@ -89,6 +89,7 @@ CREATE EXTENSION IF NOT EXISTS unaccent;CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 tmpdir="$(mktemp -d)"
 # Backup the config file in the temp dir
 cp -a "$final_path/config/local-production.json" "$tmpdir/local-production.json"
+cp -a "$final_path/config/production.yaml" "$tmpdir/production.yaml"
 # Remove the app directory securely
 ynh_secure_remove "$final_path"
 
@@ -111,7 +112,13 @@ ynh_setup_source "$final_path"
 # MODIFY A CONFIG FILE
 #=================================================
 
+#Copy the admin saved settings from tmp directory to final path
+cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json"
+cp -a  "$tmpdir/production.yaml" "$final_path/config/production.yaml"
+
+ynh_backup_if_checksum_is_different "$final_path/config/local-production.json"
 ynh_backup_if_checksum_is_different "$final_path/config/production.yaml"
+
 cp ../conf/production.yaml "$final_path/config/production.yaml"
 ynh_replace_string "__domain__"  "$domain"      "$final_path/config/production.yaml"
 ynh_replace_string "__db_name__" "$app"         "$final_path/config/production.yaml"
@@ -120,8 +127,6 @@ ynh_replace_string "__db_pwd__"  "$db_pwd"      "$final_path/config/production.y
 ynh_replace_string "__email__"   "$admin_email" "$final_path/config/production.yaml"
 ynh_replace_string "__PORT__"    "$port"        "$final_path/config/production.yaml"
 
-#Copy the admin saved settings from tmp directory to final path
-cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json"
 
 # Remove the tmp directory securely
 ynh_secure_remove "$tmpdir"
@@ -174,6 +179,7 @@ pushd "$final_path"
 popd
 
 # Recalculate and store the checksum of the file for the next upgrade.
+ynh_store_file_checksum "$final_path/config/local-production.json"
 ynh_store_file_checksum "$final_path/config/production.yaml"
 
 #=================================================

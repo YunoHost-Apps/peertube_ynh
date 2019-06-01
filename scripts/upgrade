@@ -111,6 +111,7 @@ ynh_setup_source "$final_path"
 # MODIFY A CONFIG FILE
 #=================================================
 
+ynh_backup_if_checksum_is_different "$final_path/config/production.yaml"
 cp ../conf/production.yaml "$final_path/config/production.yaml"
 ynh_replace_string "__domain__"  "$domain"      "$final_path/config/production.yaml"
 ynh_replace_string "__db_name__" "$app"         "$final_path/config/production.yaml"
@@ -172,7 +173,6 @@ pushd "$final_path"
 	yarn install --production --pure-lockfile 
 popd
 
-ynh_backup_if_checksum_is_different "$final_path/config/production.yaml"
 # Recalculate and store the checksum of the file for the next upgrade.
 ynh_store_file_checksum "$final_path/config/production.yaml"
 

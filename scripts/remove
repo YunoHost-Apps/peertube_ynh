@@ -7,19 +7,21 @@
 #=================================================
 
 source _common.sh
+source ynh_send_readme_to_admin__2
 source /usr/share/yunohost/helpers
 
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_print_info "Loading installation settings..."
+ynh_print_info --message="Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get "$app" domain)
-port=$(ynh_app_setting_get "$app" port)
-db_name=$(ynh_app_setting_get "$app" psql_db)
-final_path=$(ynh_app_setting_get "$app" final_path)
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+port=$(ynh_app_setting_get --app=$app --key=port)
+db_name=$(ynh_app_setting_get --app=$app --key=psql_db)
+db_user=$app
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 
 #=================================================
 # STANDARD REMOVE
@@ -28,16 +30,16 @@ final_path=$(ynh_app_setting_get "$app" final_path)
 #=================================================
 
 # Remove a service from the admin panel, added by `yunohost service add`
-if yunohost service status $app >/dev/null 2>&1
+if ynh_exec_warn_less yunohost service status $app >/dev/null 2>&1
 then
-	ynh_print_info "Removing $app service"
-	yunohost service remove "$app"
+	ynh_print_info --message="Removing $app service..."
+	yunohost service remove $app
 fi
 
 #=================================================
 # STOP AND REMOVE SERVICE
 #=================================================
-ynh_print_info "Stopping and removing the systemd service"
+ynh_print_info --message="Stopping and removing the systemd service..."
 
 # Remove the dedicated systemd config
 ynh_remove_systemd_config
@@ -45,18 +47,15 @@ ynh_remove_systemd_config
 #=================================================
 # REMOVE THE POSTGRESQL DATABASE
 #=================================================
-ynh_print_info "Removing the PostgreSQL database"
-
-ynh_psql_execute_as_root "\connect $db_name 
-SELECT pg_terminate_backend (pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = '$db_name';"
+ynh_print_info --message="Removing the PostgreSQL database..."
 
 # Remove a database if it exists, along with the associated user
-ynh_psql_remove_db --db_name="$db_name" --db_user="$app"
+ynh_psql_remove_db --db_user=$db_user --db_name=$db_name
 
 #=================================================
 # REMOVE DEPENDENCIES
 #=================================================
-ynh_print_info "Removing dependencies"
+ynh_print_info --message="Removing dependencies..."
 
 # Remove metapackage and its dependencies
 ynh_remove_app_dependencies
@@ -65,15 +64,15 @@ ynh_remove_nodejs
 #=================================================
 # REMOVE APP MAIN DIR
 #=================================================
-ynh_print_info "Removing app main directory"
+ynh_print_info --message="Removing app main directory..."
 
 # Remove the app directory securely
-ynh_secure_remove "$final_path"
+ynh_secure_remove --file="$final_path"
 
 #=================================================
 # REMOVE NGINX CONFIGURATION
 #=================================================
-ynh_print_info "Removing nginx web server configuration"
+ynh_print_info --message="Removing nginx web server configuration..."
 
 # Remove the dedicated nginx config
 ynh_remove_nginx_config
@@ -81,7 +80,7 @@ ynh_remove_nginx_config
 #=================================================
 # REMOVE LOGROTATE CONFIGURATION
 #=================================================
-ynh_print_info "Removing logrotate configuration"
+ynh_print_info --message="Removing logrotate configuration..."
 
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
@@ -92,7 +91,7 @@ ynh_remove_logrotate
 
 if yunohost firewall list | grep -q "\- $port$"
 then
-	ynh_print_info "Closing port $port"
+	ynh_print_info --message="Closing port $port..."
 	ynh_exec_warn_less yunohost firewall disallow TCP $port
 fi
 
@@ -105,10 +104,10 @@ fi
 #=================================================
 # REMOVE DEDICATED USER
 #=================================================
-ynh_print_info "Removing the dedicated system user"
+ynh_print_info --message="Removing the dedicated system user..."
 
 # Delete a system user
-ynh_system_user_delete "$app"
+ynh_system_user_delete --username=$app
 
 #=================================================
 # SEND A README FOR THE ADMIN
@@ -129,10 +128,10 @@ rm -R /home/yunohost.app/$app -f
 
 If you facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh"
 
-ynh_send_readme_to_admin "$message"
+ynh_send_readme_to_admin --app_message="$message"
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info "Removal of $app completed"
+ynh_print_info --message="Removal of $app completed"

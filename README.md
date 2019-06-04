@@ -1,14 +1,14 @@
 # PeerTube app for YunoHost
 
 [![Integration level](https://dash.yunohost.org/integration/peertube.svg)](https://dash.yunohost.org/appci/app/peertube)  
-[![Install peertube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=peertube)
+[![Install PeerTube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=peertube)
 
 ## Overview
 
-### What is Peertube ?
+### What is PeerTube ?
 PeerTube is a federated (ActivityPub) video streaming platform using P2P (BitTorrent) directly in the web browser, using <a href="https://github.com/feross/webtorrent">WebTorrent</a>.
 
-### Why Peertube ?
+### Why PeerTube ?
 
 We can't build a FOSS video streaming alternatives to YouTube, Dailymotion, Vimeo... with a centralized software. One organization alone cannot have enough money to pay bandwidth and video storage of its server.
 
@@ -22,7 +22,7 @@ Servers are run independently by different people and organizations. They can ap
 
 By watching a video, you help the hosting provider to broadcast it by becoming a broadcaster of the video yourself. Each instance doesn’t need much money to broadcast the videos of its users.
 
-**Shipped version:** 1.2.1
+**Shipped version:** 1.3.0
 
 ## Screenshots
 
@@ -39,7 +39,7 @@ Want to see in action?
 ### Guidelines 
 
  1. Require **dedicated domain** like **peertube.domain.tld**.
- 1. **No LDAP** support (blocked until Peertube core upstream implements it)
+ 1. **No LDAP** support (blocked until PeerTube core upstream implements it)
  1. URL can not be changed once selected. Choose the domain wisely.
  1. You need more then **1GB** of ram. If you don't have it, please create a **swap memory**.
  
@@ -47,7 +47,7 @@ Want to see in action?
         $ mkswap /swapfile
         $ swapon /swapfile
         $ echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
- 1. This app is **multi-instance** (you can have more then one Peertube instance running on a YunoHost server)
+ 1. This app is **multi-instance** (you can have more then one PeerTube instance running on a YunoHost server)
    
 ### Installing guide
 
@@ -76,9 +76,9 @@ Want to see in action?
 
 #### Supported architectures
 
-* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/peertube%20%28Community%29.svg)](https://ci-apps.yunohost.org/ci/apps/peertube/)
-* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/peertube%20%28Community%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/peertube/)
-* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/peertube%20%28Community%29.svg)](https://ci-stretch.nohost.me/ci/apps/peertube/)
+* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/peertube%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/peertube/)
+* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/peertube%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/peertube/)
+* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/peertube%20%28Apps%29.svg)](https://ci-stretch.nohost.me/ci/apps/peertube/)
 
 ## Links
 

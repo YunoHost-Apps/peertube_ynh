@@ -8,7 +8,6 @@
 
 #Keep this path for calling _common.sh inside the execution's context of backup and restore scripts
 source ../settings/scripts/_common.sh
-source ../settings/scripts/ynh_systemd_action
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -24,69 +23,69 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_print_info "Loading installation settings..."
+ynh_print_info --message="Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
-final_path=$(ynh_app_setting_get "$app" final_path)
-domain=$(ynh_app_setting_get "$app" domain)
-db_name=$(ynh_app_setting_get "$app" psql_db)
-
-#=================================================
-# STOP PEERTUBE FOR BACKUP
-#=================================================
-ynh_print_info "Stop $app service..."
-
-ynh_systemd_action --service_name="$app" --action="stop"
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+db_name=$(ynh_app_setting_get --app=$app --key=psql_db)
 
 #=================================================
 # STANDARD BACKUP STEPS
 #=================================================
+# STOP SYSTEMD SERVICE
+#=================================================
+ynh_print_info --message="Stopping a systemd service..."
+
+ynh_systemd_action --service_name=$app --action="stop"
+
+#=================================================
 # BACKUP THE APP MAIN DIR
 #=================================================
-ynh_print_info "Backing up the main app directory..."
+ynh_print_info --message="Backing up the main app directory..."
 
-ynh_backup "$final_path"
+ynh_backup --src_path="$final_path"
 
 #=================================================
 # BACKUP THE NGINX CONFIGURATION
 #=================================================
-ynh_print_info "Backing up nginx web server configuration..."
+ynh_print_info --message="Backing up nginx web server configuration..."
 
-ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # BACKUP THE POSTGRESQL DATABASE
 #=================================================
-ynh_print_info "Backing up the PostgreSQL database..."
+ynh_print_info --message="Backing up the PostgreSQL database..."
 
-ynh_psql_dump_db "$db_name" > db.sql
+ynh_psql_dump_db --database="$db_name" > db.sql
 
 #=================================================
 # SPECIFIC BACKUP
 #=================================================
 # BACKUP LOGROTATE
 #=================================================
-ynh_print_info "Backing up logrotate configuration..."
+ynh_print_info --message="Backing up logrotate configuration..."
 
-ynh_backup "/etc/logrotate.d/$app"
+ynh_backup --src_path="/etc/logrotate.d/$app"
 
 #=================================================
 # BACKUP SYSTEMD
 #=================================================
-ynh_print_info "Backing up systemd configuration..."
+ynh_print_info --message="Backing up systemd configuration..."
 
-ynh_backup "/etc/systemd/system/$app.service"
+ynh_backup --src_path="/etc/systemd/system/$app.service"
 
 #=================================================
-# START PEERTUBE
+# START SYSTEMD SERVICE
 #=================================================
-ynh_print_info "Start $app service..."
+ynh_print_info --message="Starting a systemd service..."
 
-ynh_systemd_action --service_name="$app" --action="start" --log_path="systemd" --line_match="Server listening on localhost"
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info "Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."
+ynh_print_info --message="Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."

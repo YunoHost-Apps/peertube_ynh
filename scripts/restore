@@ -8,7 +8,6 @@
 
 source ../settings/scripts/_common.sh
 source ../settings/scripts/ynh_add_extra_apt_repos__3
-source ../settings/scripts/ynh_systemd_action
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -24,26 +23,27 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_print_info "Loading settings..."
+ynh_print_info --message="Loading settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get "$app" domain)
-path_url=$(ynh_app_setting_get $app path)
-final_path=$(ynh_app_setting_get "$app" final_path)
-port=$(ynh_app_setting_get "$app" port)
-db_name=$(ynh_app_setting_get "$app" psql_db)
-db_pwd=$(ynh_app_setting_get "$app" psqlpwd)
+domain=$(ynh_app_setting_get --app=$app --key=domain)
+path_url=$(ynh_app_setting_get --app=$app --key=path)
+final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+port=$(ynh_app_setting_get --app=$app --key=port)
+db_name=$(ynh_app_setting_get --app=$app --key=psql_db)
+db_user=$app
+db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
 
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
 #=================================================
-ynh_print_info "Validating restoration parameters..."
+ynh_print_info --message="Validating restoration parameters..."
 
-ynh_webpath_available "$domain" "$path_url" \
-	|| ynh_die "Path not available: ${domain}${path_url}"
-test ! -d "$final_path" \
-	|| ynh_die "There is already a directory: $final_path "
+ynh_webpath_available --domain=$domain --path_url=$path_url \
+	|| ynh_die --message="Path not available: ${domain}${path_url}"
+test ! -d $final_path \
+	|| ynh_die --message="There is already a directory: $final_path "
 
 #=================================================
 # STANDARD RESTORATION STEPS
@@ -51,22 +51,22 @@ test ! -d "$final_path" \
 # RESTORE THE NGINX CONFIGURATION
 #=================================================
 
-ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
-ynh_print_info "Restoring the app main directory..."
+ynh_print_info --message="Restoring the app main directory..."
 
-ynh_restore_file "$final_path"
+ynh_restore_file --origin_path="$final_path"
 
 #=================================================
 # RECREATE THE DEDICATED USER
 #=================================================
-ynh_print_info "Recreating the dedicated system user..."
+ynh_print_info --message="Recreating the dedicated system user..."
 
 # Create the dedicated user (if not existing)
-ynh_system_user_create "$app"
+ynh_system_user_create --username=$app
 
 #=================================================
 # RESTORE USER RIGHTS
@@ -83,10 +83,10 @@ chown -R "$app":"$app" "/home/yunohost.app/${app}/storage"
 #=================================================
 # REINSTALL DEPENDENCIES
 #=================================================
-ynh_print_info "Reinstalling dependencies..."
+ynh_print_info --message="Reinstalling dependencies..."
 
 # Install nodejs
-ynh_install_nodejs 8
+ynh_install_nodejs --nodejs_version=8
 
 # Install dependencies
 ynh_install_app_dependencies $pkg_dependencies
@@ -104,21 +104,19 @@ ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ st
 #=================================================
 # RESTORE THE POSTGRESQL DATABASE
 #=================================================
-ynh_print_info "Restoring the PostgreSQL database..."
+ynh_print_info --message="Restoring the PostgreSQL database..."
 
 ynh_psql_test_if_first_run
-ynh_psql_create_user "$app" "$db_pwd"
-ynh_psql_execute_as_root \
-"CREATE DATABASE $db_name ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' template=template0 OWNER $app;"
-ynh_psql_execute_file_as_root ./db.sql "$db_name"
+ynh_psql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
+ynh_psql_execute_file_as_root --file="./db.sql" --database=$db_name
 
 #=================================================
 # RESTORE SYSTEMD
 #=================================================
-ynh_print_info "Restoring the systemd configuration..."
+ynh_print_info --message="Restoring the systemd configuration..."
 
-ynh_restore_file "/etc/systemd/system/$app.service"
-systemctl enable "$app.service"
+ynh_restore_file --origin_path="/etc/systemd/system/$app.service"
+systemctl enable $app.service
 
 #=================================================
 # ADVERTISE SERVICE IN ADMIN PANEL
@@ -127,29 +125,29 @@ systemctl enable "$app.service"
 yunohost service add $app --description "$app daemon for Peertube" --log "/home/yunohost.app/${app}/storage/logs/peertube.log"
 
 #=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_print_info --message="Starting a systemd service..."
+
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
+
+#=================================================
 # RESTORE THE LOGROTATE CONFIGURATION
 #=================================================
 
-ynh_restore_file "/etc/logrotate.d/$app"
+ynh_restore_file --origin_path="/etc/logrotate.d/$app"
 
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_print_info "Reloading nginx web server..."
+ynh_print_info --message="Reloading nginx web server..."
 
-systemctl reload nginx
-
-#=================================================
-# START SERVICE
-#=================================================
-ynh_print_info "Start $app service..."
-
-ynh_systemd_action --service_name="$app" --action="start" --log_path="systemd" --line_match="Server listening on localhost"
+ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info "Restoration completed for $app"
+ynh_print_info --message="Restoration completed for $app"

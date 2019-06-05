@@ -133,7 +133,7 @@ ynh_add_nginx_config
 ynh_print_info --message="Upgrading dependencies..."
 
 # Install nodejs
-ynh_install_nodejs --nodejs_version=8
+#ynh_install_nodejs --nodejs_version=8
 
 # Install dependencies
 ynh_install_app_dependencies $pkg_dependencies
@@ -182,7 +182,7 @@ ynh_store_file_checksum "$final_path/config/production.yaml"
 #=================================================
 
 pushd "$final_path"
-	yarn install --production --pure-lockfile 
+	#yarn install --production --pure-lockfile 
 popd
 
 #=================================================

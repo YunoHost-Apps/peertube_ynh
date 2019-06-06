@@ -178,6 +178,12 @@ ynh_store_file_checksum "$final_path/config/local-production.json"
 ynh_store_file_checksum "$final_path/config/production.yaml"
 
 #=================================================
+# FIX NGINX DOMAIN CONFIGURATION
+#=================================================
+
+ynh_replace_string --match_string="X-Frame-Options : SAMEORIGIN" --replace_string="X-Frame-Options : ALLOWALL" --target_file="/etc/nginx/conf.d/$domain.conf"
+
+#=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
 

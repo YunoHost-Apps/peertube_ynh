@@ -102,6 +102,12 @@ fi
 ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
 #=================================================
+# FIX NGINX DOMAIN CONFIGURATION
+#=================================================
+
+ynh_replace_string --match_string="X-Frame-Options : SAMEORIGIN" --replace_string="X-Frame-Options : ALLOWALL" --target_file="/etc/nginx/conf.d/$domain.conf"
+
+#=================================================
 # RESTORE THE POSTGRESQL DATABASE
 #=================================================
 ynh_print_info --message="Restoring the PostgreSQL database..."

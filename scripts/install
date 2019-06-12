@@ -159,6 +159,12 @@ ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_f
 touch "$final_path/config/local-production.json"
 
 #=================================================
+# FIX NGINX DOMAIN CONFIGURATION
+#=================================================
+
+ynh_replace_string --match_string="X-Frame-Options : SAMEORIGIN" --replace_string="X-Frame-Options : ALLOWALL" --target_file="/etc/nginx/conf.d/$domain.conf"
+
+#=================================================
 # STORE THE CHECKSUM OF THE CONFIG FILE
 #=================================================
 

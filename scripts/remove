@@ -98,6 +98,10 @@ fi
 #=================================================
 # SPECIFIC REMOVE
 #=================================================
+# RESTORE ORIGINAL NGINX DOMAIN CONFIGURATION
+#=================================================
+
+ynh_replace_string --match_string="X-Frame-Options : ALLOWALL" --replace_string="X-Frame-Options : SAMEORIGIN" --target_file="/etc/nginx/conf.d/$domain.conf"
 
 #=================================================
 # GENERIC FINALIZATION

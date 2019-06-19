@@ -187,8 +187,11 @@ ynh_replace_string --match_string="X-Frame-Options : SAMEORIGIN" --replace_strin
 # BUILD YARN DEPENDENCIES
 #=================================================
 
+chown -R "$app":"$app" $final_path
+
 pushd "$final_path"
-	yarn install --production --pure-lockfile 
+	ynh_use_nodejs
+	sudo -u $app env PATH=$PATH yarn install --production --pure-lockfile 
 popd
 
 #=================================================

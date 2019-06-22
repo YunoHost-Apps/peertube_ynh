@@ -1,0 +1,8 @@
+__APP__ was successfully installed :)
+
+Please open your __APP__ domain: https://__DOMAIN____PATH_URL__
+
+The admin username is: root
+The admin password is: __ADMIN_PASS__
+
+If you are facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh

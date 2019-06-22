@@ -22,6 +22,7 @@ port=$(ynh_app_setting_get --app=$app --key=port)
 db_name=$(ynh_app_setting_get --app=$app --key=psql_db)
 db_user=$app
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+admin_email=$(ynh_app_setting_get --app=$app --key=admin_email)
 
 #=================================================
 # STANDARD REMOVE
@@ -116,23 +117,13 @@ ynh_system_user_delete --username=$app
 #=================================================
 # SEND A README FOR THE ADMIN
 #=================================================
+ynh_print_info --message="Sending a readme for the admin..."
 
-message="$app was successfully removed :)
+ynh_replace_string --match_string="__APP__"    --replace_string="$app"    --target_file="../conf/message_remove"
+ynh_replace_string --match_string="__DOMAIN__"    --replace_string="$domain"    --target_file="../conf/message_remove"
+ynh_replace_string --match_string="__PATH_URL__"    --replace_string="$path_url"    --target_file="../conf/message_remove"
 
-$app was successfully removed. The domain https://$domain$path_url is free for other apps to be installed on it.
-
-But a futher action is required from your side to completely remove the $app data folder. If you have backup and plan to restore this app in the future DON'T RUN THIS COMMAND. 
-And if you are going to migrate to othe server you will have to move /home/yunohost.app/$app to your new server.
-
-
-You need to run this command to remove the data (warning all your videos will be removed) :
-
-rm -R /home/yunohost.app/$app -f
-
-
-If you facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh"
-
-ynh_send_readme_to_admin --app_message="$message"
+ynh_send_readme_to_admin --app_message="../conf/message_remove" --recipients=$admin_email --type='remove'
 
 #=================================================
 # END OF SCRIPT

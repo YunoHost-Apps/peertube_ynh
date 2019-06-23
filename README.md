@@ -48,21 +48,22 @@ Want to see in action?
         $ swapon /swapfile
         $ echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
  1. This app is **multi-instance** (you can have more then one PeerTube instance running on a YunoHost server)
- 1. If installing on an ovh virtual machine or having `gyp ERR! configure error` please follow the steps indicated in [Chocobozzz/PeerTube#830 (comment)](https://github.com/Chocobozzz/PeerTube/issues/830#issuecomment-425942717)
-   
+ 1. **If you are hosted on OVH virtual machine or experiencing `gyp ERR! configure error`, please switch to [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix)**
+
 ### Installing guide
 
  1. App can be installed by YunoHost **admin web-interface** or by **running following command**:
 
          $ sudo yunohost app install https://github.com/YunoHost-Apps/peertube_ynh
+
  1. Admin username is : **root**.
  1. **Admin password** will be sent to the email address given at the time of the installation.
  1. **TLS** and **starttls** are disabled for the outgoing mails. If you intent to use email address not hosted on your local server,it's advised to have a proper SMTP configured with tls and starttls settings by editing **/var/www/peertube/config/production.yml**.
  
  ### Update Guide
- 1. App can be updated by YunoHost **admin web-interface** or with the following command**:
-          
-          $ sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/peertube_ynh peertube
+ 1. App can be updated by YunoHost **admin web-interface** or with the **following command**:
+
+          $ sudo yunohost app upgrade peertube -u https://github.com/YunoHost-Apps/peertube_ynh
 
 ### Dependencies
 

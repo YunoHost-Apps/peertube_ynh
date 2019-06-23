@@ -36,12 +36,6 @@ Want to see in action?
 
 ## Installation
 
-Following command line examples have been updated for ovh virtual machine, according to indications in [Chocobozzz/PeerTube#830 (comment)](https://github.com/Chocobozzz/PeerTube/issues/830#issuecomment-425942717)
-
-**If you are NOT hosted on OVH virtual machine or experiencing `gyp ERR! configure error`, please switch back to [master branch](https://github.com/YunoHost-Apps/peertube_ynh)**
-
-
-
 ### Guidelines 
 
  1. Require **dedicated domain** like **peertube.domain.tld**.
@@ -54,14 +48,13 @@ Following command line examples have been updated for ovh virtual machine, accor
         $ swapon /swapfile
         $ echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
  1. This app is **multi-instance** (you can have more then one PeerTube instance running on a YunoHost server)
+ 1. **If you are hosted on OVH virtual machine or experiencing `gyp ERR! configure error`, please switch to [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree_ovh)**
 
 ### Installing guide
 
  1. App can be installed by **running following commands**:
 
-         $ sudo yunohost app install https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix
-         $ cd /var/www/peertube && sudo yarn install --production --pure-lockfile
-         $ sudo systemctl restart peertube
+         $ sudo yunohost app install https://github.com/YunoHost-Apps/peertube_ynh
  1. Admin username is : **root**.
  1. **Admin password** will be sent to the email address given at the time of the installation.
  1. **TLS** and **starttls** are disabled for the outgoing mails. If you intent to use email address not hosted on your local server,it's advised to have a proper SMTP configured with tls and starttls settings by editing **/var/www/peertube/config/production.yml**.
@@ -69,9 +62,7 @@ Following command line examples have been updated for ovh virtual machine, accor
  ### Update Guide
  1. App can be updated with the **following commands**:
           
-          $ sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix peertube
-          $ cd /var/www/peertube && sudo yarn install --production --pure-lockfile
-          $ sudo systemctl restart peertube
+          $ sudo yunohost app upgrade peertube -u https://github.com/YunoHost-Apps/peertube_ynh
 ### Dependencies
 
   * NodeJS, PostgreSQL.

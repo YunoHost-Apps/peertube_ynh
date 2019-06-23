@@ -48,7 +48,7 @@ Want to see in action?
         $ swapon /swapfile
         $ echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
  1. This app is **multi-instance** (you can have more then one PeerTube instance running on a YunoHost server)
- 1. **If you are hosted on OVH virtual machine or experiencing `gyp ERR! configure error`, please switch to [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree_ovh)**
+ 1. **If you are hosted on OVH virtual machine or experiencing `gyp ERR! configure error`, please switch to [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix)**
 
 ### Installing guide
 

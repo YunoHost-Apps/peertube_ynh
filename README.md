@@ -58,7 +58,7 @@ password: **created in above step**
 $ yunohost app upgrade peertube -u https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix --debug
 ```
 
-2. After upgarde is complete run **yarn install**.
+2. After upgrade is complete run **yarn install**.
 
 ```
 $ cd /var/www/peertube && yarn install --production --pure-lockfile

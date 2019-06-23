@@ -15,7 +15,7 @@ $ sudo apt-get install -y nodejs
 2. Install the peertube with **OVH fix** branch.
 
 ```
-$ yunohost app install --debug https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix
+$ yunohost app install https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix --debug
 ```
 
 3. After installation is complete run **yarn install**.
@@ -52,3 +52,26 @@ password: **created in above step**
 
 ## Steps for upgrading
 
+1. Upgrade peertube  with **OVH fix** branch.
+
+```
+$ yunohost app upgrade peertube -u https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix --debug
+```
+
+2. After upgarde is complete run **yarn install**.
+
+```
+$ cd /var/www/peertube && yarn install --production --pure-lockfile
+```
+
+3. Give proper **permissions** to peertube
+
+```
+$ chown -R peertube:peertube /var/www/peertube
+```
+
+4. **Restart peertube** and check if there is any error message.
+
+```
+$ service peertube restart
+```

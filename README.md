@@ -52,17 +52,19 @@ Want to see in action?
 
 ### Installing guide
 
- 1. App can be installed by **running following commands**:
+ 1. App can be installed by YunoHost **admin web-interface** or by **running following command**:
 
          $ sudo yunohost app install https://github.com/YunoHost-Apps/peertube_ynh
+
  1. Admin username is : **root**.
  1. **Admin password** will be sent to the email address given at the time of the installation.
  1. **TLS** and **starttls** are disabled for the outgoing mails. If you intent to use email address not hosted on your local server,it's advised to have a proper SMTP configured with tls and starttls settings by editing **/var/www/peertube/config/production.yml**.
  
  ### Update Guide
- 1. App can be updated with the **following commands**:
-          
+ 1. App can be updated by YunoHost **admin web-interface** or with the **following command**:
+
           $ sudo yunohost app upgrade peertube -u https://github.com/YunoHost-Apps/peertube_ynh
+
 ### Dependencies
 
   * NodeJS, PostgreSQL.

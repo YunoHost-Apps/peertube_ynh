@@ -71,7 +71,7 @@ ynh_app_setting_set --app=$app --key=port --value=$port
 ynh_print_info --message="Installing dependencies..."
 
 # Install nodejs
-#ynh_install_nodejs --nodejs_version=8
+ynh_install_nodejs --nodejs_version=8
 
 # Install dependencies
 ynh_install_app_dependencies $pkg_dependencies
@@ -179,7 +179,7 @@ ynh_store_file_checksum --file="$final_path/config/local-production.json"
 chown -R "$app":"$app" $final_path
 
 pushd "$final_path"
-	#sudo -u $app env PATH=$PATH yarn install --production --pure-lockfile 
+	sudo -u $app env PATH=$PATH yarn install --production --pure-lockfile 
 popd
 
 #=================================================

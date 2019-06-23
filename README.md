@@ -1,6 +1,6 @@
 # ovh_fix branch for peertube_ynh
 
-If installing on an ovh virtual machine or having `gyp ERR! configure error` please follow the steps indicated in Chocobozzz/PeerTube#830 (comment)
+If installing on an ovh virtual machine or having `gyp ERR! configure error` please follow the steps below
 
 ## Steps for installing
 

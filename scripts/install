@@ -179,6 +179,7 @@ ynh_store_file_checksum --file="$final_path/config/local-production.json"
 chown -R "$app":"$app" $final_path
 
 pushd "$final_path"
+	ynh_use_nodejs
 	sudo -u $app env PATH=$PATH yarn install --production --pure-lockfile 
 popd
 
@@ -219,7 +220,7 @@ yunohost service add $app --description "$app daemon for Peertube" --log "/home/
 #=================================================
 ynh_print_info --message="Starting a systemd service..."
 
-#ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
 
 #=================================================
 # SETUP SSOWAT
@@ -246,7 +247,7 @@ ynh_systemd_action --service_name=nginx --action=reload
 
 # we need to wait for the service to init peertube's database
 pushd "$final_path"
-	#echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run reset-password -- -u root
+	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run reset-password -- -u root
 popd
 
 #=================================================

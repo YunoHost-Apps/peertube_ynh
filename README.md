@@ -24,6 +24,22 @@ By watching a video, you help the hosting provider to broadcast it by becoming a
 
 **Shipped version:** 1.3.1
 
+## Important points to read before installing
+
+1. Require **dedicated domain** like **peertube.domain.tld**.
+1. **No LDAP** support (blocked until PeerTube core upstream implements it)
+1. Admin username is : **root**.
+1. **Admin password** will be sent to the email address given at the time of the installation.
+1. URL can not be changed once selected. Choose the domain wisely.
+1. You need more then **1GB** of ram. If you don't have it, please create a **swap memory**.
+ 
+        $ dd if=/dev/zero of=/swapfile bs=1024 count=1048576
+        $ mkswap /swapfile
+        $ swapon /swapfile
+        $ echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
+1. This app is **multi-instance** (you can have more then one PeerTube instance running on a YunoHost server)
+1. **If you are hosted on OVH virtual machine or experiencing `gyp ERR! configure error`, please switch to [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix)**
+ 
 ## Screenshots
 
 ![](https://framablog.org/wp-content/uploads/2018/03/Framatube-au-lancement.png)
@@ -33,42 +49,6 @@ By watching a video, you help the hosting provider to broadcast it by becoming a
 Want to see in action?
 
    * [Here](http://peertube.cpy.re) are the list of instances ran by people around the world. Be a part of it.
-
-## Installation
-
-### Guidelines 
-
- 1. Require **dedicated domain** like **peertube.domain.tld**.
- 1. **No LDAP** support (blocked until PeerTube core upstream implements it)
- 1. URL can not be changed once selected. Choose the domain wisely.
- 1. You need more then **1GB** of ram. If you don't have it, please create a **swap memory**.
- 
-        $ dd if=/dev/zero of=/swapfile bs=1024 count=1048576
-        $ mkswap /swapfile
-        $ swapon /swapfile
-        $ echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
- 1. This app is **multi-instance** (you can have more then one PeerTube instance running on a YunoHost server)
- 1. **If you are hosted on OVH virtual machine or experiencing `gyp ERR! configure error`, please switch to [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix)**
-
-### Installing guide
-
- 1. App can be installed by YunoHost **admin web-interface** or by **running following command**:
-
-         $ sudo yunohost app install https://github.com/YunoHost-Apps/peertube_ynh
-
- 1. Admin username is : **root**.
- 1. **Admin password** will be sent to the email address given at the time of the installation.
- 1. **TLS** and **starttls** are disabled for the outgoing mails. If you intent to use email address not hosted on your local server,it's advised to have a proper SMTP configured with tls and starttls settings by editing **/var/www/peertube/config/production.yml**.
- 
- ### Update Guide
- 1. App can be updated by YunoHost **admin web-interface** or with the **following command**:
-
-          $ sudo yunohost app upgrade peertube -u https://github.com/YunoHost-Apps/peertube_ynh
-
-### Dependencies
-
-  * NodeJS, PostgreSQL.
-  * On Debian Jessie,backport is added for the ffmpeg package.
 
 ## Documentation
 

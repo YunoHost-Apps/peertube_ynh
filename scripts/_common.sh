@@ -5,7 +5,7 @@
 #=================================================
 
 # dependencies used by the app
-pkg_dependencies="postgresql postgresql-contrib openssl g++ redis-server redis-tools mailutils apt-transport-https"
+pkg_dependencies="ffmpeg postgresql postgresql-contrib openssl g++ redis-server redis-tools mailutils apt-transport-https"
 
 #=================================================
 # PERSONAL HELPERS

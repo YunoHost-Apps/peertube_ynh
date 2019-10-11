@@ -71,7 +71,7 @@ ynh_app_setting_set --app=$app --key=port --value=$port
 ynh_print_info --message="Installing dependencies..."
 
 # Install nodejs
-ynh_install_nodejs --nodejs_version=8
+ynh_install_nodejs --nodejs_version=10
 
 # Install dependencies
 ynh_install_app_dependencies $pkg_dependencies
@@ -155,9 +155,6 @@ ynh_replace_string --match_string="__db_pwd__" --replace_string="$db_pwd" --targ
 ynh_replace_string --match_string="__email__" --replace_string="$admin_email" --target_file="$final_path/config/production.yaml"
 ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_file="$final_path/config/production.yaml"
 
-#Create the admin settings file
-touch "$final_path/config/local-production.json"
-
 #=================================================
 # FIX NGINX DOMAIN CONFIGURATION
 #=================================================
@@ -170,7 +167,6 @@ ynh_replace_string --match_string="X-Frame-Options : SAMEORIGIN" --replace_strin
 
 # Calculate and store the config file checksum into the app settings
 ynh_store_file_checksum --file="$final_path/config/production.yaml"
-ynh_store_file_checksum --file="$final_path/config/local-production.json"
 
 #=================================================
 # BUILD YARN DEPENDENCIES

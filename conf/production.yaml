@@ -5,7 +5,7 @@ listen:
 # Correspond to your reverse proxy server_name/listen configuration
 webserver:
   https: true
-  hostname: '__domain__'
+  hostname: '__DOMAIN__'
   port: 443
 
 rates_limit:
@@ -36,9 +36,9 @@ trust_proxy:
 database:
   hostname: 'localhost'
   port: 5432
-  suffix: '___db_name__'
-  username: '__db_name__'
-  password: '__db_pwd__'
+  suffix: '___DB_NAME__'
+  username: '__DB_NAME__'
+  password: '__DB_PWD__'
 pool:
     max: 5
 
@@ -60,7 +60,7 @@ smtp:
   tls: false # If you use StartTLS: false
   disable_starttls: true
   ca_file: null # Used for self signed certificates
-  from_address: 'webmaster@__domain__'
+  from_address: 'webmaster@__DOMAIN__'
 
 email:
   body:
@@ -70,18 +70,18 @@ email:
   
 # From the project root directory
 storage:
-  tmp: '/home/yunohost.app/__app__/storage/tmp/' # Use to download data (imports etc), store uploaded files before processing...
-  avatars: '/home/yunohost.app/__app__/storage/avatars/'
-  videos: '/home/yunohost.app/__app__/storage/videos/'
-  streaming_playlists: '/home/yunohost.app/__app__/storage/streaming-playlists/'
-  redundancy: '/home/yunohost.app/__app__/storage/videos/'
-  logs: '/home/yunohost.app/__app__/storage/logs/'
-  previews: '/home/yunohost.app/__app__/storage/previews/'
-  thumbnails: '/home/yunohost.app/__app__/storage/thumbnails/'
-  torrents: '/home/yunohost.app/__app__/storage/torrents/'
-  captions: '/home/yunohost.app/__app__/storage/captions/'
-  cache: '/home/yunohost.app/__app__/storage/cache/'
-  plugins: '/home/yunohost.app/__app__/storage/plugins/'
+  tmp: '/home/yunohost.app/__APP__/storage/tmp/' # Use to download data (imports etc), store uploaded files before processing...
+  avatars: '/home/yunohost.app/__APP__/storage/avatars/'
+  videos: '/home/yunohost.app/__APP__/storage/videos/'
+  streaming_playlists: '/home/yunohost.app/__APP__/storage/streaming-playlists/'
+  redundancy: '/home/yunohost.app/__APP__/storage/videos/'
+  logs: '/home/yunohost.app/__APP__/storage/logs/'
+  previews: '/home/yunohost.app/__APP__/storage/previews/'
+  thumbnails: '/home/yunohost.app/__APP__/storage/thumbnails/'
+  torrents: '/home/yunohost.app/__APP__/storage/torrents/'
+  captions: '/home/yunohost.app/__APP__/storage/captions/'
+  cache: '/home/yunohost.app/__APP__/storage/cache/'
+  plugins: '/home/yunohost.app/__APP__/storage/plugins/'
 
 log:
   level: 'info' # debug/info/warning/error
@@ -186,7 +186,7 @@ cache:
 admin:
   # Used to generate the root user at first startup
   # And to receive emails from the contact form
-  email: '__email__'
+  email: '__EMAIL__'
 
 contact_form:
   enabled: true

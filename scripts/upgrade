@@ -111,9 +111,15 @@ then
 	# Download, check integrity, uncompress and patch the source from app.src
 	ynh_setup_source --dest_dir="$final_path"
 	
-	#Copy the admin saved settings from tmp directory to final path
-	cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json"
-	cp -a  "$tmpdir/production.yaml" "$final_path/config/production.yaml"
+	#Copy the admin saved settings from tmp directory to final path	
+	cp -a  "$tmpdir/production.yaml" "$final_path/config/production.yaml"	
+
+	if [ -s "$tmpdir/local-production.json" ]
+	then
+		cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json"
+	else
+		cp ../conf/local-production.json "$final_path/config/local-production.json"
+	fi
 	
 	# Remove the tmp directory securely
 	ynh_secure_remove --file="$tmpdir"

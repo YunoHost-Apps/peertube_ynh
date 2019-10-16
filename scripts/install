@@ -71,7 +71,7 @@ ynh_app_setting_set --app=$app --key=port --value=$port
 ynh_print_info --message="Installing dependencies..."
 
 # Install nodejs
-ynh_install_nodejs --nodejs_version=8
+ynh_install_nodejs --nodejs_version=10
 
 # Install dependencies
 ynh_install_app_dependencies $pkg_dependencies
@@ -148,15 +148,15 @@ chown -R "$app":"$app" "$datadir"
 #=================================================
 
 cp ../conf/production.yaml "$final_path/config/production.yaml"
-ynh_replace_string --match_string="__domain__" --replace_string="$domain" --target_file="$final_path/config/production.yaml"
-ynh_replace_string --match_string="__db_name__" --replace_string="$app" --target_file="$final_path/config/production.yaml"
-ynh_replace_string --match_string="__app__" --replace_string="$app" --target_file="$final_path/config/production.yaml"
-ynh_replace_string --match_string="__db_pwd__" --replace_string="$db_pwd" --target_file="$final_path/config/production.yaml"
-ynh_replace_string --match_string="__email__" --replace_string="$admin_email" --target_file="$final_path/config/production.yaml"
+ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="$final_path/config/production.yaml"
+ynh_replace_string --match_string="__DB_NAME__" --replace_string="$app" --target_file="$final_path/config/production.yaml"
+ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_file="$final_path/config/production.yaml"
+ynh_replace_string --match_string="__DB_PWD__" --replace_string="$db_pwd" --target_file="$final_path/config/production.yaml"
+ynh_replace_string --match_string="__EMAIL__" --replace_string="$admin_email" --target_file="$final_path/config/production.yaml"
 ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_file="$final_path/config/production.yaml"
 
 #Create the admin settings file
-touch "$final_path/config/local-production.json"
+cp ../conf/local-production.json "$final_path/config/local-production.json"
 
 #=================================================
 # FIX NGINX DOMAIN CONFIGURATION
@@ -170,7 +170,6 @@ ynh_replace_string --match_string="X-Frame-Options : SAMEORIGIN" --replace_strin
 
 # Calculate and store the config file checksum into the app settings
 ynh_store_file_checksum --file="$final_path/config/production.yaml"
-ynh_store_file_checksum --file="$final_path/config/local-production.json"
 
 #=================================================
 # BUILD YARN DEPENDENCIES

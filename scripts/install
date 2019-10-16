@@ -170,6 +170,7 @@ ynh_replace_string --match_string="X-Frame-Options : SAMEORIGIN" --replace_strin
 
 # Calculate and store the config file checksum into the app settings
 ynh_store_file_checksum --file="$final_path/config/production.yaml"
+ynh_store_file_checksum --file="$final_path/config/local-production.json"
 
 #=================================================
 # BUILD YARN DEPENDENCIES

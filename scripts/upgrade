@@ -181,8 +181,8 @@ ynh_replace_string --match_string="__EMAIL__" --replace_string="$admin_email" --
 ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_file="$final_path/config/production.yaml"
 
 # Recalculate and store the checksum of the file for the next upgrade.
-ynh_store_file_checksum "$final_path/config/local-production.json"
-ynh_store_file_checksum "$final_path/config/production.yaml"
+ynh_store_file_checksum --file="$final_path/config/local-production.json"
+ynh_store_file_checksum --file="$final_path/config/production.yaml"
 
 #=================================================
 # FIX NGINX DOMAIN CONFIGURATION

@@ -102,7 +102,8 @@ fi
 # RESTORE ORIGINAL NGINX DOMAIN CONFIGURATION
 #=================================================
 
-ynh_replace_string --match_string="X-Frame-Options : ALLOWALL" --replace_string="X-Frame-Options : SAMEORIGIN" --target_file="/etc/nginx/conf.d/$domain.conf"
+ynh_secure_remove --file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
+yunohost tools regen-conf nginx
 
 #=================================================
 # GENERIC FINALIZATION

@@ -188,7 +188,9 @@ ynh_store_file_checksum --file="$final_path/config/production.yaml"
 # FIX NGINX DOMAIN CONFIGURATION
 #=================================================
 
-ynh_replace_string --match_string="X-Frame-Options : SAMEORIGIN" --replace_string="X-Frame-Options : ALLOWALL" --target_file="/etc/nginx/conf.d/$domain.conf"
+cp -R ../conf/nginx_regen_conf.hook /usr/share/yunohost/hooks/conf_regen/15-nginx_$app
+ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
+yunohost tools regen-conf nginx
 
 #=================================================
 # BUILD YARN DEPENDENCIES

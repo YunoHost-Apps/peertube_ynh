@@ -64,6 +64,13 @@ ynh_psql_dump_db --database="$db_name" > db.sql
 #=================================================
 # SPECIFIC BACKUP
 #=================================================
+# BACKUP HOOK
+#=================================================
+ynh_print_info --message="Backing up hook configuration..."
+
+ynh_backup --src_path="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
+
+#=================================================
 # BACKUP LOGROTATE
 #=================================================
 ynh_print_info --message="Backing up logrotate configuration..."

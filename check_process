@@ -22,7 +22,7 @@
 		multi_instance=1
 		# This test is no longer necessary since the version 2.7 (PR: https://github.com/YunoHost/yunohost/pull/304), you can still do it if your app could be installed with this version.
 		# incorrect_path=1
-		port_already_use=1
+		port_already_use=0
 		change_url=0
 ;;; Levels
 	# If the level 5 (Package linter) is forced to 1. Please add justifications here.

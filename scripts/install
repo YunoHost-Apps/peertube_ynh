@@ -125,7 +125,7 @@ ynh_add_nginx_config
 ynh_print_info --message="Configuring system user..."
 
 # Create a system user
-ynh_system_user_create --username=$app
+ynh_system_user_create --username=$app --home_dir=$final_path
 
 #=================================================
 # SPECIFIC SETUP
@@ -162,7 +162,9 @@ cp ../conf/local-production.json "$final_path/config/local-production.json"
 # FIX NGINX DOMAIN CONFIGURATION
 #=================================================
 
-ynh_replace_string --match_string="X-Frame-Options : SAMEORIGIN" --replace_string="X-Frame-Options : ALLOWALL" --target_file="/etc/nginx/conf.d/$domain.conf"
+cp -R ../conf/nginx_regen_conf.hook /usr/share/yunohost/hooks/conf_regen/15-nginx_$app
+ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
+yunohost tools regen-conf nginx
 
 #=================================================
 # STORE THE CHECKSUM OF THE CONFIG FILE

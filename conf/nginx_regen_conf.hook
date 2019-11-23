@@ -1,0 +1,7 @@
+#!/bin/bash
+
+pending_conf=$4
+if [[ "$1" == "pre" ]]
+then
+    sed --in-place "s/X-Frame-Options : SAMEORIGIN/X-Frame-Options : ALLOWALL/g" "${pending_conf}/../nginx/etc/nginx/conf.d/__DOMAIN__.conf"
+fi

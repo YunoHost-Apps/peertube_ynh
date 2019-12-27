@@ -125,7 +125,7 @@ ynh_add_nginx_config
 ynh_print_info --message="Configuring system user..."
 
 # Create a system user
-ynh_system_user_create --username=$app
+ynh_system_user_create --username=$app --home_dir=$final_path
 
 #=================================================
 # SPECIFIC SETUP
@@ -156,13 +156,15 @@ ynh_replace_string --match_string="__EMAIL__" --replace_string="$admin_email" --
 ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_file="$final_path/config/production.yaml"
 
 #Create the admin settings file
-touch "$final_path/config/local-production.json"
+cp ../conf/local-production.json "$final_path/config/local-production.json"
 
 #=================================================
 # FIX NGINX DOMAIN CONFIGURATION
 #=================================================
 
-ynh_replace_string --match_string="X-Frame-Options : SAMEORIGIN" --replace_string="X-Frame-Options : ALLOWALL" --target_file="/etc/nginx/conf.d/$domain.conf"
+cp -R ../conf/nginx_regen_conf.hook /usr/share/yunohost/hooks/conf_regen/15-nginx_$app
+ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
+yunohost tools regen-conf nginx
 
 #=================================================
 # STORE THE CHECKSUM OF THE CONFIG FILE
@@ -179,7 +181,8 @@ ynh_store_file_checksum --file="$final_path/config/local-production.json"
 chown -R "$app":"$app" $final_path
 
 pushd "$final_path"
-	#sudo -u $app env PATH=$PATH yarn install --production --pure-lockfile 
+	ynh_use_nodejs
+	sudo -u $app env PATH=$PATH yarn install --production --pure-lockfile 
 popd
 
 #=================================================
@@ -219,7 +222,7 @@ yunohost service add $app --description "$app daemon for Peertube" --log "/home/
 #=================================================
 ynh_print_info --message="Starting a systemd service..."
 
-#ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
 
 #=================================================
 # SETUP SSOWAT
@@ -246,7 +249,7 @@ ynh_systemd_action --service_name=nginx --action=reload
 
 # we need to wait for the service to init peertube's database
 pushd "$final_path"
-	#echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run reset-password -- -u root
+	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run reset-password -- -u root
 popd
 
 #=================================================

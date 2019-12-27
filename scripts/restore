@@ -66,7 +66,7 @@ ynh_restore_file --origin_path="$final_path"
 ynh_print_info --message="Recreating the dedicated system user..."
 
 # Create the dedicated user (if not existing)
-ynh_system_user_create --username=$app
+ynh_system_user_create --username=$app --home_dir=$final_path
 
 #=================================================
 # RESTORE USER RIGHTS
@@ -105,7 +105,8 @@ ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ st
 # FIX NGINX DOMAIN CONFIGURATION
 #=================================================
 
-ynh_replace_string --match_string="X-Frame-Options : SAMEORIGIN" --replace_string="X-Frame-Options : ALLOWALL" --target_file="/etc/nginx/conf.d/$domain.conf"
+ynh_restore_file --origin_path="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
+yunohost tools regen-conf nginx
 
 #=================================================
 # RESTORE THE POSTGRESQL DATABASE

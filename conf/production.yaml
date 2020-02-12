@@ -87,6 +87,9 @@ log:
   level: 'info' # debug/info/warning/error
   rotation:
     enabled : true # Enabled by default, if disabled make sure that 'storage.logs' is pointing to a folder handled by logrotate
+    maxFileSize: 12MB
+    maxFiles: 20
+  anonymizeIP: false
 
 search:
 # Add ability to fetch remote videos/actors by their URI, that may not be federated with your instance
@@ -217,18 +220,26 @@ transcoding:
   allow_audio_files: true
   threads: 1
   resolutions: # Only created if the original video has a higher resolution, uses more storage!
+    0p: false # audio-only (creates mp4 without video stream, always created when enabled)
     240p: false
     360p: false
     480p: false
     720p: false
     1080p: false
     2160p: false
+
+  # Generate videos in a WebTorrent format (what we do since the first PeerTube release)
+  # If you also enabled the hls format, it will multiply videos storage by 2
+  # If disabled, breaks federation with PeerTube instances < 2.1
+  webtorrent:
+    enabled: true
+
   # /!\ Requires ffmpeg >= 4.1
   # Generate HLS playlists and fragmented MP4 files. Better playback than with WebTorrent:
   #     * Resolution change is smoother
   #     * Faster playback in particular with long videos
   #     * More stable playback (less bugs/infinite loading)
-  # /!\ Multiplies videos storage by 2 /!\
+  # If you also enabled the webtorrent format, it will multiply videos storage by 2
   hls:
     enabled: false
     
@@ -237,6 +248,10 @@ import:
   videos:
     http: # Classic HTTP or all sites supported by youtube-dl https://rg3.github.io/youtube-dl/supportedsites.html
       enabled: false
+      # You can use an HTTP/HTTPS/SOCKS proxy with youtube-dl
+      proxy:
+        enabled: false
+        url: ""
     torrent: # Magnet URI or torrent file (use classic TCP/UDP/WebSeed to download the file)
       enabled: false
 
@@ -266,7 +281,7 @@ instance:
   # How long do you plan to maintain this instance?
   maintenance_lifetime: ''
 
-  # How will you pay the PeerTube instance server? With you own funds? With users donations? Advertising?
+  # How will you pay the PeerTube instance server? With your own funds? With users donations? Advertising?
   business_model: ''
 
   # If you want to explain on what type of hardware your PeerTube instance runs

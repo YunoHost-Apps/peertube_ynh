@@ -235,6 +235,7 @@ then
 	# unprotected_uris allows SSO credentials to be passed anyway.
 	ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 fi
+ynh_app_setting_set --app=$app --key=noauth_uris --value="/"
 
 #=================================================
 # RELOAD NGINX

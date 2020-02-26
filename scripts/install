@@ -14,6 +14,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # MANAGE SCRIPT FAILURE
 #=================================================
+ynh_print_info --message="Managing script failure..."
 
 ynh_clean_setup () {
 	ynh_clean_check_starting
@@ -24,6 +25,7 @@ ynh_abort_if_errors
 #=================================================
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
+ynh_print_info --message="Retrieving arguments from the manifest..."
 
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
@@ -61,7 +63,7 @@ ynh_app_setting_set --app=$app --key=is_public --value=$is_public
 #=================================================
 ynh_print_info --message="Configuring firewall..."
 
-# Find a free port
+# Find an available port
 port=$(ynh_find_port --port=9000)
 ynh_app_setting_set --app=$app --key=port --value=$port
 
@@ -132,7 +134,7 @@ ynh_system_user_create --username=$app --home_dir=$final_path
 #=================================================
 # CREATE THE DATA DIRECTORY
 #=================================================
-ynh_print_info --message="Create the data directory..."
+ynh_print_info --message="Creating the data directory..."
 
 # Define app's data directory
 datadir="/home/yunohost.app/${app}/storage"
@@ -146,6 +148,7 @@ chown -R "$app":"$app" "$datadir"
 #=================================================
 # MODIFY A CONFIG FILE
 #=================================================
+ynh_print_info --message="Modifying a config file..."
 
 cp ../conf/production.yaml "$final_path/config/production.yaml"
 ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="$final_path/config/production.yaml"
@@ -161,6 +164,7 @@ cp ../conf/local-production.json "$final_path/config/local-production.json"
 #=================================================
 # FIX NGINX DOMAIN CONFIGURATION
 #=================================================
+ynh_print_info --message="Fixing nginx domain configuration..."
 
 cp -R ../conf/nginx_regen_conf.hook /usr/share/yunohost/hooks/conf_regen/15-nginx_$app
 ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
@@ -169,6 +173,7 @@ yunohost tools regen-conf nginx
 #=================================================
 # STORE THE CHECKSUM OF THE CONFIG FILE
 #=================================================
+ynh_print_info --message="Storing the config file checksum..."
 
 # Calculate and store the config file checksum into the app settings
 ynh_store_file_checksum --file="$final_path/config/production.yaml"
@@ -177,6 +182,7 @@ ynh_store_file_checksum --file="$final_path/config/local-production.json"
 #=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
+ynh_print_info --message="Building yarn dependencies..."
 
 chown -R "$app":"$app" $final_path
 
@@ -188,6 +194,7 @@ popd
 #=================================================
 # SETUP SYSTEMD
 #=================================================
+ynh_print_info --message="Configuring a systemd service..."
 
 ynh_replace_string --match_string="__ENV_PATH__" --replace_string="$PATH" --target_file="../conf/systemd.service"
 # Create a dedicated systemd config
@@ -198,6 +205,7 @@ ynh_add_systemd_config
 #=================================================
 # SECURE FILES AND DIRECTORIES
 #=================================================
+ynh_print_info --message="Securing files and directories..."
 
 # Set permissions to app files
 chown -R "$app":"$app" $final_path
@@ -211,10 +219,10 @@ ynh_print_info --message="Configuring log rotation..."
 ynh_use_logrotate --logfile="/home/yunohost.app/${app}/storage/logs/peertube.log"
 
 #=================================================
-# ADVERTISE SERVICE IN ADMIN PANEL
+# INTEGRATE SERVICE IN YUNOHOST
 #=================================================
+ynh_print_info --message="Integrating service in YunoHost..."
 
-# if using yunohost version 3.2 or more in the 'manifest.json', a description can be added
 yunohost service add $app --description "$app daemon for Peertube" --log "/home/yunohost.app/${app}/storage/logs/peertube.log"
 
 #=================================================
@@ -222,6 +230,7 @@ yunohost service add $app --description "$app daemon for Peertube" --log "/home/
 #=================================================
 ynh_print_info --message="Starting a systemd service..."
 
+# Start a systemd service
 #ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
 
 #=================================================

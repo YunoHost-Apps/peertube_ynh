@@ -13,6 +13,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # MANAGE SCRIPT FAILURE
 #=================================================
+ynh_print_info --message="Managing script failure..."
 
 ynh_clean_setup () {
 	ynh_clean_check_starting
@@ -50,6 +51,7 @@ test ! -d $final_path \
 #=================================================
 # RESTORE THE NGINX CONFIGURATION
 #=================================================
+ynh_print_info --message="Restoring the nginx configuration..."
 
 ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
@@ -71,6 +73,7 @@ ynh_system_user_create --username=$app --home_dir=$final_path
 #=================================================
 # RESTORE USER RIGHTS
 #=================================================
+ynh_print_info --message="Restoring user rights..."
 
 # Set right permissions
 if [ ! -d "/home/yunohost.app/$app" ]; then
@@ -104,6 +107,7 @@ ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ st
 #=================================================
 # FIX NGINX DOMAIN CONFIGURATION
 #=================================================
+ynh_print_info --message="Fixing nginx domain configuration..."
 
 ynh_restore_file --origin_path="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
 yunohost tools regen-conf nginx
@@ -126,8 +130,9 @@ ynh_restore_file --origin_path="/etc/systemd/system/$app.service"
 systemctl enable $app.service
 
 #=================================================
-# ADVERTISE SERVICE IN ADMIN PANEL
+# INTEGRATE SERVICE IN YUNOHOST
 #=================================================
+ynh_print_info --message="Integrating service in YunoHost..."
 
 yunohost service add $app --description "$app daemon for Peertube" --log "/home/yunohost.app/${app}/storage/logs/peertube.log"
 
@@ -141,6 +146,7 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --l
 #=================================================
 # RESTORE THE LOGROTATE CONFIGURATION
 #=================================================
+ynh_print_info --message="Restoring the logrotate configuration..."
 
 ynh_restore_file --origin_path="/etc/logrotate.d/$app"
 

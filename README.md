@@ -22,7 +22,7 @@ Servers are run independently by different people and organizations. They can ap
 
 By watching a video, you help the hosting provider to broadcast it by becoming a broadcaster of the video yourself. Each instance doesn’t need much money to broadcast the videos of its users.
 
-**Shipped version:** 2.1.0
+**Shipped version:** 2.1.1
 
 ## Important points to read before installing
 
@@ -60,7 +60,6 @@ Want to see in action?
 
 * x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/peertube%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/peertube/)
 * ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/peertube%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/peertube/)
-* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/peertube%20%28Apps%29.svg)](https://ci-stretch.nohost.me/ci/apps/peertube/)
 
 ## Links
 

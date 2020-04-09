@@ -229,13 +229,13 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --l
 #=================================================
 ynh_print_info --message="Configuring SSOwat..."
 
+ynh_permission_update --permission="main" --auth_header=false
+
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
-	# unprotected_uris allows SSO credentials to be passed anyway.
-	ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
+	ynh_permission_update --permission="main" --add="visitors"
 fi
-ynh_app_setting_set --app=$app --key=noauth_uris --value="/"
 
 #=================================================
 # RELOAD NGINX

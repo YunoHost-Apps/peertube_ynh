@@ -89,7 +89,7 @@ chown -R "$app":"$app" "/home/yunohost.app/${app}/storage"
 ynh_print_info --message="Reinstalling dependencies..."
 
 # Install nodejs
-ynh_install_nodejs --nodejs_version=10
+ynh_install_nodejs --nodejs_version=$nodejs_version
 
 # Install dependencies
 ynh_install_app_dependencies $pkg_dependencies

@@ -73,7 +73,7 @@ ynh_app_setting_set --app=$app --key=port --value=$port
 ynh_print_info --message="Installing dependencies..."
 
 # Install nodejs
-ynh_install_nodejs --nodejs_version=10
+ynh_install_nodejs --nodejs_version=$nodejs_version
 
 # Install dependencies
 ynh_install_app_dependencies $pkg_dependencies

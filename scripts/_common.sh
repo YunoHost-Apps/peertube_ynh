@@ -7,6 +7,8 @@
 # dependencies used by the app
 pkg_dependencies="ffmpeg postgresql postgresql-contrib openssl g++ redis-server redis-tools mailutils apt-transport-https"
 
+nodejs_version="10"
+
 #=================================================
 # PERSONAL HELPERS
 #=================================================

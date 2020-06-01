@@ -13,7 +13,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_print_info --message="Loading installation settings..."
+ynh_script_progression --message="Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -29,19 +29,18 @@ admin_email=$(ynh_app_setting_get --app=$app --key=admin_email)
 #=================================================
 # REMOVE SERVICE INTEGRATION IN YUNOHOST
 #=================================================
-ynh_print_info --message="Removing service integration in YunoHost..."
 
 # Remove the service from the list of services known by Yunohost (added from `yunohost service add`)
 if ynh_exec_warn_less yunohost service status $app >/dev/null
 then
-	ynh_print_info --message="Removing $app service..."
+	ynh_script_progression --message="Removing $app service..."
 	yunohost service remove $app
 fi
 
 #=================================================
 # STOP AND REMOVE SERVICE
 #=================================================
-ynh_print_info --message="Stopping and removing the systemd service..."
+ynh_script_progression --message="Stopping and removing the systemd service..."
 
 # Remove the dedicated systemd config
 ynh_remove_systemd_config
@@ -49,7 +48,7 @@ ynh_remove_systemd_config
 #=================================================
 # REMOVE THE POSTGRESQL DATABASE
 #=================================================
-ynh_print_info --message="Removing the PostgreSQL database..."
+ynh_script_progression --message="Removing the PostgreSQL database..."
 
 # Remove a database if it exists, along with the associated user
 ynh_psql_remove_db --db_user=$db_user --db_name=$db_name
@@ -57,7 +56,7 @@ ynh_psql_remove_db --db_user=$db_user --db_name=$db_name
 #=================================================
 # REMOVE DEPENDENCIES
 #=================================================
-ynh_print_info --message="Removing dependencies..."
+ynh_script_progression --message="Removing dependencies..."
 
 # Remove metapackage and its dependencies
 ynh_remove_app_dependencies
@@ -66,7 +65,7 @@ ynh_remove_nodejs
 #=================================================
 # REMOVE APP MAIN DIR
 #=================================================
-ynh_print_info --message="Removing app main directory..."
+ynh_script_progression --message="Removing app main directory..."
 
 # Remove the app directory securely
 ynh_secure_remove --file="$final_path"
@@ -74,7 +73,7 @@ ynh_secure_remove --file="$final_path"
 #=================================================
 # REMOVE NGINX CONFIGURATION
 #=================================================
-ynh_print_info --message="Removing nginx web server configuration..."
+ynh_script_progression --message="Removing nginx web server configuration..."
 
 # Remove the dedicated nginx config
 ynh_remove_nginx_config
@@ -82,7 +81,7 @@ ynh_remove_nginx_config
 #=================================================
 # REMOVE LOGROTATE CONFIGURATION
 #=================================================
-ynh_print_info --message="Removing logrotate configuration..."
+ynh_script_progression --message="Removing logrotate configuration..."
 
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
@@ -90,30 +89,19 @@ ynh_remove_logrotate
 #=================================================
 # CLOSE A PORT
 #=================================================
-ynh_print_info --message="Closing a port..."
 
 if yunohost firewall list | grep -q "\- $port$"
 then
-	ynh_print_info --message="Closing port $port..."
+	ynh_script_progression --message="Closing port $port..."
 	ynh_exec_warn_less yunohost firewall disallow TCP $port
 fi
-
-#=================================================
-# SPECIFIC REMOVE
-#=================================================
-# RESTORE ORIGINAL NGINX DOMAIN CONFIGURATION
-#=================================================
-ynh_print_info --message="Restoring original nginx domain configuration..."
-
-ynh_secure_remove --file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
-yunohost tools regen-conf nginx
 
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
 # REMOVE DEDICATED USER
 #=================================================
-ynh_print_info --message="Removing the dedicated system user..."
+ynh_script_progression --message="Removing the dedicated system user..."
 
 # Delete a system user
 ynh_system_user_delete --username=$app
@@ -121,7 +109,7 @@ ynh_system_user_delete --username=$app
 #=================================================
 # SEND A README FOR THE ADMIN
 #=================================================
-ynh_print_info --message="Sending a readme for the admin..."
+ynh_script_progression --message="Sending a readme for the admin..."
 
 ynh_replace_string --match_string="__APP__"    --replace_string="$app"    --target_file="../conf/message_remove"
 ynh_replace_string --match_string="__DOMAIN__"    --replace_string="$domain"    --target_file="../conf/message_remove"
@@ -133,4 +121,4 @@ ynh_send_readme_to_admin --app_message="../conf/message_remove" --recipients=$ad
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info --message="Removal of $app completed"
+ynh_script_progression --message="Removal of $app completed"

@@ -7,13 +7,12 @@
 #=================================================
 
 source _common.sh
-source ynh_add_extra_apt_repos__3
 source /usr/share/yunohost/helpers
 
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_print_info --message="Loading installation settings..."
+ynh_script_progression --message="Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -29,14 +28,14 @@ db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
 #=================================================
 # CHECK VERSION
 #=================================================
-ynh_print_info --message="Checking version..."
+ynh_script_progression --message="Checking version..."
 
 upgrade_type=$(ynh_check_app_version_changed)
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_print_info --message="Ensuring downward compatibility..."
+ynh_script_progression --message="Ensuring downward compatibility..."
 
 # Fix is_public as a boolean value
 if [ "$is_public" = "Yes" ]; then
@@ -50,7 +49,7 @@ fi
 # Close a port
 if yunohost firewall list | grep -q "\- $port$"
 then
-	ynh_print_info --message="Closing port $port"
+	ynh_script_progression --message="Closing port $port"
 	ynh_exec_warn_less yunohost firewall disallow TCP $port
 fi
 
@@ -62,15 +61,10 @@ ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --datab
 ynh_secure_remove --file="/etc/apt/sources.list.d/jessie-backports.list"
 ynh_secure_remove --file="/etc/apt/sources.list.d/yarn.list"
 
-# Define app's data directory
-datadir="/home/yunohost.app/${app}/storage"
-# Create app folders
-mkdir -p "$datadir"
-	
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_print_info --message="Backing up the app before upgrading (may take a while)..."
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
 
 # Backup the current version of the app
 ynh_backup_before_upgrade
@@ -87,7 +81,7 @@ ynh_abort_if_errors
 #=================================================
 # STOP SYSTEMD SERVICE
 #=================================================
-ynh_print_info --message="Stopping a systemd service..."
+ynh_script_progression --message="Stopping a systemd service..."
 
 ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
 
@@ -97,7 +91,7 @@ ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-	ynh_print_info --message="Upgrading source files..."
+	ynh_script_progression --message="Upgrading source files..."
 	
 	# Create a temporary directory
 	tmpdir="$(mktemp -d)"
@@ -132,7 +126,7 @@ fi
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_print_info --message="Upgrading nginx web server configuration..."
+ynh_script_progression --message="Upgrading nginx web server configuration..."
 
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -140,11 +134,10 @@ ynh_add_nginx_config
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_print_info --message="Upgrading dependencies..."
+ynh_script_progression --message="Upgrading dependencies..."
 
 # Install nodejs
-ynh_remove_nodejs --nodejs_version=8
-ynh_install_nodejs --nodejs_version=10
+ynh_install_nodejs --nodejs_version=$YNH_NODEJS_VERSION
 
 # Install dependencies
 ynh_install_app_dependencies $pkg_dependencies
@@ -159,10 +152,14 @@ fi
 # Install Yarn
 ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
+# Remove hook
+ynh_secure_remove --file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
+yunohost tools regen-conf nginx
+
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_print_info --message="Making sure dedicated system user exists..."
+ynh_script_progression --message="Making sure dedicated system user exists..."
 
 # Create a dedicated user (if not existing)
 ynh_system_user_create --username=$app
@@ -170,50 +167,58 @@ ynh_system_user_create --username=$app
 #=================================================
 # SPECIFIC UPGRADE
 #=================================================
+# CREATE THE DATA DIRECTORY
+#=================================================
+ynh_script_progression --message="Creating the data directory..."
+
+# Define app's data directory
+datadir="/home/yunohost.app/${app}/storage"
+
+if [ ! -d "$datadir" ]
+then
+	# Create app folders
+	mkdir -p "$datadir"
+fi
+
+# Give permission to the datadir
+chown -R "$app":"$app" "$datadir"
+
+#=================================================
 # MODIFY A CONFIG FILE
 #=================================================
-ynh_print_info --message="Modifying a config file..."
+ynh_script_progression --message="Modifying a config file..."
 
-ynh_backup_if_checksum_is_different --file="$final_path/config/local-production.json"
-ynh_backup_if_checksum_is_different --file="$final_path/config/production.yaml"
+config="$final_path/config/production.yaml"
+ynh_backup_if_checksum_is_different --file="$config"
+cp ../conf/production.yaml "$config"
+ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="$config"
+ynh_replace_string --match_string="__DB_NAME__" --replace_string="$app" --target_file="$config"
+ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_file="$config"
+ynh_replace_string --match_string="__DB_PWD__" --replace_string="$db_pwd" --target_file="$config"
+ynh_replace_string --match_string="__EMAIL__" --replace_string="$admin_email" --target_file="$config"
+ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_file="$config"
+ynh_store_file_checksum --file="$config"
 
-cp ../conf/production.yaml "$final_path/config/production.yaml"
-ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="$final_path/config/production.yaml"
-ynh_replace_string --match_string="__DB_NAME__" --replace_string="$app" --target_file="$final_path/config/production.yaml"
-ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_file="$final_path/config/production.yaml"
-ynh_replace_string --match_string="__DB_PWD__" --replace_string="$db_pwd" --target_file="$final_path/config/production.yaml"
-ynh_replace_string --match_string="__EMAIL__" --replace_string="$admin_email" --target_file="$final_path/config/production.yaml"
-ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_file="$final_path/config/production.yaml"
-
-# Recalculate and store the checksum of the file for the next upgrade.
-ynh_store_file_checksum --file="$final_path/config/local-production.json"
-ynh_store_file_checksum --file="$final_path/config/production.yaml"
-
-#=================================================
-# FIX NGINX DOMAIN CONFIGURATION
-#=================================================
-ynh_print_info --message="Fixing nginx domain configuration..."
-
-cp -R ../conf/nginx_regen_conf.hook /usr/share/yunohost/hooks/conf_regen/15-nginx_$app
-ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
-yunohost tools regen-conf nginx
+local_config="$final_path/config/local-production.json"
+ynh_backup_if_checksum_is_different --file="$local_config"
+ynh_store_file_checksum --file="$local_config"
 
 #=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
-ynh_print_info --message="Building yarn dependencies..."
+ynh_script_progression --message="Building yarn dependencies..."
 
 chown -R "$app":"$app" $final_path
 
 pushd "$final_path"
 	ynh_use_nodejs
-	sudo -u $app env PATH=$PATH yarn install --production --pure-lockfile 
+	sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile 
 popd
 
 #=================================================
 # SETUP LOGROTATE
 #=================================================
-ynh_print_info --message="Upgrading logrotate configuration..."
+ynh_script_progression --message="Upgrading logrotate configuration..."
 
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
@@ -221,27 +226,25 @@ ynh_use_logrotate --non-append
 #=================================================
 # SETUP SYSTEMD
 #=================================================
-ynh_print_info --message="Upgrading systemd configuration..."
+ynh_script_progression --message="Upgrading systemd configuration..."
 
-ynh_replace_string --match_string="__ENV_PATH__" --replace_string="$PATH" --target_file="../conf/systemd.service"
 # Create a dedicated systemd config
-ynh_add_systemd_config
+ynh_add_systemd_config --others_var="ynh_node_load_PATH"
 
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
 # SECURE FILES AND DIRECTORIES
 #=================================================
-ynh_print_info --message="Securing files and directories..."
+ynh_script_progression --message="Securing files and directories..."
 
 # Set permissions on app files
-chown -R "$app":"$app" "$final_path"
-chown -R "$app":"$app" "$datadir"
+chown -R $app:$app $final_path
 
 #=================================================
 # SETUP SSOWAT
 #=================================================
-ynh_print_info --message="Upgrading SSOwat configuration..."
+ynh_script_progression --message="Upgrading SSOwat configuration..."
 
 # Make app public if necessary
 if [ $is_public -eq 1 ]
@@ -253,14 +256,14 @@ fi
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_print_info --message="Starting a systemd service..."
+ynh_script_progression --message="Starting a systemd service..."
 
 ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
 
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_print_info --message="Reloading nginx web server..."
+ynh_script_progression --message="Reloading nginx web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 
@@ -268,4 +271,4 @@ ynh_systemd_action --service_name=nginx --action=reload
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info --message="Upgrade of $app completed"
+ynh_script_progression --message="Upgrade of $app completed"

@@ -119,6 +119,13 @@ then
 		cp ../conf/local-production.json "$final_path/config/local-production.json"
 	fi
 	
+	if [ -s "$tmpdir/local-production.json" ]
+	then
+		cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json"
+	else
+		cp ../conf/local-production.json "$final_path/config/local-production.json"
+	fi
+	
 	# Remove the tmp directory securely
 	ynh_secure_remove --file="$tmpdir"
 fi
@@ -137,7 +144,7 @@ ynh_add_nginx_config
 ynh_script_progression --message="Upgrading dependencies..."
 
 # Install nodejs
-ynh_install_nodejs --nodejs_version=$YNH_NODEJS_VERSION
+#ynh_install_nodejs --nodejs_version=10
 
 # Install dependencies
 ynh_install_app_dependencies $pkg_dependencies
@@ -212,7 +219,7 @@ chown -R "$app":"$app" $final_path
 
 pushd "$final_path"
 	ynh_use_nodejs
-	sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile 
+	#sudo -u $app env PATH=$PATH yarn install --production --pure-lockfile 
 popd
 
 #=================================================

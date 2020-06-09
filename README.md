@@ -4,7 +4,6 @@ If installing on an ovh virtual machine or having `gyp ERR! configure error` ple
 
 ## Steps for installing
 
-
 1. Install nodejs
 
 ```

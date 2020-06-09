@@ -1,5 +1,5 @@
-SOURCE_URL=https://github.com/Chocobozzz/PeerTube/releases/download/v2.1.1/peertube-v2.1.1.tar.xz
-SOURCE_SUM=d0c5a8d00d3258493afdc5becd81e516b2002d9f1241525e1ddbe1f8f74e432b
+SOURCE_URL=https://github.com/Chocobozzz/PeerTube/releases/download/v2.2.0/peertube-v2.2.0.tar.xz
+SOURCE_SUM=eca2c735f73b16404317b42600037e01b3e7ba15c975d3796855db096114c69b
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.xz
 SOURCE_IN_SUBDIR=true

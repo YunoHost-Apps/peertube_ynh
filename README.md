@@ -60,7 +60,7 @@ $ yunohost app upgrade peertube -u https://github.com/YunoHost-Apps/peertube_ynh
 2. After upgrade is complete run **yarn install**.
 
 ```
-$ cd /var/www/peertube && yarn install --production --pure-lockfile
+$ cd /var/www/peertube && sudo yarn install --production --pure-lockfile
 ```
 
 3. Give proper **permissions** to peertube

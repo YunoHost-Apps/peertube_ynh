@@ -32,7 +32,7 @@ rates_limit:
 trust_proxy:
   - 'loopback'
 
-# Your database name will be "peertube"+database.suffix
+# Your database name will be database.name OR "peertube"+database.suffix
 database:
   hostname: 'localhost'
   port: 5432
@@ -50,7 +50,7 @@ redis:
   port: 6379
   auth: null
   db: 0
-  
+
 # SMTP server to send emails
 smtp:
   hostname: 'localhost'
@@ -67,7 +67,7 @@ email:
     signature: "PeerTube"
   subject:
     prefix: "[PeerTube]"
-  
+
 # From the project root directory
 storage:
   tmp: '/home/yunohost.app/__APP__/storage/tmp/' # Use to download data (imports etc), store uploaded files before processing...
@@ -91,18 +91,10 @@ log:
     maxFiles: 20
   anonymizeIP: false
 
-search:
-# Add ability to fetch remote videos/actors by their URI, that may not be federated with your instance
-# If enabled, the associated group will be able to "escape" from the instance follows
-# That means they will be able to follow channels, watch videos, list videos of non followed instances
-  remote_uri:
-    users: true
-    anonymous: false
-
 trending:
   videos:
     interval_days: 7 # Compute trending videos for the last x days
-    
+
 # Cache remote videos on your server, to help other instances to broadcast the video
 # You can define multiple caches using different sizes/strategies
 # Once you have defined your strategies, choose which instances you want to cache in admin -> manage follows -> following
@@ -110,22 +102,30 @@ redundancy:
   videos:
     check_interval: '1 hour' # How often you want to check new videos to cache
     strategies: # Just uncomment strategies you want
-#    -
-#      size: '10GB'
-#        # Minimum time the video must remain in the cache. Only accept values > 10 hours (to not overload remote instances)
-#        min_lifetime: '48 hours'
-#      strategy: 'most-views' # Cache videos that have the most views
-#    -
-#      size: '10GB'
-#        # Minimum time the video must remain in the cache. Only accept values > 10 hours (to not overload remote instances)
-#        min_lifetime: '48 hours'
-#      strategy: 'trending' # Cache trending videos
-#    -
+#      -
 #        size: '10GB'
-#       # Minimum time the video must remain in the cache. Only accept values > 10 hours (to not overload remote instances)
-#       min_lifetime: '48 hours'
-#       strategy: 'recently-added' # Cache recently added videos
-#       min_views: 10 # Having at least x views
+#        # Minimum time the video must remain in the cache. Only accept values > 10 hours (to not overload remote instances)
+#        min_lifetime: '48 hours'
+#        strategy: 'most-views' # Cache videos that have the most views
+#      -
+#        size: '10GB'
+#        # Minimum time the video must remain in the cache. Only accept values > 10 hours (to not overload remote instances)
+#        min_lifetime: '48 hours'
+#        strategy: 'trending' # Cache trending videos
+#      -
+#        size: '10GB'
+#        # Minimum time the video must remain in the cache. Only accept values > 10 hours (to not overload remote instances)
+#        min_lifetime: '48 hours'
+#        strategy: 'recently-added' # Cache recently added videos
+#        min_views: 10 # Having at least x views
+
+# Other instances that duplicate your content
+remote_redundancy:
+  videos:
+    # 'nobody': Do not accept remote redundancies
+    # 'anybody': Accept remote redundancies from anybody
+    # 'followings': Accept redundancies from instance followings
+    accept_from: 'anybody'
 
 csp:
   enabled: false
@@ -167,6 +167,10 @@ plugins:
     check_latest_versions_interval: '12 hours' # How often you want to check new plugins/themes versions
     url: 'https://packages.joinpeertube.org'
 
+federation:
+  videos:
+    federate_unlisted: true
+
 
 ###############################################################################
 #
@@ -185,7 +189,7 @@ cache:
     size: 500 # Max number of previews you want to cache
   captions:
     size: 500 # Max number of video captions/subtitles you want to cache
- 
+
 admin:
   # Used to generate the root user at first startup
   # And to receive emails from the contact form
@@ -198,7 +202,7 @@ signup:
   enabled: false
   limit: 10 # When the limit is reached, registrations are disabled. -1 == unlimited
   requires_email_verification: false
-  filters: 
+  filters:
     cidr: # You can specify CIDR ranges to whitelist (empty = no filtering) or blacklist
       whitelist: []
       blacklist: []
@@ -208,7 +212,7 @@ user:
   # -1 == unlimited
   video_quota: -1
   video_quota_daily: -1
-  
+
 # If enabled, the video will be transcoded to mp4 (x264) with "faststart" flag
 # In addition, if some resolutions are enabled the mp4 video file will be transcoded to these new resolutions.
 # Please, do not disable transcoding since many uploaded videos will not work
@@ -242,7 +246,7 @@ transcoding:
   # If you also enabled the webtorrent format, it will multiply videos storage by 2
   hls:
     enabled: false
-    
+
 import:
   # Add ability for your users to import remote videos (from YouTube, torrent...)
   videos:
@@ -335,7 +339,7 @@ instance:
   # Robot.txt rules. To disallow robots to crawl your instance and disallow indexation of your site, add '/' to "Disallow:'
   robots: |
     User-agent: *
-    Disallow: 
+    Disallow:
   # Security.txt rules. To discourage researchers from testing your instance and disable security.txt integration, set this to an empty string.
   securitytxt:
     "# If you would like to report a security issue\n# you may report it to:\nContact: https://github.com/Chocobozzz/PeerTube/blob/develop/SECURITY.md\nContact: mailto:"
@@ -369,7 +373,39 @@ followings:
     # /!\ Don't enable this if you don't have a reactive moderation team /!\
     auto_follow_index:
       enabled: false
+      # Host your own using https://framagit.org/framasoft/peertube/instances-peertube#peertube-auto-follow
       index_url: 'https://instances.joinpeertube.org'
 
 theme:
   default: 'default'
+
+broadcast_message:
+  enabled: false
+  message: '' # Support markdown
+  level: 'info' # 'info' | 'warning' | 'error'
+  dismissable: false
+
+search:
+  # Add ability to fetch remote videos/actors by their URI, that may not be federated with your instance
+  # If enabled, the associated group will be able to "escape" from the instance follows
+  # That means they will be able to follow channels, watch videos, list videos of non followed instances
+  remote_uri:
+    users: true
+    anonymous: false
+
+  # Use a third party index instead of your local index, only for search results
+  # Useful to discover content outside of your instance
+  # If you enable search_index, you must enable remote_uri search for users
+  # If you do not enable remote_uri search for anonymous user, your instance will redirect the user on the origin instance
+  # instead of loading the video locally
+  search_index:
+    enabled: false
+    # URL of the search index, that should use the same search API and routes
+    # than PeerTube: https://docs.joinpeertube.org/api-rest-reference.html
+    # You should deploy your own with https://framagit.org/framasoft/peertube/search-index,
+    # and can use https://search.joinpeertube.org/ for tests, but keep in mind the latter is an unmoderated search index
+    url: ''
+    # You can disable local search, so users only use the search index
+    disable_local_search: false
+    # If you did not disable local search, you can decide to use the search index by default
+    is_default_search: false

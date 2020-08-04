@@ -7,7 +7,6 @@
 #=================================================
 
 source _common.sh
-source ynh_send_readme_to_admin__2
 source /usr/share/yunohost/helpers
 
 #=================================================

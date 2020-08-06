@@ -31,14 +31,17 @@
                 "name": "domain",
                 "type": "domain",
                 "ask": {
-                    "en": "Choose a domain name for PeerTube"
+                    "en": "Choose a domain name for PeerTube",
+                    "fr": "Choisissez un nom de domaine pour PeerTube"
                 },
                 "example": "example.com"
             },
             {
                 "name": "email",
+                "type": "string",
                 "ask": {
-                    "en": "Choose an admin email (can be changed after installation)"
+                    "en": "Choose an admin email (can be changed after installation)",
+                    "fr": "Choisissez une adresse e-mail d'administrateur (peut être modifiée après l'installation)"
                 },
                 "example": "johndoe@example.com"
             },
@@ -46,7 +49,8 @@
                 "name": "is_public",
                 "type": "boolean",
                 "ask": {
-                    "en": "Is it a public application?"
+                    "en": "Is it a public application?",
+                    "fr": "Est-ce une application publique ?"
                 },
                 "default": true
             }

@@ -56,6 +56,7 @@ Want to see in action?
 ## Documentation
 
  * Official documentation: https://docs.joinpeertube.org/
+ * YunoHost documentation: https://yunohost.org/#/app_peertube
 
 ## YunoHost specific features
 

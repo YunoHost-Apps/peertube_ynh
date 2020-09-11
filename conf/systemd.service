@@ -1,5 +1,5 @@
 [Unit]
-Description=__APP__ daemon
+Description=PeerTube: video streaming platform using P2P
 After=network.target postgresql.service redis-server.service
 
 [Service]

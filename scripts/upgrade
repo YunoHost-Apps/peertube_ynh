@@ -126,9 +126,9 @@ fi
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading nginx web server configuration..."
+ynh_script_progression --message="Upgrading NGINX web server configuration..."
 
-# Create a dedicated nginx config
+# Create a dedicated NGINX config
 ynh_add_nginx_config
 
 #=================================================
@@ -206,7 +206,7 @@ ynh_store_file_checksum --file="$local_config"
 #=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Building yarn dependencies..."
+ynh_script_progression --message="Building Yarn dependencies..."
 
 chown -R "$app":"$app" $final_path
 
@@ -263,7 +263,7 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --l
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..."
+ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 

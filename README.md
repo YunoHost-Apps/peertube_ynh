@@ -31,7 +31,7 @@ By watching a video, you help the hosting provider to broadcast it by becoming a
 
 1. Require **dedicated domain** like **peertube.domain.tld**.
 1. **No LDAP** support (blocked until PeerTube core upstream implements it)
-1. Admin username is : **root**.
+1. Admin username is: **root**.
 1. **Admin password** will be sent to the email address given at the time of the installation.
 1. URL can not be changed once selected. Choose the domain wisely.
 1. You need more then **1 GB** of RAM. If you don't have it, please create a **swap memory**.

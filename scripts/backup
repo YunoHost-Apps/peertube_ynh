@@ -69,7 +69,7 @@ ynh_print_info --message="Backing up the PostgreSQL database..."
 
 ynh_psql_dump_db --database="$db_name" > db.sql
 
-=================================================
+#=================================================
 # BACKUP THE DATA DIRECTORY
 #=================================================
 ynh_print_info --message="Backing up data directory..."

@@ -83,7 +83,7 @@ chown -R $app:$app $final_path
 #=================================================
 # RESTORE THE DATA DIRECTORY
 #=================================================
-ynh_script_progression --message="Restoring data directory..." --weight=2
+ynh_script_progression --message="Restoring data directory..."
 
 # Use --not_mandatory for the data directory, because if the backup has been made with BACKUP_CORE_ONLY, there's no data into the backup.
 ynh_restore_file --origin_path="$datadir" --not_mandatory

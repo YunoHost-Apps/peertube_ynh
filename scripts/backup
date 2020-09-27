@@ -30,6 +30,7 @@ app=$YNH_APP_INSTANCE_NAME
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 db_name=$(ynh_app_setting_get --app=$app --key=psql_db)
+datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
 #=================================================
 # DECLARE DATA AND CONF FILES TO BACKUP
@@ -74,7 +75,7 @@ ynh_psql_dump_db --database="$db_name" > db.sql
 #=================================================
 ynh_print_info --message="Backing up data directory..."
 
-ynh_backup --src_path="/home/yunohost.app/${app}" --is_big
+ynh_backup --src_path="$datadir" --is_big
 
 #=================================================
 # END OF SCRIPT

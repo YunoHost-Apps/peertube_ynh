@@ -6,7 +6,7 @@ But a futher action is required from your side to completely remove the __APP__ 
 And if you are going to migrate to othe server you will have to move /home/yunohost.app/__APP__ to your new server.
 
 
-You need to run this command to remove the data (warning all your videos will be removed) :
+You need to run this command to remove the data (warning all your videos will be removed):
 
 rm -R /home/yunohost.app/__APP__ -f
 

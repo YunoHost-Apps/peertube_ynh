@@ -70,18 +70,18 @@ email:
 
 # From the project root directory
 storage:
-  tmp: '/home/yunohost.app/__APP__/storage/tmp/' # Use to download data (imports etc), store uploaded files before processing...
-  avatars: '/home/yunohost.app/__APP__/storage/avatars/'
-  videos: '/home/yunohost.app/__APP__/storage/videos/'
-  streaming_playlists: '/home/yunohost.app/__APP__/storage/streaming-playlists/'
-  redundancy: '/home/yunohost.app/__APP__/storage/videos/'
-  logs: '/home/yunohost.app/__APP__/storage/logs/'
-  previews: '/home/yunohost.app/__APP__/storage/previews/'
-  thumbnails: '/home/yunohost.app/__APP__/storage/thumbnails/'
-  torrents: '/home/yunohost.app/__APP__/storage/torrents/'
-  captions: '/home/yunohost.app/__APP__/storage/captions/'
-  cache: '/home/yunohost.app/__APP__/storage/cache/'
-  plugins: '/home/yunohost.app/__APP__/storage/plugins/'
+  tmp: '__DATADIR__/tmp/' # Use to download data (imports etc), store uploaded files before processing...
+  avatars: '__DATADIR__/avatars/'
+  videos: '__DATADIR__/videos/'
+  streaming_playlists: '__DATADIR__/streaming-playlists/'
+  redundancy: '__DATADIR__/videos/'
+  logs: '__DATADIR__/logs/'
+  previews: '__DATADIR__/previews/'
+  thumbnails: '__DATADIR__/thumbnails/'
+  torrents: '__DATADIR__/torrents/'
+  captions: '__DATADIR__/captions/'
+  cache: '__DATADIR__/cache/'
+  plugins: '__DATADIR__/plugins/'
 
 log:
   level: 'info' # debug/info/warning/error

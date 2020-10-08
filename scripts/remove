@@ -23,6 +23,7 @@ db_name=$(ynh_app_setting_get --app=$app --key=psql_db)
 db_user=$app
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 admin_email=$(ynh_app_setting_get --app=$app --key=admin_email)
+datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
 #=================================================
 # STANDARD REMOVE
@@ -115,6 +116,7 @@ ynh_script_progression --message="Sending a readme for the admin..."
 ynh_replace_string --match_string="__APP__"    --replace_string="$app"    --target_file="../conf/message_remove"
 ynh_replace_string --match_string="__DOMAIN__"    --replace_string="$domain"    --target_file="../conf/message_remove"
 ynh_replace_string --match_string="__PATH_URL__"    --replace_string="$path_url"    --target_file="../conf/message_remove"
+ynh_replace_string --match_string="__DATADIR__"    --replace_string="$datadir"    --target_file="../conf/message_remove"
 
 ynh_send_readme_to_admin --app_message="../conf/message_remove" --recipients=$admin_email --type='remove'
 

@@ -32,6 +32,9 @@ is_public=$YNH_APP_ARG_IS_PUBLIC
 
 app=$YNH_APP_INSTANCE_NAME
 
+# Define app's data directory
+datadir="/home/yunohost.app/${app}/storage"
+
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
@@ -52,6 +55,7 @@ ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=admin_email --value=$admin_email
 ynh_app_setting_set --app=$app --key=admin_pass --value=$admin_pass
 ynh_app_setting_set --app=$app --key=is_public --value=$is_public
+ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -115,8 +119,8 @@ ynh_setup_source --dest_dir="$final_path"
 #=================================================
 ynh_script_progression --message="Configuring NGINX web server..."
 
-# Create a dedicated NGINX config
-ynh_add_nginx_config
+# Create a dedicated nginx config
+ynh_add_nginx_config "datadir"
 
 #=================================================
 # CREATE DEDICATED USER
@@ -132,9 +136,6 @@ ynh_system_user_create --username=$app --home_dir=$final_path
 # CREATE THE DATA DIRECTORY
 #=================================================
 ynh_script_progression --message="Creating the data directory..."
-
-# Define app's data directory
-datadir="/home/yunohost.app/${app}/storage"
 
 # Create app folders
 mkdir -p "$datadir"
@@ -155,6 +156,7 @@ ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_fil
 ynh_replace_string --match_string="__DB_PWD__" --replace_string="$db_pwd" --target_file="$config"
 ynh_replace_string --match_string="__EMAIL__" --replace_string="$admin_email" --target_file="$config"
 ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_file="$config"
+ynh_replace_string --match_string="__DATADIR__" --replace_string="$datadir" --target_file="$config"
 
 #Create the admin settings file
 local_config="$final_path/config/local-production.json"
@@ -205,14 +207,14 @@ chown -R $app:$app $final_path
 ynh_script_progression --message="Configuring log rotation..."
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate --logfile="/home/yunohost.app/${app}/storage/logs/peertube.log"
+ynh_use_logrotate --logfile="$datadir/logs/peertube.log"
 
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description "$app daemon for Peertube" --log "/home/yunohost.app/${app}/storage/logs/peertube.log"
+yunohost service add $app --description "$app daemon for Peertube" --log "$datadir/logs/peertube.log"
 
 #=================================================
 # START SYSTEMD SERVICE

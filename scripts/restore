@@ -129,7 +129,7 @@ ynh_psql_execute_file_as_root --file="./db.sql" --database=$db_name
 ynh_script_progression --message="Restoring the systemd configuration..."
 
 ynh_restore_file --origin_path="/etc/systemd/system/$app.service"
-systemctl enable $app.service
+systemctl enable $app.service --quiet
 
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST

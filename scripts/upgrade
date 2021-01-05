@@ -259,7 +259,7 @@ ynh_use_logrotate --non-append
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $appyunohost service add $app --description "$app daemon for Peertube" --log "$datadir/logs/peertube.log"
+yunohost service add $app --description "$app daemon for Peertube" --log "$datadir/logs/peertube.log"
 
 #=================================================
 # START SYSTEMD SERVICE

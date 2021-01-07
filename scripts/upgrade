@@ -229,14 +229,6 @@ pushd "$final_path"
 popd
 
 #=================================================
-# SETUP LOGROTATE
-#=================================================
-ynh_script_progression --message="Upgrading logrotate configuration..."
-
-# Use logrotate to manage app-specific logfile(s)
-ynh_use_logrotate --non-append
-
-#=================================================
 # SETUP SYSTEMD
 #=================================================
 ynh_script_progression --message="Upgrading systemd configuration..."
@@ -255,6 +247,28 @@ ynh_script_progression --message="Securing files and directories..."
 chown -R $app:$app $final_path
 
 #=================================================
+# SETUP LOGROTATE
+#=================================================
+ynh_script_progression --message="Upgrading logrotate configuration..."
+
+# Use logrotate to manage app-specific logfile(s)
+ynh_use_logrotate --non-append
+
+#=================================================
+# INTEGRATE SERVICE IN YUNOHOST
+#=================================================
+ynh_script_progression --message="Integrating service in YunoHost..."
+
+yunohost service add $app --description "$app daemon for Peertube" --log "$datadir/logs/peertube.log"
+
+#=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Starting a systemd service..."
+
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
+
+#=================================================
 # SETUP SSOWAT
 #=================================================
 ynh_script_progression --message="Upgrading SSOwat configuration..."
@@ -265,13 +279,6 @@ then
 	# unprotected_uris allows SSO credentials to be passed anyway
 	ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 fi
-
-#=================================================
-# START SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Starting a systemd service..."
-
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
 
 #=================================================
 # RELOAD NGINX

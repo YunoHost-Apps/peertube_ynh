@@ -1,7 +1,7 @@
 # PeerTube pour YunoHost
 
 [![Niveau d'intégration](https://dash.yunohost.org/integration/peertube.svg)](https://dash.yunohost.org/appci/app/peertube) ![](https://ci-apps.yunohost.org/ci/badges/peertube.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/peertube.maintain.svg)  
-[![Installer PeerTube pour YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=peertube)
+[![Installer PeerTube pour YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=peertube)
 
 *[Read this readme in english.](./README.md)* 
 
@@ -23,7 +23,7 @@ Les serveurs sont gérés indépendamment par différentes personnes et organisa
 
 En regardant une vidéo, vous aidez l'hébergeur à la diffuser en devenant vous-même un diffuseur de la vidéo. Chaque instance n'a pas besoin de beaucoup d'argent pour diffuser les vidéos de ses utilisateurs.
 
-**Version incluse :** 2.4.0
+**Version incluse :** 3.0.0
 
 ## Points importants à lire avant l'installation
 

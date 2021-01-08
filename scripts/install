@@ -77,7 +77,7 @@ ynh_script_progression --message="Installing dependencies..."
 ynh_install_nodejs --nodejs_version=$YNH_NODEJS_VERSION
 
 # Install dependencies
-ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
+ynh_install_app_dependencies $pkg_dependencies
 
 # Install ffmpeg from backports for Debian Jessie and from main for others
 if [ "$(lsb_release --codename --short)" == "jessie" ]; then
@@ -141,7 +141,7 @@ ynh_script_progression --message="Creating the data directory..."
 mkdir -p "$datadir"
 
 # Give permission to the datadir
-chown -R $app: "$datadir"
+chown -R "$app":"$app" "$datadir"
 
 #=================================================
 # MODIFY A CONFIG FILE
@@ -176,11 +176,11 @@ ynh_store_file_checksum --file="$local_config"
 #=================================================
 ynh_script_progression --message="Building Yarn dependencies..."
 
-chown -R $app: $final_path
+chown -R "$app":"$app" $final_path
 
-pushd $final_path
+pushd "$final_path"
 	ynh_use_nodejs
-	ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile 
+	sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile 
 popd
 
 #=================================================
@@ -199,7 +199,7 @@ ynh_add_systemd_config --others_var="ynh_node_load_PATH"
 ynh_script_progression --message="Securing files and directories..."
 
 # Set permissions to app files
-chown -R $app: $final_path
+chown -R $app:$app $final_path
 
 #=================================================
 # SETUP LOGROTATE
@@ -214,7 +214,7 @@ ynh_use_logrotate --logfile="$datadir/logs/peertube.log"
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description="$app daemon for Peertube" --log="$datadir/logs/peertube.log"
+yunohost service add $app --description "$app daemon for Peertube" --log "$datadir/logs/peertube.log"
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -229,10 +229,11 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --l
 #=================================================
 ynh_script_progression --message="Configuring SSOwat..."
 
-# Make app public if necessary or protect it
+# Make app public if necessary
 if [ $is_public -eq 1 ]
 then
-	ynh_permission_update --permission "main" --add "visitors"
+	# unprotected_uris allows SSO credentials to be passed anyway.
+	ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 fi
 
 #=================================================

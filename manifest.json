@@ -3,8 +3,8 @@
     "id": "peertube",
     "packaging_format": 1,
     "description": {
-        "en": "Video streaming platform using P2P",
-        "fr": "Plateforme de diffusion vidéo par P2P"
+        "en": "Video streaming platform using P2P directly in the web browser, connected to a federated network",
+        "fr": "Plateforme de diffusion vidéo par P2P directement dans le navigateur, et connectée à un réseau fédéralisé"
     },
     "version": "3.0.0~ynh1",
     "url": "https://github.com/Chocobozzz/PeerTube",
@@ -41,7 +41,7 @@
                 "type": "string",
                 "ask": {
                     "en": "Choose an admin email (can be changed after installation)",
-                    "fr": "Choisissez une adresse email d'administrateur (peut être modifiée après l'installation)"
+                    "fr": "Choisissez une adresse e-mail d'administrateur (peut être modifiée après l'installation)"
                 },
                 "example": "johndoe@example.com"
             },

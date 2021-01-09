@@ -62,7 +62,7 @@ ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 #=================================================
 # FIND AND OPEN A PORT
 #=================================================
-ynh_script_progression --message="Configuring firewall..."
+ynh_script_progression --message="Finding an available port..."
 
 # Find an available port
 port=$(ynh_find_port --port=9000)

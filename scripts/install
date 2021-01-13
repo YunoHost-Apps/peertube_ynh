@@ -272,7 +272,7 @@ ynh_replace_string --match_string="__PATH_URL__"    --replace_string="$path_url"
 ynh_replace_string --match_string="__ADMIN_PASS__"    --replace_string="$admin_pass"    --target_file="../conf/message"
 ynh_replace_string --match_string="__RTMP_PORT__"    --replace_string="$rtmp_port"    --target_file="../conf/message"
 
-ynh_send_readme_to_admin --app_message="../conf/message" --recipients=$admin_email --type='install'
+ynh_send_readme_to_admin --app_message="../conf/message_install" --recipients=$admin_email --type='install'
 
 #=================================================
 # END OF SCRIPT

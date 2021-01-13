@@ -258,7 +258,7 @@ transcoding:
     enabled: false
 
 live:
-  enabled: false
+  enabled: true
 
   # Limit lives duration
   # Set null to disable duration limit

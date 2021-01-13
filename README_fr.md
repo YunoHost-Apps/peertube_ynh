@@ -23,7 +23,7 @@ Les serveurs sont gérés indépendamment par différentes personnes et organisa
 
 En regardant une vidéo, vous aidez l'hébergeur à la diffuser en devenant vous-même un diffuseur de la vidéo. Chaque instance n'a pas besoin de beaucoup d'argent pour diffuser les vidéos de ses utilisateurs.
 
-**Version incluse :** 3.0.0
+**Version incluse :** 3.0.1
 
 ## Points importants à lire avant l'installation
 

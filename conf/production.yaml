@@ -2,7 +2,7 @@ listen:
   hostname: 'localhost'
   port: __PORT__
 
-# Correspond to your reverse proxy server_name/listen configuration
+# Correspond to your reverse proxy server_name/listen configuration (i.e., your public PeerTube instance URL)
 webserver:
   https: true
   hostname: '__DOMAIN__'
@@ -36,6 +36,7 @@ trust_proxy:
 database:
   hostname: 'localhost'
   port: 5432
+  ssl: false
   suffix: '___DB_NAME__'
   username: '__DB_NAME__'
   password: '__DB_PWD__'
@@ -53,6 +54,10 @@ redis:
 
 # SMTP server to send emails
 smtp:
+  # smtp or sendmail
+  transport: smtp
+  # Path to sendmail command. Required if you use sendmail transport
+  sendmail: null
   hostname: 'localhost'
   port: 25 # If you use StartTLS: 587
   username: null
@@ -74,7 +79,7 @@ storage:
   avatars: '__DATADIR__/avatars/'
   videos: '__DATADIR__/videos/'
   streaming_playlists: '__DATADIR__/streaming-playlists/'
-  redundancy: '__DATADIR__/videos/'
+  redundancy: '__DATADIR__/redundancy/'
   logs: '__DATADIR__/logs/'
   previews: '__DATADIR__/previews/'
   thumbnails: '__DATADIR__/thumbnails/'
@@ -82,6 +87,11 @@ storage:
   captions: '__DATADIR__/captions/'
   cache: '__DATADIR__/cache/'
   plugins: '__DATADIR__/plugins/'
+  # Overridable client files : logo.svg, favicon.png and icons/*.png (PWA) in client/dist/assets/images
+  # Could contain for example assets/images/favicon.png
+  # If the file exists, peertube will serve it
+  # If not, peertube will fallback to the default fil
+  client_overrides: '__DATADIR__/client-overrides/'
 
 log:
   level: 'info' # debug/info/warning/error
@@ -218,7 +228,7 @@ user:
 # Please, do not disable transcoding since many uploaded videos will not work
 transcoding:
   enabled: true
-  # Allow your users to upload .mkv, .mov, .avi, .flv videos
+  # Allow your users to upload .mkv, .mov, .avi, .wmv, .flv, .f4v, .3g2, .3gp, .mts, m2ts, .mxf, .nut videos
   allow_additional_extensions: true
   # If a user uploads an audio file, PeerTube will create a video by merging the preview file and the audio file
   allow_audio_files: true
@@ -247,11 +257,53 @@ transcoding:
   hls:
     enabled: false
 
+live:
+  enabled: false
+
+  # Limit lives duration
+  # Set null to disable duration limit
+  max_duration: -1 # For example: '5 hours'
+
+  # Limit max number of live videos created on your instance
+  # -1 == unlimited
+  max_instance_lives: 20
+
+  # Limit max number of live videos created by a user on your instance
+  # -1 == unlimited
+  max_user_lives: 3
+
+  # Allow your users to save a replay of their live
+  # PeerTube will transcode segments in a video file
+  # If the user daily/total quota is reached, PeerTube will stop the live
+  # /!\ transcoding.enabled (and not live.transcoding.enabled) has to be true to create a replay
+  allow_replay: true
+
+  # Your firewall should accept traffic from this port in TCP if you enable live
+  rtmp:
+    port: 1935
+
+  # Allow to transcode the live streaming in multiple live resolutions
+  transcoding:
+    enabled: true
+    threads: 2
+
+    resolutions:
+      240p: false
+      360p: false
+      480p: false
+      720p: false
+      1080p: false
+      2160p: false
+
 import:
   # Add ability for your users to import remote videos (from YouTube, torrent...)
   videos:
     http: # Classic HTTP or all sites supported by youtube-dl https://rg3.github.io/youtube-dl/supportedsites.html
       enabled: false
+
+      # IPv6 is very strongly rate-limited on most sites supported by youtube-dl
+      force_ipv4: false
+
       # You can use an HTTP/HTTPS/SOCKS proxy with youtube-dl
       proxy:
         enabled: false
@@ -277,16 +329,16 @@ instance:
   moderation_information: '' # Supports markdown
 
   # Why did you create this instance?
-  creation_reason: ''
+  creation_reason: '' # Supports Markdown
 
   # Who is behind the instance? A single person? A non profit?
-  administrator: ''
+  administrator: '' # Supports Markdown
 
   # How long do you plan to maintain this instance?
-  maintenance_lifetime: ''
+  maintenance_lifetime: '' # Supports Markdown
 
   # How will you pay the PeerTube instance server? With your own funds? With users donations? Advertising?
-  business_model: ''
+  business_model: '' # Supports Markdown
 
   # If you want to explain on what type of hardware your PeerTube instance runs
   # Example: "2 vCore, 2GB RAM..."

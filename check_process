@@ -28,7 +28,7 @@
 		# 2.4.0~ynh1
 		upgrade=1	from_commit=10d79175a8a45137d271931cbd6d14e927400729
 		backup_restore=1
-		multi_instance=1
+		multi_instance=0
 		port_already_use=0
 		change_url=0
 ;;; Options

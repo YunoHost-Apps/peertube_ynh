@@ -1,7 +1,7 @@
 # PeerTube for YunoHost
 
 [![Integration level](https://dash.yunohost.org/integration/peertube.svg)](https://dash.yunohost.org/appci/app/peertube) ![](https://ci-apps.yunohost.org/ci/badges/peertube.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/peertube.maintain.svg)  
-[![Install PeerTube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=peertube)
+[![Install PeerTube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=peertube)
 
 *[Lire ce readme en français.](./README_fr.md)*
 
@@ -27,7 +27,7 @@ Servers are run independently by different people and organizations. They can ap
 
 By watching a video, you help the hosting provider to broadcast it by becoming a broadcaster of the video yourself. Each instance doesn’t need much money to broadcast the videos of its users.
 
-**Shipped version:** 2.4.0
+**Shipped version:** 3.0.1
 
 ## Important points to read before installing
 

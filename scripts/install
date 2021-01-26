@@ -62,11 +62,20 @@ ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 #=================================================
 # FIND AND OPEN A PORT
 #=================================================
-ynh_script_progression --message="Configuring firewall..."
+ynh_script_progression --message="Finding an available port..."
 
 # Find an available port
 port=$(ynh_find_port --port=9000)
 ynh_app_setting_set --app=$app --key=port --value=$port
+
+# PeerTube Live port
+rtmp_port=1935
+ynh_port_available --port=$rtmp_port || ynh_die "Port $rtmp_port is needs to be available for this app"
+ynh_app_setting_set --app=$app --key=rtmp_port --value=$rtmp_port
+
+# Open the port
+ynh_script_progression --message="Configuring firewall..."
+ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
 
 #=================================================
 # INSTALL DEPENDENCIES
@@ -214,7 +223,7 @@ ynh_use_logrotate --logfile="$datadir/logs/peertube.log"
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description "$app daemon for Peertube" --log "$datadir/logs/peertube.log"
+yunohost service add $app --description "$app daemon for Peertube" --log "$datadir/logs/peertube.log" --needs_exposed_ports $rtmp_port
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -257,12 +266,13 @@ popd
 #=================================================
 ynh_script_progression --message="Sending a readme for the admin..."
 
-ynh_replace_string --match_string="__APP__"    --replace_string="$app"    --target_file="../conf/message"
-ynh_replace_string --match_string="__DOMAIN__"    --replace_string="$domain"    --target_file="../conf/message"
-ynh_replace_string --match_string="__PATH_URL__"    --replace_string="$path_url"    --target_file="../conf/message"
-ynh_replace_string --match_string="__ADMIN_PASS__"    --replace_string="$admin_pass"    --target_file="../conf/message"
+ynh_replace_string --match_string="__APP__"    --replace_string="$app"    --target_file="../conf/message_install"
+ynh_replace_string --match_string="__DOMAIN__"    --replace_string="$domain"    --target_file="../conf/message_install"
+ynh_replace_string --match_string="__PATH_URL__"    --replace_string="$path_url"    --target_file="../conf/message_install"
+ynh_replace_string --match_string="__ADMIN_PASS__"    --replace_string="$admin_pass"    --target_file="../conf/message_install"
+ynh_replace_string --match_string="__RTMP_PORT__"    --replace_string="$rtmp_port"    --target_file="../conf/message_install"
 
-ynh_send_readme_to_admin --app_message="../conf/message" --recipients=$admin_email --type='install'
+ynh_send_readme_to_admin --app_message="../conf/message_install" --recipients=$admin_email --type='install'
 
 #=================================================
 # END OF SCRIPT

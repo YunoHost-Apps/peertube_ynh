@@ -6,7 +6,7 @@
         "en": "Video streaming platform using P2P directly in the web browser, connected to a federated network",
         "fr": "Plateforme de diffusion vidéo par P2P directement dans le navigateur, et connectée à un réseau fédéralisé"
     },
-    "version": "2.4.0~ynh1",
+    "version": "3.0.1~ynh1",
     "url": "https://github.com/Chocobozzz/PeerTube",
     "license": "AGPL-3.0-only",
     "maintainer": [
@@ -21,7 +21,7 @@
     "requirements": {
         "yunohost": ">= 3.8.1"
     },
-    "multi_instance": true,
+    "multi_instance": false,
     "services": [
         "nginx"
     ],

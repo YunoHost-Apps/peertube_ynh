@@ -18,22 +18,19 @@
 		setup_public=1
 		upgrade=1
 		# 2.1.0
-		upgrade=1	from_commit=d049b71061d12ffab92bbf106af200e7d8a69572
+		# upgrade=1	from_commit=d049b71061d12ffab92bbf106af200e7d8a69572
 		# 2.1.1~ynh1
-		upgrade=1	from_commit=63f076db215f8f438dbdcd2966c12d9ee7976121
+		# upgrade=1	from_commit=63f076db215f8f438dbdcd2966c12d9ee7976121
 		# 2.2.0~ynh1
-		upgrade=1	from_commit=2b24ab443dc95fc78654e8232351933491cf04b4
+		# upgrade=1	from_commit=2b24ab443dc95fc78654e8232351933491cf04b4
 		# 2.3.0~ynh1
 		upgrade=1	from_commit=141e5a370e552760b83066fbfe044ca3e5283a72
+		# 2.4.0~ynh1
+		upgrade=1	from_commit=10d79175a8a45137d271931cbd6d14e927400729
 		backup_restore=1
-		multi_instance=1
-		# This test is no longer necessary since the version 2.7 (PR: https://github.com/YunoHost/yunohost/pull/304), you can still do it if your app could be installed with this version.
-		# incorrect_path=1
+		multi_instance=0
 		port_already_use=0
 		change_url=0
-;;; Levels
-	# If the level 5 (Package linter) is forced to 1. Please add justifications here.
-	Level 5=auto
 ;;; Options
 Email=anmol@datamol.org;yalh@yahoo.com
 Notification=yes
@@ -46,3 +43,6 @@ Notification=yes
 		name=2.2.0~ynh1
 	; commit=141e5a370e552760b83066fbfe044ca3e5283a72
 		name=2.3.0~ynh1
+	; commit=10d79175a8a45137d271931cbd6d14e927400729
+		name=2.4.0~ynh1
+		

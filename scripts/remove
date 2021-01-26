@@ -19,10 +19,12 @@ app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 port=$(ynh_app_setting_get --app=$app --key=port)
+rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
 db_name=$(ynh_app_setting_get --app=$app --key=psql_db)
 db_user=$app
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 admin_email=$(ynh_app_setting_get --app=$app --key=admin_email)
+datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
 #=================================================
 # STANDARD REMOVE
@@ -33,7 +35,7 @@ admin_email=$(ynh_app_setting_get --app=$app --key=admin_email)
 # Remove the service from the list of services known by Yunohost (added from `yunohost service add`)
 if ynh_exec_warn_less yunohost service status $app >/dev/null
 then
-	ynh_script_progression --message="Removing $app service..."
+	ynh_script_progression --message="Removing $app service integration..."
 	yunohost service remove $app
 fi
 
@@ -60,6 +62,7 @@ ynh_script_progression --message="Removing dependencies..."
 
 # Remove metapackage and its dependencies
 ynh_remove_app_dependencies
+
 ynh_remove_nodejs
 
 #=================================================
@@ -73,7 +76,7 @@ ynh_secure_remove --file="$final_path"
 #=================================================
 # REMOVE NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Removing nginx web server configuration..."
+ynh_script_progression --message="Removing NGINX web server configuration..."
 
 # Remove the dedicated nginx config
 ynh_remove_nginx_config
@@ -96,6 +99,12 @@ then
 	ynh_exec_warn_less yunohost firewall disallow TCP $port
 fi
 
+if yunohost firewall list | grep -q "\- $rtmp_port$"
+then
+	ynh_script_progression --message="Closing port $rtmp_port..."
+	ynh_exec_warn_less yunohost firewall disallow TCP $rtmp_port
+fi
+
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
@@ -114,6 +123,8 @@ ynh_script_progression --message="Sending a readme for the admin..."
 ynh_replace_string --match_string="__APP__"    --replace_string="$app"    --target_file="../conf/message_remove"
 ynh_replace_string --match_string="__DOMAIN__"    --replace_string="$domain"    --target_file="../conf/message_remove"
 ynh_replace_string --match_string="__PATH_URL__"    --replace_string="$path_url"    --target_file="../conf/message_remove"
+ynh_replace_string --match_string="__DATADIR__"    --replace_string="$datadir"    --target_file="../conf/message_remove"
+ynh_replace_string --match_string="__RTMP_PORT__"    --replace_string="$rtmp_port"    --target_file="../conf/message"
 
 ynh_send_readme_to_admin --app_message="../conf/message_remove" --recipients=$admin_email --type='remove'
 

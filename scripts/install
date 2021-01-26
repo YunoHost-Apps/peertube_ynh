@@ -32,6 +32,9 @@ is_public=$YNH_APP_ARG_IS_PUBLIC
 
 app=$YNH_APP_INSTANCE_NAME
 
+# Define app's data directory
+datadir="/home/yunohost.app/${app}/storage"
+
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
@@ -52,17 +55,27 @@ ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=admin_email --value=$admin_email
 ynh_app_setting_set --app=$app --key=admin_pass --value=$admin_pass
 ynh_app_setting_set --app=$app --key=is_public --value=$is_public
+ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
 # FIND AND OPEN A PORT
 #=================================================
-ynh_script_progression --message="Configuring firewall..."
+ynh_script_progression --message="Finding an available port..."
 
 # Find an available port
 port=$(ynh_find_port --port=9000)
 ynh_app_setting_set --app=$app --key=port --value=$port
+
+# PeerTube Live port
+rtmp_port=1935
+ynh_port_available --port=$rtmp_port || ynh_die "Port $rtmp_port is needs to be available for this app"
+ynh_app_setting_set --app=$app --key=rtmp_port --value=$rtmp_port
+
+# Open the port
+ynh_script_progression --message="Configuring firewall..."
+ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
 
 #=================================================
 # INSTALL DEPENDENCIES
@@ -113,10 +126,10 @@ ynh_setup_source --dest_dir="$final_path"
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring nginx web server..."
+ynh_script_progression --message="Configuring NGINX web server..."
 
 # Create a dedicated nginx config
-ynh_add_nginx_config
+ynh_add_nginx_config "datadir"
 
 #=================================================
 # CREATE DEDICATED USER
@@ -132,9 +145,6 @@ ynh_system_user_create --username=$app --home_dir=$final_path
 # CREATE THE DATA DIRECTORY
 #=================================================
 ynh_script_progression --message="Creating the data directory..."
-
-# Define app's data directory
-datadir="/home/yunohost.app/${app}/storage"
 
 # Create app folders
 mkdir -p "$datadir"
@@ -155,6 +165,7 @@ ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_fil
 ynh_replace_string --match_string="__DB_PWD__" --replace_string="$db_pwd" --target_file="$config"
 ynh_replace_string --match_string="__EMAIL__" --replace_string="$admin_email" --target_file="$config"
 ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_file="$config"
+ynh_replace_string --match_string="__DATADIR__" --replace_string="$datadir" --target_file="$config"
 
 #Create the admin settings file
 local_config="$final_path/config/local-production.json"
@@ -172,7 +183,7 @@ ynh_store_file_checksum --file="$local_config"
 #=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Building yarn dependencies..."
+ynh_script_progression --message="Building Yarn dependencies..."
 
 chown -R "$app":"$app" $final_path
 
@@ -205,14 +216,14 @@ chown -R $app:$app $final_path
 ynh_script_progression --message="Configuring log rotation..."
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate --logfile="/home/yunohost.app/${app}/storage/logs/peertube.log"
+ynh_use_logrotate --logfile="$datadir/logs/peertube.log"
 
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description "$app daemon for Peertube" --log "/home/yunohost.app/${app}/storage/logs/peertube.log"
+yunohost service add $app --description "$app daemon for Peertube" --log "$datadir/logs/peertube.log" --needs_exposed_ports $rtmp_port
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -237,7 +248,7 @@ fi
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..."
+ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 
@@ -255,12 +266,13 @@ popd
 #=================================================
 ynh_script_progression --message="Sending a readme for the admin..."
 
-ynh_replace_string --match_string="__APP__"    --replace_string="$app"    --target_file="../conf/message"
-ynh_replace_string --match_string="__DOMAIN__"    --replace_string="$domain"    --target_file="../conf/message"
-ynh_replace_string --match_string="__PATH_URL__"    --replace_string="$path_url"    --target_file="../conf/message"
-ynh_replace_string --match_string="__ADMIN_PASS__"    --replace_string="$admin_pass"    --target_file="../conf/message"
+ynh_replace_string --match_string="__APP__"    --replace_string="$app"    --target_file="../conf/message_install"
+ynh_replace_string --match_string="__DOMAIN__"    --replace_string="$domain"    --target_file="../conf/message_install"
+ynh_replace_string --match_string="__PATH_URL__"    --replace_string="$path_url"    --target_file="../conf/message_install"
+ynh_replace_string --match_string="__ADMIN_PASS__"    --replace_string="$admin_pass"    --target_file="../conf/message_install"
+ynh_replace_string --match_string="__RTMP_PORT__"    --replace_string="$rtmp_port"    --target_file="../conf/message_install"
 
-ynh_send_readme_to_admin --app_message="../conf/message" --recipients=$admin_email --type='install'
+ynh_send_readme_to_admin --app_message="../conf/message_install" --recipients=$admin_email --type='install'
 
 #=================================================
 # END OF SCRIPT

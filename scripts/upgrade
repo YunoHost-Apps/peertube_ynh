@@ -22,8 +22,10 @@ is_public=$(ynh_app_setting_get --app=$app --key=is_public)
 admin_email=$(ynh_app_setting_get --app=$app --key=admin_email)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 port=$(ynh_app_setting_get --app=$app --key=port)
+rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
 db_name=$(ynh_app_setting_get --app=$app --key=psql_db)
 db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
+datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
 #=================================================
 # CHECK VERSION
@@ -46,6 +48,12 @@ elif [ "$is_public" = "No" ]; then
 	is_public=0
 fi
 
+if [ -z "$datadir" ];
+then
+   datadir="/home/yunohost.app/${app}/storage"
+   ynh_app_setting_set --app=$app --key=datadir --value=$datadir
+fi
+
 # Close a port
 if yunohost firewall list | grep -q "\- $port$"
 then
@@ -61,13 +69,32 @@ ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --datab
 ynh_secure_remove --file="/etc/apt/sources.list.d/jessie-backports.list"
 ynh_secure_remove --file="/etc/apt/sources.list.d/yarn.list"
 
+if [ -z "$rtmp_port" ];
+then
+   rtmp_port=1935
+   ynh_port_available --port=$rtmp_port || ynh_die "Port $rtmp_port is needs to be available for this app"
+   ynh_app_setting_set --app=$app --key=rtmp_port --value=$rtmp_port
+   
+   # Open the port
+   ynh_script_progression --message="Configuring firewall..."
+   ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
+fi
+
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
 ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
 
+# Inform the backup/restore process that it should not save the data directory
+# Use only for the previous backup script that doesn't set 'is_big'
+ynh_app_setting_set --app=$app --key=backup_core_only --value=1
+
 # Backup the current version of the app
 ynh_backup_before_upgrade
+
+# Remove the option backup_core_only after the backup.
+ynh_app_setting_delete --app=$app --key=backup_core_only
+
 ynh_clean_setup () {
 	# restore it if the upgrade fails
 	ynh_clean_check_starting
@@ -133,10 +160,10 @@ fi
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading nginx web server configuration..."
+ynh_script_progression --message="Upgrading NGINX web server configuration..."
 
 # Create a dedicated nginx config
-ynh_add_nginx_config
+ynh_add_nginx_config "datadir"
 
 #=================================================
 # UPGRADE DEPENDENCIES
@@ -178,9 +205,6 @@ ynh_system_user_create --username=$app
 #=================================================
 ynh_script_progression --message="Creating the data directory..."
 
-# Define app's data directory
-datadir="/home/yunohost.app/${app}/storage"
-
 if [ ! -d "$datadir" ]
 then
 	# Create app folders
@@ -204,6 +228,7 @@ ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_fil
 ynh_replace_string --match_string="__DB_PWD__" --replace_string="$db_pwd" --target_file="$config"
 ynh_replace_string --match_string="__EMAIL__" --replace_string="$admin_email" --target_file="$config"
 ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_file="$config"
+ynh_replace_string --match_string="__DATADIR__" --replace_string="$datadir" --target_file="$config"
 ynh_store_file_checksum --file="$config"
 
 local_config="$final_path/config/local-production.json"
@@ -213,7 +238,7 @@ ynh_store_file_checksum --file="$local_config"
 #=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Building yarn dependencies..."
+ynh_script_progression --message="Building Yarn dependencies..."
 
 chown -R "$app":"$app" $final_path
 
@@ -221,14 +246,6 @@ pushd "$final_path"
 	ynh_use_nodejs
 	#sudo -u $app env PATH=$PATH yarn install --production --pure-lockfile 
 popd
-
-#=================================================
-# SETUP LOGROTATE
-#=================================================
-ynh_script_progression --message="Upgrading logrotate configuration..."
-
-# Use logrotate to manage app-specific logfile(s)
-ynh_use_logrotate --non-append
 
 #=================================================
 # SETUP SYSTEMD
@@ -249,6 +266,28 @@ ynh_script_progression --message="Securing files and directories..."
 chown -R $app:$app $final_path
 
 #=================================================
+# SETUP LOGROTATE
+#=================================================
+ynh_script_progression --message="Upgrading logrotate configuration..."
+
+# Use logrotate to manage app-specific logfile(s)
+ynh_use_logrotate --non-append
+
+#=================================================
+# INTEGRATE SERVICE IN YUNOHOST
+#=================================================
+ynh_script_progression --message="Integrating service in YunoHost..."
+
+yunohost service add $app --description "$app daemon for Peertube" --log "$datadir/logs/peertube.log" --needs_exposed_ports $rtmp_port
+
+#=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Starting a systemd service..."
+
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
+
+#=================================================
 # SETUP SSOWAT
 #=================================================
 ynh_script_progression --message="Upgrading SSOwat configuration..."
@@ -261,16 +300,9 @@ then
 fi
 
 #=================================================
-# START SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Starting a systemd service..."
-
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
-
-#=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..."
+ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 

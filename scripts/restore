@@ -113,6 +113,7 @@ else
 fi
 
 # Install Yarn
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - 2>&1
 ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
 #=================================================

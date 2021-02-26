@@ -20,7 +20,7 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 port=$(ynh_app_setting_get --app=$app --key=port)
 rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
-db_name=$(ynh_app_setting_get --app=$app --key=psql_db)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$app
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 admin_email=$(ynh_app_setting_get --app=$app --key=admin_email)
@@ -53,7 +53,7 @@ ynh_remove_systemd_config
 ynh_script_progression --message="Removing the PostgreSQL database..."
 
 # Remove a database if it exists, along with the associated user
-ynh_psql_remove_db --db_user="$db_user" --db_name="$db_name"
+ynh_psql_remove_db --db_user=$db_user --db_name=$db_name
 
 #=================================================
 # REMOVE DEPENDENCIES
@@ -61,9 +61,8 @@ ynh_psql_remove_db --db_user="$db_user" --db_name="$db_name"
 ynh_script_progression --message="Removing dependencies..."
 
 # Remove metapackage and its dependencies
-ynh_remove_app_dependencies
-
 ynh_remove_nodejs
+ynh_remove_app_dependencies
 
 #=================================================
 # REMOVE APP MAIN DIR

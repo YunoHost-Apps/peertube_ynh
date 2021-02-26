@@ -23,8 +23,8 @@ admin_email=$(ynh_app_setting_get --app=$app --key=admin_email)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 port=$(ynh_app_setting_get --app=$app --key=port)
 rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
-db_name=$(ynh_app_setting_get --app=$app --key=psql_db)
-db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
 #=================================================
@@ -39,19 +39,22 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 ynh_script_progression --message="Ensuring downward compatibility..."
 
-# Fix is_public as a boolean value
-if [ "$is_public" = "Yes" ]; then
-	ynh_app_setting_set --app=$app --key=is_public --value=1
-	is_public=1
-elif [ "$is_public" = "No" ]; then
-	ynh_app_setting_set --app=$app --key=is_public --value=0
-	is_public=0
+# If db_name doesn't exist, create it
+if [ -z "$db_name" ]; then
+	db_name="peertube_${app}"
+	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+fi
+
+# If db_pwd doesn't exist, create it
+if [ -z "$db_pwd" ]; then
+	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
+	ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
 fi
 
 if [ -z "$datadir" ];
 then
-   datadir="/home/yunohost.app/${app}/storage"
-   ynh_app_setting_set --app=$app --key=datadir --value=$datadir
+	datadir="/home/yunohost.app/${app}/storage"
+	ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 fi
 
 # Close a port
@@ -71,13 +74,20 @@ ynh_secure_remove --file="/etc/apt/sources.list.d/yarn.list"
 
 if [ -z "$rtmp_port" ];
 then
-   rtmp_port=1935
-   ynh_port_available --port=$rtmp_port || ynh_die "Port $rtmp_port is needs to be available for this app"
-   ynh_app_setting_set --app=$app --key=rtmp_port --value=$rtmp_port
-   
-   # Open the port
-   ynh_script_progression --message="Configuring firewall..."
-   ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
+	rtmp_port=1935
+	ynh_port_available --port=$rtmp_port || ynh_die "Port $rtmp_port is needs to be available for this app"
+	ynh_app_setting_set --app=$app --key=rtmp_port --value=$rtmp_port
+
+	# Open the port
+	ynh_script_progression --message="Configuring firewall..."
+	ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
+fi
+
+# Cleaning legacy permissions
+if ynh_legacy_permissions_exists; then
+	ynh_legacy_permissions_delete_all
+
+	ynh_app_setting_delete --app=$app --key=is_public
 fi
 
 #=================================================
@@ -119,23 +129,23 @@ ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
 	ynh_script_progression --message="Upgrading source files..."
-	
+
 	# Create a temporary directory
 	tmpdir="$(mktemp -d)"
-	
+
 	# Backup the config file in the temp dir
 	cp -a "$final_path/config/production.yaml" "$tmpdir/production.yaml"
 	if [ -s "$final_path/config/local-production.json" ]
 	then
 		cp -a "$final_path/config/local-production.json" "$tmpdir/local-production.json"
 	fi
-	
+
 	# Remove the app directory securely
 	ynh_secure_remove --file="$final_path"
-	
+
 	# Download, check integrity, uncompress and patch the source from app.src
 	ynh_setup_source --dest_dir="$final_path"
-	
+
 	#Copy the admin saved settings from tmp directory to final path	
 	cp -a  "$tmpdir/production.yaml" "$final_path/config/production.yaml"	
 
@@ -145,7 +155,7 @@ then
 	else
 		cp ../conf/local-production.json "$final_path/config/local-production.json"
 	fi
-	
+
 	# Remove the tmp directory securely
 	ynh_secure_remove --file="$tmpdir"
 fi
@@ -279,18 +289,6 @@ yunohost service add $app --description "$app daemon for Peertube" --log "$datad
 ynh_script_progression --message="Starting a systemd service..."
 
 ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-ynh_script_progression --message="Upgrading SSOwat configuration..."
-
-# Make app public if necessary
-if [ $is_public -eq 1 ]
-then
-	# unprotected_uris allows SSO credentials to be passed anyway
-	ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
-fi
 
 #=================================================
 # RELOAD NGINX

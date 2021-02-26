@@ -156,28 +156,9 @@ chown -R "$app":"$app" "$datadir"
 #=================================================
 ynh_script_progression --message="Modifying a config file..."
 
-config="$final_path/config/production.yaml"
-cp ../conf/production.yaml "$config"
-ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="$config"
-ynh_replace_string --match_string="__DB_NAME__" --replace_string="$app" --target_file="$config"
-ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_file="$config"
-ynh_replace_string --match_string="__DB_PWD__" --replace_string="$db_pwd" --target_file="$config"
-ynh_replace_string --match_string="__EMAIL__" --replace_string="$admin_email" --target_file="$config"
-ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_file="$config"
-ynh_replace_string --match_string="__DATADIR__" --replace_string="$datadir" --target_file="$config"
+ynh_add_config --template="../conf/production.yaml" --destination="$final_path/config/production.yaml"
 
-#Create the admin settings file
-local_config="$final_path/config/local-production.json"
-cp ../conf/local-production.json "$local_config"
-
-#=================================================
-# STORE THE CHECKSUM OF THE CONFIG FILE
-#=================================================
-ynh_script_progression --message="Storing the config file checksum..."
-
-# Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum --file="$config"
-ynh_store_file_checksum --file="$local_config"
+ynh_add_config --template="../conf/local-production.json" --destination="$final_path/config/local-production.json"
 
 #=================================================
 # BUILD YARN DEPENDENCIES
@@ -266,13 +247,8 @@ popd
 #=================================================
 ynh_script_progression --message="Sending a readme for the admin..."
 
-ynh_replace_string --match_string="__APP__"    --replace_string="$app"    --target_file="../conf/message_install"
-ynh_replace_string --match_string="__DOMAIN__"    --replace_string="$domain"    --target_file="../conf/message_install"
-ynh_replace_string --match_string="__PATH_URL__"    --replace_string="$path_url"    --target_file="../conf/message_install"
-ynh_replace_string --match_string="__ADMIN_PASS__"    --replace_string="$admin_pass"    --target_file="../conf/message_install"
-ynh_replace_string --match_string="__RTMP_PORT__"    --replace_string="$rtmp_port"    --target_file="../conf/message_install"
-
-ynh_send_readme_to_admin --app_message="../conf/message_install" --recipients=$admin_email --type='install'
+ynh_add_config --template="../conf/message_install" --destination="../conf/msg_install"
+ynh_send_readme_to_admin --app_message="../conf/msg_install" --recipients=$admin_email --type='install'
 
 #=================================================
 # END OF SCRIPT

@@ -37,13 +37,13 @@
                 "example": "example.com"
             },
             {
-                "name": "email",
-                "type": "string",
+                "name": "admin",
+                "type": "user",
                 "ask": {
-                    "en": "Choose an admin email (can be changed after installation)",
-                    "fr": "Choisissez une adresse e-mail d'administrateur (peut être modifiée après l'installation)"
+                    "en": "Choose an admin user",
+                    "fr": "Choisissez l'administrateur"
                 },
-                "example": "johndoe@example.com"
+                "example": "johndoe"
             },
             {
                 "name": "is_public",

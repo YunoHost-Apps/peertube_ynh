@@ -18,7 +18,6 @@ app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
-admin_email=$(ynh_app_setting_get --app=$app --key=admin_email)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 port=$(ynh_app_setting_get --app=$app --key=port)
 rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
@@ -37,6 +36,8 @@ upgrade_type=$(ynh_check_app_version_changed)
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
 ynh_script_progression --message="Ensuring downward compatibility..."
+
+ynh_app_setting_delete --app=$app --key=admin_pass
 
 # If db_name doesn't exist, create it
 if [ -z "$db_name" ]; then

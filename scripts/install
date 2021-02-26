@@ -26,9 +26,10 @@ ynh_abort_if_errors
 
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
-admin_email=$YNH_APP_ARG_EMAIL
-admin_pass=$(ynh_string_random --length=24)
+admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
+admin_email=$(ynh_user_get_info --username=$admin --key="mail")
+admin_pass=$(ynh_string_random --length=24)
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -52,8 +53,8 @@ ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 ynh_script_progression --message="Storing installation settings..."
 
 ynh_app_setting_set --app=$app --key=domain --value=$domain
+ynh_app_setting_set --app=$app --key=admin --value=$admin
 ynh_app_setting_set --app=$app --key=admin_email --value=$admin_email
-ynh_app_setting_set --app=$app --key=admin_pass --value=$admin_pass
 ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 
 #=================================================

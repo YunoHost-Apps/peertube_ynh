@@ -227,6 +227,8 @@ then
 	ynh_permission_update --permission="main" --add="visitors"
 fi
 
+ynh_permission_create --permission="api" --url="/api" --allowed="visitors" --auth_header="false" --show_tile="false" --protected="true"
+
 #=================================================
 # RELOAD NGINX
 #=================================================

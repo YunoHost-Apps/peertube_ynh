@@ -24,6 +24,8 @@ rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
+admin=$(ynh_app_setting_get --app=$app --key=admin)
+admin_email=$(ynh_user_get_info --username=$admin --key="mail")
 
 #=================================================
 # CHECK VERSION
@@ -38,6 +40,7 @@ upgrade_type=$(ynh_check_app_version_changed)
 ynh_script_progression --message="Ensuring downward compatibility..."
 
 ynh_app_setting_delete --app=$app --key=admin_pass
+ynh_app_setting_delete --app=$app --key=admin_email
 
 # If db_name doesn't exist, create it
 if [ -z "$db_name" ]; then

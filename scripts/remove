@@ -26,6 +26,7 @@ final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
 admin_email=$(ynh_user_get_info --username=$admin --key="mail")
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
+path_url=$(ynh_app_setting_get --app=$app --key=path)
 
 #=================================================
 # STANDARD REMOVE

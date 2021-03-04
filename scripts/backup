@@ -29,7 +29,7 @@ app=$YNH_APP_INSTANCE_NAME
 
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 domain=$(ynh_app_setting_get --app=$app --key=domain)
-db_name=$(ynh_app_setting_get --app=$app --key=psql_db)
+db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
 #=================================================

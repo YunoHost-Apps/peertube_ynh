@@ -72,7 +72,7 @@ Want to see in action?
 
  * Report a bug: https://github.com/YunoHost-Apps/peertube_ynh/issues
  * App website: https://joinpeertube.org/fr/
- * GitHub App website: https://github.com/Chocobozzz/PeerTube/
+ * Upstream app repository: https://github.com/Chocobozzz/PeerTube/
  * YunoHost website: https://yunohost.org/
 
 ---

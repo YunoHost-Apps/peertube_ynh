@@ -13,6 +13,4 @@
 
 ## Package_check results
 ---
-*If you have access to [App Continuous Integration for packagers](https://yunohost.org/#/packaging_apps_ci) you can provide a link to the package_check results like below, replacing '-NUM-' in this link by the PR number and USERNAME by your username on the ci-apps-dev. Or you provide a screenshot or a pastebin of the results*
-
-[![Build Status](https://ci-apps-dev.yunohost.org/jenkins/job/peertube_ynh%20PR-NUM-%20(USERNAME)/badge/icon)](https://ci-apps-dev.yunohost.org/jenkins/job/peertube_ynh%20PR-NUM-%20(USERNAME)/)  
+* An automatic package_check will be launch at https://ci-apps-dev.yunohost.org/, when you add a specific comment to your Pull Request: "!testme", "!gogogadgetoci" or "By the power of systemd, I invoke The Great App CI to test this Pull Request!"*

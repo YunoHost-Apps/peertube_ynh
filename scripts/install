@@ -26,9 +26,10 @@ ynh_abort_if_errors
 
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
-admin_email=$YNH_APP_ARG_EMAIL
-admin_pass=$(ynh_string_random --length=24)
+admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
+admin_email=$(ynh_user_get_info --username=$admin --key="mail")
+admin_pass=$(ynh_string_random --length=24)
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -52,9 +53,7 @@ ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 ynh_script_progression --message="Storing installation settings..."
 
 ynh_app_setting_set --app=$app --key=domain --value=$domain
-ynh_app_setting_set --app=$app --key=admin_email --value=$admin_email
-ynh_app_setting_set --app=$app --key=admin_pass --value=$admin_pass
-ynh_app_setting_set --app=$app --key=is_public --value=$is_public
+ynh_app_setting_set --app=$app --key=admin --value=$admin
 ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 
 #=================================================
@@ -106,8 +105,8 @@ ynh_script_progression --message="Creating a PostgreSQL database..."
 db_name="peertube_${app}"
 db_user=$app
 db_pwd=$(ynh_string_random --length=30)
-ynh_app_setting_set --app=$app --key=psql_db --value=$db_name
-ynh_app_setting_set --app=$app --key=psqlpwd --value=$db_pwd
+ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
 ynh_psql_test_if_first_run
 ynh_psql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
 
@@ -157,28 +156,9 @@ chown -R "$app":"$app" "$datadir"
 #=================================================
 ynh_script_progression --message="Modifying a config file..."
 
-config="$final_path/config/production.yaml"
-cp ../conf/production.yaml "$config"
-ynh_replace_string --match_string="__DOMAIN__" --replace_string="$domain" --target_file="$config"
-ynh_replace_string --match_string="__DB_NAME__" --replace_string="$app" --target_file="$config"
-ynh_replace_string --match_string="__APP__" --replace_string="$app" --target_file="$config"
-ynh_replace_string --match_string="__DB_PWD__" --replace_string="$db_pwd" --target_file="$config"
-ynh_replace_string --match_string="__EMAIL__" --replace_string="$admin_email" --target_file="$config"
-ynh_replace_string --match_string="__PORT__" --replace_string="$port" --target_file="$config"
-ynh_replace_string --match_string="__DATADIR__" --replace_string="$datadir" --target_file="$config"
+ynh_add_config --template="../conf/production.yaml" --destination="$final_path/config/production.yaml"
 
-#Create the admin settings file
-local_config="$final_path/config/local-production.json"
-cp ../conf/local-production.json "$local_config"
-
-#=================================================
-# STORE THE CHECKSUM OF THE CONFIG FILE
-#=================================================
-ynh_script_progression --message="Storing the config file checksum..."
-
-# Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum --file="$config"
-ynh_store_file_checksum --file="$local_config"
+ynh_add_config --template="../conf/local-production.json" --destination="$final_path/config/local-production.json"
 
 #=================================================
 # BUILD YARN DEPENDENCIES
@@ -236,14 +216,17 @@ ynh_script_progression --message="Starting a systemd service..."
 #=================================================
 # SETUP SSOWAT
 #=================================================
-ynh_script_progression --message="Configuring SSOwat..."
+ynh_script_progression --message="Configuring permissions..."
 
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
-	# unprotected_uris allows SSO credentials to be passed anyway.
-	ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
+	# Everyone can access the app.
+	# The "main" permission is automatically created before the install script.
+	ynh_permission_update --permission="main" --add="visitors"
 fi
+
+ynh_permission_create --permission="api" --url="/api" --allowed="visitors" --auth_header="false" --show_tile="false" --protected="true"
 
 #=================================================
 # RELOAD NGINX
@@ -266,13 +249,8 @@ popd
 #=================================================
 ynh_script_progression --message="Sending a readme for the admin..."
 
-ynh_replace_string --match_string="__APP__"    --replace_string="$app"    --target_file="../conf/message_install"
-ynh_replace_string --match_string="__DOMAIN__"    --replace_string="$domain"    --target_file="../conf/message_install"
-ynh_replace_string --match_string="__PATH_URL__"    --replace_string="$path_url"    --target_file="../conf/message_install"
-ynh_replace_string --match_string="__ADMIN_PASS__"    --replace_string="$admin_pass"    --target_file="../conf/message_install"
-ynh_replace_string --match_string="__RTMP_PORT__"    --replace_string="$rtmp_port"    --target_file="../conf/message_install"
-
-ynh_send_readme_to_admin --app_message="../conf/message_install" --recipients=$admin_email --type='install'
+ynh_add_config --template="../conf/message_install" --destination="../conf/msg_install"
+ynh_send_readme_to_admin --app_message="../conf/msg_install" --recipients=$admin_email --type='install'
 
 #=================================================
 # END OF SCRIPT

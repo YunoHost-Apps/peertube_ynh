@@ -37,8 +37,8 @@ database:
   hostname: 'localhost'
   port: 5432
   ssl: false
-  suffix: '___DB_NAME__'
-  username: '__DB_NAME__'
+  suffix: '___APP__'
+  username: '__DB_USER__'
   password: '__DB_PWD__'
 pool:
     max: 5
@@ -203,7 +203,7 @@ cache:
 admin:
   # Used to generate the root user at first startup
   # And to receive emails from the contact form
-  email: '__EMAIL__'
+  email: '__ADMIN_EMAIL__'
 
 contact_form:
   enabled: true

@@ -23,14 +23,13 @@ Les serveurs sont gérés indépendamment par différentes personnes et organisa
 
 En regardant une vidéo, vous aidez l'hébergeur à la diffuser en devenant vous-même un diffuseur de la vidéo. Chaque instance n'a pas besoin de beaucoup d'argent pour diffuser les vidéos de ses utilisateurs.
 
-**Version incluse :** 3.0.1
+**Version incluse :** 3.1.0
 
 ## Points importants à lire avant l'installation
 
 1. Nécessite un **domaine dédié** comme **peertube.domain.tld**.
-1. **Pas de support LDAP** (bloqué jusqu'à ce que le noyau PeerTube en amont l'implémente)
 1. Le nom d'utilisateur de l'administrateur est: **root**.
-1. **Le mot de passe administrateur** sera envoyé à l'adresse email indiquée au moment de l'installation.
+1. **Le mot de passe administrateur et la configuration LDAP** seront envoyés à l'adresse email indiquée au moment de l'installation.
 1. L'URL ne peut pas être modifiée une fois sélectionnée. Choisissez judicieusement le domaine.
 1. Vous avez besoin de plus de **1 Go** de RAM. Si vous ne l'avez pas, veuillez créer une **mémoire swap**.
 
@@ -57,6 +56,11 @@ En regardant une vidéo, vous aidez l'hébergeur à la diffuser en devenant vous
  * Documentation YunoHost : https://yunohost.org/#/app_peertube_fr
 
 ## Caractéristiques spécifiques YunoHost
+
+#### Support multi-utilisateur
+
+* L'authentification LDAP est prise en charge, les instructions de configuration sont envoyées à l'adresse email indiquée au moment de l'installation
+* L'authentification HTTP n'est pas prise en charge
 
 #### Architectures supportées
 

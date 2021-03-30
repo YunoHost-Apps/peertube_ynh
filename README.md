@@ -27,14 +27,13 @@ Servers are run independently by different people and organizations. They can ap
 
 By watching a video, you help the hosting provider to broadcast it by becoming a broadcaster of the video yourself. Each instance doesn’t need much money to broadcast the videos of its users.
 
-**Shipped version:** 3.0.1
+**Shipped version:** 3.1.0
 
 ## Important points to read before installing
 
 1. Require **dedicated domain** like **peertube.domain.tld**.
-1. **No LDAP** support (blocked until PeerTube core upstream implements it)
 1. Admin username is: **root**.
-1. **Admin password** will be sent to the email address given at the time of the installation.
+1. **Admin password and LDAP configuration** will be sent to the email address given at the time of the installation.
 1. URL can not be changed once selected. Choose the domain wisely.
 1. You need more then **1 GB** of RAM. If you don't have it, please create a **swap memory**.
  
@@ -62,6 +61,11 @@ Want to see in action?
  * YunoHost documentation: https://yunohost.org/#/app_peertube
 
 ## YunoHost specific features
+
+#### Multi-user support
+
+* LDAP auth is supported, LDAP configuration will be sent to the email address given at the time of the installation.
+* HTTP auth is not supported
 
 #### Supported architectures
 

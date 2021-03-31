@@ -9,9 +9,9 @@ To make PeerTube Live available, you also need to make the TCP port __RTMP_PORT_
 
 To enable LDAP authentication open https://__DOMAIN____PATH_URL__admin/plugins/show/peertube-plugin-auth-ldap
 Complete with the following informations :
-URL: ldap://localhost
-Insecure TLS : checked
-Search base : ou=users,dc=yunohost,dc=org
+- URL: ldap://127.0.0.1
+- Insecure TLS : checked
+- Search base : ou=users,dc=yunohost,dc=org
 All YunoHost users will be allowed to login as peertube user.
 
 If you are facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh

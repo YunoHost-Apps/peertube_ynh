@@ -169,7 +169,7 @@ chown -R "$app":"$app" $final_path
 
 pushd "$final_path"
 	ynh_use_nodejs
-	sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile 
+	ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile 
 popd
 
 #=================================================

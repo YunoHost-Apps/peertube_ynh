@@ -246,7 +246,16 @@ chown -R "$app":"$app" $final_path
 
 pushd "$final_path"
 	ynh_use_nodejs
-	sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile 
+	ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile 
+popd
+
+#=================================================
+# INSTALL LDAP PLUGIN
+#=================================================
+ynh_script_progression --message="Installing LDAP plugin..."
+
+pushd "$final_path"
+	NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
 popd
 
 #=================================================
@@ -287,7 +296,7 @@ yunohost service add $app --description "$app daemon for Peertube" --log "$datad
 #=================================================
 ynh_script_progression --message="Starting a systemd service..."
 
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on localhost"
 
 #=================================================
 # RELOAD NGINX

@@ -1,5 +1,5 @@
 [Unit]
-Description=PeerTube: video streaming platform using P2P
+Description=PeerTube daemon
 After=network.target postgresql.service redis-server.service
 
 [Service]

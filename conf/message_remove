@@ -12,5 +12,4 @@ You need to run this command to remove the data (warning all your videos will be
 
 rm -R __DATADIR__ -f
 
-
 If you facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh

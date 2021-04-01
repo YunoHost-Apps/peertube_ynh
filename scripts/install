@@ -169,7 +169,7 @@ chown -R "$app":"$app" $final_path
 
 pushd "$final_path"
 	ynh_use_nodejs
-	sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile 
+	ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile 
 popd
 
 #=================================================
@@ -179,6 +179,40 @@ ynh_script_progression --message="Configuring a systemd service..."
 
 # Create a dedicated systemd config
 ynh_add_systemd_config --others_var="ynh_node_load_PATH"
+
+#=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Starting a systemd service..."
+
+# Start a systemd service
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on localhost"
+
+#=================================================
+# INSTALL LDAP PLUGIN
+#=================================================
+ynh_script_progression --message="Installing LDAP plugin..."
+
+pushd "$final_path"
+	NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
+popd
+
+#=================================================
+# CHANGE PEERTUBE ADMIN PASSWORD
+#=================================================
+ynh_script_progression --message="Changing PeerTube admin password..."
+
+pushd "$final_path"
+	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run reset-password -- -u root
+popd
+
+#=================================================
+# STOP SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Stopping a systemd service..."
+
+# Start a systemd service
+ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
 
 #=================================================
 # GENERIC FINALIZATION
@@ -211,7 +245,7 @@ yunohost service add $app --description "$app daemon for Peertube" --log "$datad
 ynh_script_progression --message="Starting a systemd service..."
 
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Server listening on localhost"
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on localhost"
 
 #=================================================
 # SETUP SSOWAT
@@ -234,15 +268,6 @@ ynh_permission_create --permission="api" --url="/api" --allowed="visitors" --aut
 ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
-
-#=================================================
-# CHANGE PEERTUBE ADMIN PASSWORD AFTER INITIAL GEN
-#=================================================
-
-# we need to wait for the service to init peertube's database
-pushd "$final_path"
-	echo $admin_pass | NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production npm run reset-password -- -u root
-popd
 
 #=================================================
 # SEND A README FOR THE ADMIN

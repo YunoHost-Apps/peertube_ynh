@@ -40,7 +40,7 @@ database:
   suffix: '___APP__'
   username: '__DB_USER__'
   password: '__DB_PWD__'
-pool:
+  pool:
     max: 5
 
 # Redis server for short time storage
@@ -100,10 +100,19 @@ log:
     maxFileSize: 12MB
     maxFiles: 20
   anonymizeIP: false
+  log_ping_requests: true
+  prettify_sql: false
 
 trending:
   videos:
     interval_days: 7 # Compute trending videos for the last x days
+    algorithms:
+      enabled:
+        - 'best' # adaptation of Reddit's 'Best' algorithm (Hot minus History)
+        - 'hot' # adaptation of Reddit's 'Hot' algorithm
+        - 'most-viewed' # default, used initially by PeerTube as the trending page
+        - 'most-liked'
+      default: 'most-viewed'
 
 # Cache remote videos on your server, to help other instances to broadcast the video
 # You can define multiple caches using different sizes/strategies
@@ -181,6 +190,12 @@ federation:
   videos:
     federate_unlisted: false
 
+    # Add a weekly job that cleans up remote AP interactions on local videos (shares, rates and comments)
+    # It removes objects that do not exist anymore, and potentially fix their URLs
+    # This setting is opt-in because due to an old bug in PeerTube, remote rates sent by instance before PeerTube 3.0 will be deleted
+    # We still suggest you to enable this setting even if your users will loose most of their video's likes/dislikes
+    cleanup_remote_interactions: false
+
 
 ###############################################################################
 #
@@ -199,6 +214,8 @@ cache:
     size: 500 # Max number of previews you want to cache
   captions:
     size: 500 # Max number of video captions/subtitles you want to cache
+  torrents:
+    size: 500 # Max number of video torrents you want to cache
 
 admin:
   # Used to generate the root user at first startup
@@ -228,11 +245,23 @@ user:
 # Please, do not disable transcoding since many uploaded videos will not work
 transcoding:
   enabled: true
+
   # Allow your users to upload .mkv, .mov, .avi, .wmv, .flv, .f4v, .3g2, .3gp, .mts, m2ts, .mxf, .nut videos
   allow_additional_extensions: true
+
   # If a user uploads an audio file, PeerTube will create a video by merging the preview file and the audio file
   allow_audio_files: true
+
+  # Amount of threads used by ffmpeg for 1 transcoding job
   threads: 1
+  # Amount of transcoding jobs to execute in parallel
+  concurrency: 1
+
+  # Choose the transcoding profile
+  # New profiles can be added by plugins
+  # Available in core PeerTube: 'default'
+  profile: 'default'
+
   resolutions: # Only created if the original video has a higher resolution, uses more storage!
     0p: false # audio-only (creates mp4 without video stream, always created when enabled)
     240p: false
@@ -240,6 +269,7 @@ transcoding:
     480p: false
     720p: false
     1080p: false
+    1440p: false
     2160p: false
 
   # Generate videos in a WebTorrent format (what we do since the first PeerTube release)
@@ -261,7 +291,7 @@ live:
   enabled: true
 
   # Limit lives duration
-  # Set null to disable duration limit
+  # -1 == unlimited
   max_duration: -1 # For example: '5 hours'
 
   # Limit max number of live videos created on your instance
@@ -287,17 +317,26 @@ live:
     enabled: true
     threads: 2
 
+    # Choose the transcoding profile
+    # New profiles can be added by plugins
+    # Available in core PeerTube: 'default'
+    profile: 'default'
+
     resolutions:
       240p: false
       360p: false
       480p: false
       720p: false
       1080p: false
+      1440p: false
       2160p: false
 
 import:
   # Add ability for your users to import remote videos (from YouTube, torrent...)
   videos:
+    # Amount of import jobs to execute in parallel
+    concurrency: 1
+
     http: # Classic HTTP or all sites supported by youtube-dl https://rg3.github.io/youtube-dl/supportedsites.html
       enabled: false
 
@@ -320,7 +359,7 @@ auto_blacklist:
 # Instance settings
 instance:
   name: 'YunoHost PeerTube'
-  short_description: 'PeerTube, a federated (ActivityPub) video streaming platform using P2P (BitTorrent) directly in the web browser with WebTorrent and Angular.'
+  short_description: 'PeerTube, an ActivityPub-federated video streaming platform using P2P directly in your web browser.'
   description: 'Welcome to this PeerTube instance!' # Support markdown
   terms: 'No terms for now.' # Support markdown
   code_of_conduct: '' # Supports markdown

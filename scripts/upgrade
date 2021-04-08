@@ -224,7 +224,7 @@ then
 fi
 
 # Give permission to the datadir
-chown -R "$app":"$app" "$datadir"
+chown -R $app:$app $datadir
 
 #=================================================
 # MODIFY A CONFIG FILE
@@ -275,6 +275,9 @@ ynh_script_progression --message="Securing files and directories..."
 
 # Set permissions on app files
 chown -R $app:$app $final_path
+
+# Give permission to the datadir
+chown -R $app:$app $datadir
 
 #=================================================
 # SETUP LOGROTATE

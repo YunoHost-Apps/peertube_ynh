@@ -64,18 +64,18 @@ ynh_backup --src_path="/etc/logrotate.d/$app"
 ynh_backup --src_path="/etc/systemd/system/$app.service"
 
 #=================================================
-# BACKUP THE POSTGRESQL DATABASE
-#=================================================
-ynh_print_info --message="Backing up the PostgreSQL database..."
-
-ynh_psql_dump_db --database="$db_name" > db.sql
-
-#=================================================
 # BACKUP THE DATA DIRECTORY
 #=================================================
 ynh_print_info --message="Backing up data directory..."
 
 ynh_backup --src_path="$datadir" --is_big
+
+#=================================================
+# BACKUP THE POSTGRESQL DATABASE
+#=================================================
+ynh_print_info --message="Backing up the PostgreSQL database..."
+
+ynh_psql_dump_db --database="$db_name" > db.sql
 
 #=================================================
 # END OF SCRIPT

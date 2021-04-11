@@ -105,7 +105,7 @@ ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
 ynh_script_progression --message="Reinstalling dependencies..."
 
 # Install nodejs
-ynh_install_nodejs --nodejs_version=$YNH_NODEJS_VERSION
+ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 
 # Install dependencies
 ynh_install_app_dependencies $pkg_dependencies

@@ -82,7 +82,7 @@ ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
 ynh_script_progression --message="Installing dependencies..."
 
 # Install nodejs
-ynh_install_nodejs --nodejs_version=$YNH_NODEJS_VERSION
+ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 
 # Install dependencies
 ynh_install_app_dependencies $pkg_dependencies
@@ -167,14 +167,6 @@ pushd "$final_path"
 popd
 
 #=================================================
-# SETUP SYSTEMD
-#=================================================
-ynh_script_progression --message="Configuring a systemd service..."
-
-# Create a dedicated systemd config
-ynh_add_systemd_config --others_var="ynh_node_load_PATH"
-
-#=================================================
 # ADD A CONFIGURATION
 #=================================================
 ynh_script_progression --message="Adding a config file..."
@@ -188,6 +180,14 @@ ynh_add_config --template="../conf/local-production.json" --destination="$final_
 
 chmod 400 "$final_path/config/local-production.json"
 chown $app:$app "$final_path/config/local-production.json"
+
+#=================================================
+# SETUP SYSTEMD
+#=================================================
+ynh_script_progression --message="Configuring a systemd service..."
+
+# Create a dedicated systemd config
+ynh_add_systemd_config --others_var="ynh_node_load_PATH"
 
 #=================================================
 # START SYSTEMD SERVICE

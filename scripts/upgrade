@@ -143,10 +143,10 @@ then
 	tmpdir="$(mktemp -d)"
 
 	# Backup the config file in the temp dir
-	cp -a "$final_path/config/production.yaml" "$tmpdir/production.yaml"
+	cp -af "$final_path/config/production.yaml" "$tmpdir/production.yaml"
 	if [ -s "$final_path/config/local-production.json" ]
 	then
-		cp -a "$final_path/config/local-production.json" "$tmpdir/local-production.json"
+		cp -af "$final_path/config/local-production.json" "$tmpdir/local-production.json"
 	fi
 
 	# Remove the app directory securely
@@ -156,11 +156,11 @@ then
 	ynh_setup_source --dest_dir="$final_path"
 
 	#Copy the admin saved settings from tmp directory to final path	
-	cp -a  "$tmpdir/production.yaml" "$final_path/config/production.yaml"	
+	cp -af "$tmpdir/production.yaml" "$final_path/config/production.yaml"	
 
 	if [ -s "$tmpdir/local-production.json" ]
 	then
-		cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json"
+		cp -af "$tmpdir/local-production.json" "$final_path/config/local-production.json"
 	else
 		cp ../conf/local-production.json "$final_path/config/local-production.json"
 	fi

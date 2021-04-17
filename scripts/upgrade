@@ -169,7 +169,7 @@ then
 	ynh_secure_remove --file="$tmpdir"
 fi
 
-chmod -R 750 "$final_path"
+chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
 chown -R $app:www-data "$final_path"
 
@@ -216,7 +216,7 @@ ynh_script_progression --message="Creating the data directory..."
 # Create app folders
 mkdir -p "$datadir"
 
-chmod -R 750 "$datadir"
+chmod 750 "$datadir"
 chmod -R o-rwx "$datadir"
 chown -R $app:$app "$datadir"
 

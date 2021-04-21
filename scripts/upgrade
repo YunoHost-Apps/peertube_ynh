@@ -104,19 +104,11 @@ fi
 #=================================================
 ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
 
-# Inform the backup/restore process that it should not save the data directory
-# Use only for the previous backup script that doesn't set 'is_big'
-ynh_app_setting_set --app=$app --key=backup_core_only --value=1
-
 # Backup the current version of the app
 ynh_backup_before_upgrade
-
-# Remove the option backup_core_only after the backup.
-ynh_app_setting_delete --app=$app --key=backup_core_only
-
 ynh_clean_setup () {
-	# restore it if the upgrade fails
 	ynh_clean_check_starting
+	# Restore it if the upgrade fails
 	ynh_restore_upgradebackup
 }
 # Exit if an error occurs during the execution of the script
@@ -132,6 +124,14 @@ ynh_script_progression --message="Stopping a systemd service..."
 ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
 
 #=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Making sure dedicated system user exists..."
+
+# Create a dedicated user (if not existing)
+ynh_system_user_create --username=$app --home_dir="$final_path"
+
+#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
@@ -143,10 +143,10 @@ then
 	tmpdir="$(mktemp -d)"
 
 	# Backup the config file in the temp dir
-	cp -a "$final_path/config/production.yaml" "$tmpdir/production.yaml"
+	cp -af "$final_path/config/production.yaml" "$tmpdir/production.yaml"
 	if [ -s "$final_path/config/local-production.json" ]
 	then
-		cp -a "$final_path/config/local-production.json" "$tmpdir/local-production.json"
+		cp -af "$final_path/config/local-production.json" "$tmpdir/local-production.json"
 	fi
 
 	# Remove the app directory securely
@@ -156,11 +156,11 @@ then
 	ynh_setup_source --dest_dir="$final_path"
 
 	#Copy the admin saved settings from tmp directory to final path	
-	cp -a  "$tmpdir/production.yaml" "$final_path/config/production.yaml"	
+	cp -af "$tmpdir/production.yaml" "$final_path/config/production.yaml"	
 
 	if [ -s "$tmpdir/local-production.json" ]
 	then
-		cp -a  "$tmpdir/local-production.json" "$final_path/config/local-production.json"
+		cp -af "$tmpdir/local-production.json" "$final_path/config/local-production.json"
 	else
 		cp ../conf/local-production.json "$final_path/config/local-production.json"
 	fi
@@ -169,12 +169,16 @@ then
 	ynh_secure_remove --file="$tmpdir"
 fi
 
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
+
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
 ynh_script_progression --message="Upgrading NGINX web server configuration..."
 
-# Create a dedicated nginx config
+# Create a dedicated NGINX config
 ynh_add_nginx_config "datadir"
 
 #=================================================
@@ -183,7 +187,7 @@ ynh_add_nginx_config "datadir"
 ynh_script_progression --message="Upgrading dependencies..."
 
 # Install nodejs
-ynh_install_nodejs --nodejs_version=$YNH_NODEJS_VERSION
+ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 
 # Install dependencies
 ynh_install_app_dependencies $pkg_dependencies
@@ -203,39 +207,33 @@ ynh_secure_remove --file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
 yunohost tools regen-conf nginx
 
 #=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..."
-
-# Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app
-
-#=================================================
 # SPECIFIC UPGRADE
 #=================================================
 # CREATE THE DATA DIRECTORY
 #=================================================
 ynh_script_progression --message="Creating the data directory..."
 
-if [ ! -d "$datadir" ]
-then
-	# Create app folders
-	mkdir -p "$datadir"
-fi
+# Create app folders
+mkdir -p "$datadir"
 
-# Give permission to the datadir
-chown -R $app:$app $datadir
+chmod 750 "$datadir"
+chmod -R o-rwx "$datadir"
+chown -R $app:$app "$datadir"
 
 #=================================================
-# MODIFY A CONFIG FILE
+# UPDATE A CONFIG FILE
 #=================================================
-ynh_script_progression --message="Modifying a config file..."
+ynh_script_progression --message="Updating a config file..."
 
 ynh_add_config --template="../conf/production.yaml" --destination="$final_path/config/production.yaml"
 
-local_config="$final_path/config/local-production.json"
-ynh_backup_if_checksum_is_different --file="$local_config"
-ynh_store_file_checksum --file="$local_config"
+chmod 400 "$final_path/config/production.yaml"
+chown $app:$app "$final_path/config/production.yaml"
+
+ynh_add_config --template="../conf/local-production.json" --destination="$final_path/config/local-production.json"
+
+chmod 400 "$final_path/config/local-production.json"
+chown $app:$app "$final_path/config/local-production.json"
 
 #=================================================
 # BUILD YARN DEPENDENCIES
@@ -269,17 +267,6 @@ ynh_add_systemd_config --others_var="ynh_node_load_PATH"
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-# SECURE FILES AND DIRECTORIES
-#=================================================
-ynh_script_progression --message="Securing files and directories..."
-
-# Set permissions on app files
-chown -R $app:$app $final_path
-
-# Give permission to the datadir
-chown -R $app:$app $datadir
-
-#=================================================
 # SETUP LOGROTATE
 #=================================================
 ynh_script_progression --message="Upgrading logrotate configuration..."
@@ -292,7 +279,7 @@ ynh_use_logrotate --non-append
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description "$app daemon for Peertube" --log "$datadir/logs/peertube.log" --needs_exposed_ports $rtmp_port
+yunohost service add $app --description="$app daemon for Peertube" --log="$datadir/logs/peertube.log" --needs_exposed_ports $rtmp_port
 
 #=================================================
 # START SYSTEMD SERVICE

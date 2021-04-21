@@ -34,7 +34,7 @@ path_url=$(ynh_app_setting_get --app=$app --key=path)
 # REMOVE SERVICE INTEGRATION IN YUNOHOST
 #=================================================
 
-# Remove the service from the list of services known by Yunohost (added from `yunohost service add`)
+# Remove the service from the list of services known by YunoHost (added from `yunohost service add`)
 if ynh_exec_warn_less yunohost service status $app >/dev/null
 then
 	ynh_script_progression --message="Removing $app service integration..."
@@ -79,7 +79,7 @@ ynh_secure_remove --file="$final_path"
 #=================================================
 ynh_script_progression --message="Removing NGINX web server configuration..."
 
-# Remove the dedicated nginx config
+# Remove the dedicated NGINX config
 ynh_remove_nginx_config
 
 #=================================================

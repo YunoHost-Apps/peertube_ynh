@@ -218,7 +218,7 @@ mkdir -p "$datadir"
 
 chmod 750 "$datadir"
 chmod -R o-rwx "$datadir"
-chown -R $app:$app "$datadir"
+chown -R $app:www-data "$datadir"
 
 #=================================================
 # UPDATE A CONFIG FILE
@@ -239,8 +239,6 @@ chown $app:$app "$final_path/config/local-production.json"
 # BUILD YARN DEPENDENCIES
 #=================================================
 ynh_script_progression --message="Building Yarn dependencies..."
-
-chown -R "$app":"$app" $final_path
 
 pushd "$final_path"
 	ynh_use_nodejs

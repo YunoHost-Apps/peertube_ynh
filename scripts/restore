@@ -89,7 +89,7 @@ mkdir -p "$datadir"
 
 chmod 750 "$datadir"
 chmod -R o-rwx "$datadir"
-chown -R $app:$app "$datadir"
+chown -R $app:www-data "$datadir"
 
 #=================================================
 # OPEN A PORT

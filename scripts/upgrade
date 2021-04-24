@@ -230,8 +230,6 @@ ynh_add_config --template="../conf/production.yaml" --destination="$final_path/c
 chmod 400 "$final_path/config/production.yaml"
 chown $app:$app "$final_path/config/production.yaml"
 
-ynh_add_config --template="../conf/local-production.json" --destination="$final_path/config/local-production.json"
-
 chmod 400 "$final_path/config/local-production.json"
 chown $app:$app "$final_path/config/local-production.json"
 

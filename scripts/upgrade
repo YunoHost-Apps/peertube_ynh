@@ -76,6 +76,9 @@ ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --datab
 ynh_secure_remove --file="/etc/apt/sources.list.d/jessie-backports.list"
 ynh_secure_remove --file="/etc/apt/sources.list.d/yarn.list"
 
+# Remove not needed checksum
+ynh_delete_file_checksum --file="../conf/msg_install"
+
 if [ -z "$rtmp_port" ];
 then
 	rtmp_port=1935

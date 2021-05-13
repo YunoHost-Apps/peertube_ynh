@@ -275,7 +275,6 @@ ynh_systemd_action --service_name=nginx --action=reload
 #=================================================
 ynh_script_progression --message="Sending a readme for the admin..."
 
-ynh_add_config --template="../conf/message_install" --destination="../conf/msg_install"
 ynh_send_readme_to_admin --app_message="../conf/msg_install" --recipients=$admin_email --type='install'
 
 #=================================================

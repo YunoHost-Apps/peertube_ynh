@@ -258,7 +258,7 @@ popd
 ynh_script_progression --message="Upgrading systemd configuration..."
 
 # Create a dedicated systemd config
-ynh_add_systemd_config --others_var="ynh_node ynh_node_load_PATH"
+ynh_add_systemd_config
 
 #=================================================
 # GENERIC FINALIZATION

@@ -187,7 +187,7 @@ chown $app:$app "$final_path/config/local-production.json"
 ynh_script_progression --message="Configuring a systemd service..."
 
 # Create a dedicated systemd config
-ynh_add_systemd_config --others_var="ynh_node ynh_node_load_PATH"
+ynh_add_systemd_config
 
 #=================================================
 # START SYSTEMD SERVICE

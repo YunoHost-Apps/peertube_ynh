@@ -19,7 +19,7 @@
         }
     ],
     "requirements": {
-        "yunohost": ">= 4.1.7.3"
+        "yunohost": ">= 4.2.0"
     },
     "multi_instance": false,
     "services": [

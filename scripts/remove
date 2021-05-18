@@ -121,7 +121,6 @@ ynh_system_user_delete --username=$app
 #=================================================
 ynh_script_progression --message="Sending a readme for the admin..."
 
-ynh_add_config --template="../conf/message_remove" --destination="../conf/msg_remove"
 ynh_send_readme_to_admin --app_message="../conf/msg_remove" --recipients=$admin_email --type='remove'
 
 #=================================================

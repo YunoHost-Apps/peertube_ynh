@@ -82,7 +82,7 @@ ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
 ynh_script_progression --message="Installing dependencies..."
 
 # Install nodejs
-#ynh_install_nodejs --nodejs_version=10
+#ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 
 # Install dependencies
 ynh_install_app_dependencies $pkg_dependencies
@@ -96,6 +96,14 @@ fi
 
 # Install Yarn
 ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+ynh_script_progression --message="Configuring system user..."
+
+# Create a system user
+ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
 # CREATE A POSTGRESQL DATABASE
@@ -122,21 +130,17 @@ ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$final_path"
 
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
+
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
 ynh_script_progression --message="Configuring NGINX web server..."
 
-# Create a dedicated nginx config
+# Create a dedicated NGINX config
 ynh_add_nginx_config "datadir"
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Configuring system user..."
-
-# Create a system user
-ynh_system_user_create --username=$app --home_dir=$final_path
 
 #=================================================
 # SPECIFIC SETUP
@@ -148,24 +152,14 @@ ynh_script_progression --message="Creating the data directory..."
 # Create app folders
 mkdir -p "$datadir"
 
-# Give permission to the datadir
-chown -R "$app":"$app" "$datadir"
-
-#=================================================
-# MODIFY A CONFIG FILE
-#=================================================
-ynh_script_progression --message="Modifying a config file..."
-
-ynh_add_config --template="../conf/production.yaml" --destination="$final_path/config/production.yaml"
-
-ynh_add_config --template="../conf/local-production.json" --destination="$final_path/config/local-production.json"
+chmod 750 "$datadir"
+chmod -R o-rwx "$datadir"
+chown -R $app:www-data "$datadir"
 
 #=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
 ynh_script_progression --message="Building Yarn dependencies..."
-
-chown -R "$app":"$app" $final_path
 
 pushd "$final_path"
 	ynh_use_nodejs
@@ -173,12 +167,27 @@ pushd "$final_path"
 popd
 
 #=================================================
+# ADD A CONFIGURATION
+#=================================================
+ynh_script_progression --message="Adding a config file..."
+
+ynh_add_config --template="../conf/production.yaml" --destination="$final_path/config/production.yaml"
+
+chmod 400 "$final_path/config/production.yaml"
+chown $app:$app "$final_path/config/production.yaml"
+
+ynh_add_config --template="../conf/local-production.json" --destination="$final_path/config/local-production.json"
+
+chmod 600 "$final_path/config/local-production.json"
+chown $app:$app "$final_path/config/local-production.json"
+
+#=================================================
 # SETUP SYSTEMD
 #=================================================
 ynh_script_progression --message="Configuring a systemd service..."
 
 # Create a dedicated systemd config
-ynh_add_systemd_config --others_var="ynh_node_load_PATH"
+ynh_add_systemd_config
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -217,14 +226,6 @@ ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-# SECURE FILES AND DIRECTORIES
-#=================================================
-ynh_script_progression --message="Securing files and directories..."
-
-# Set permissions to app files
-chown -R $app:$app $final_path
-
-#=================================================
 # SETUP LOGROTATE
 #=================================================
 ynh_script_progression --message="Configuring log rotation..."
@@ -237,7 +238,7 @@ ynh_use_logrotate --logfile="$datadir/logs/peertube.log"
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description "$app daemon for Peertube" --log "$datadir/logs/peertube.log" --needs_exposed_ports $rtmp_port
+yunohost service add $app --description="$app daemon for Peertube" --log="$datadir/logs/peertube.log" --needs_exposed_ports $rtmp_port
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -274,7 +275,6 @@ ynh_systemd_action --service_name=nginx --action=reload
 #=================================================
 ynh_script_progression --message="Sending a readme for the admin..."
 
-ynh_add_config --template="../conf/message_install" --destination="../conf/msg_install"
 ynh_send_readme_to_admin --app_message="../conf/msg_install" --recipients=$admin_email --type='install'
 
 #=================================================

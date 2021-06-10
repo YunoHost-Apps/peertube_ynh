@@ -6,7 +6,7 @@
         "en": "Video streaming platform using P2P directly in the web browser, connected to a federated network",
         "fr": "Plateforme de diffusion vidéo par P2P directement dans le navigateur, et connectée à un réseau fédéralisé"
     },
-    "version": "3.1.0~ynh1",
+    "version": "3.2.1~ynh1",
     "url": "https://github.com/Chocobozzz/PeerTube",
     "license": "AGPL-3.0-only",
     "maintainer": [
@@ -19,7 +19,7 @@
         }
     ],
     "requirements": {
-        "yunohost": ">= 4.1.7.3"
+        "yunohost": ">= 4.2.0"
     },
     "multi_instance": false,
     "services": [
@@ -30,28 +30,16 @@
             {
                 "name": "domain",
                 "type": "domain",
-                "ask": {
-                    "en": "Choose a domain name for PeerTube",
-                    "fr": "Choisissez un nom de domaine pour PeerTube"
-                },
                 "example": "example.com"
             },
             {
                 "name": "admin",
                 "type": "user",
-                "ask": {
-                    "en": "Choose an admin user",
-                    "fr": "Choisissez l'administrateur"
-                },
                 "example": "johndoe"
             },
             {
                 "name": "is_public",
                 "type": "boolean",
-                "ask": {
-                    "en": "Is it a public application?",
-                    "fr": "Est-ce une application publique ?"
-                },
                 "default": true
             }
         ]

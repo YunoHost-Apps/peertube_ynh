@@ -27,7 +27,7 @@ Servers are run independently by different people and organizations. They can ap
 
 By watching a video, you help the hosting provider to broadcast it by becoming a broadcaster of the video yourself. Each instance doesn’t need much money to broadcast the videos of its users.
 
-**Shipped version:** 3.1.0
+**Shipped version:** 3.2.1
 
 ## Important points to read before installing
 

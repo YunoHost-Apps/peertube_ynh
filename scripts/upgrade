@@ -174,7 +174,7 @@ fi
 
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
-chown -R $app:$app "$final_path"
+chown -R $app:www-data "$final_path"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -221,7 +221,7 @@ mkdir -p "$datadir"
 
 chmod 750 "$datadir"
 chmod -R o-rwx "$datadir"
-chown -R $app:$app "$datadir"
+chown -R $app:www-data "$datadir"
 
 #=================================================
 # UPDATE A CONFIG FILE

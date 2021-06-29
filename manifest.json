@@ -8,6 +8,14 @@
     },
     "version": "3.2.1~ynh3",
     "url": "https://github.com/Chocobozzz/PeerTube",
+    "upstream": {
+        "license": "AGPL-3.0-only",
+        "website": "https://joinpeertube.org/fr/",
+        "demo": "http://peertube.cpy.re",
+        "admindoc": "https://docs.joinpeertube.org/",
+        "userdoc": "https://yunohost.org/#/app_peertube",
+        "code": "https://github.com/Chocobozzz/PeerTube/"
+    },
     "license": "AGPL-3.0-only",
     "maintainer": [
         {

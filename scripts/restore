@@ -76,29 +76,20 @@ chmod -R o-rwx "$final_path"
 chown -R $app:www-data "$final_path"
 
 #=================================================
-# SPECIFIC RESTORATION
-#=================================================
 # RESTORE THE DATA DIRECTORY
 #=================================================
-ynh_script_progression --message="Restoring data directory..."
+ynh_script_progression --message="Restoring the data directory..."
 
-# Use --not_mandatory for the data directory, because if the backup has been made with BACKUP_CORE_ONLY, there's no data into the backup.
 ynh_restore_file --origin_path="$datadir" --not_mandatory
 
-mkdir -p "$datadir"
+mkdir -p $datadir
 
 chmod 750 "$datadir"
 chmod -R o-rwx "$datadir"
 chown -R $app:www-data "$datadir"
 
 #=================================================
-# OPEN A PORT
-#=================================================
-ynh_script_progression --message="Configuring firewall..."
-
-# Open the port
-ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
-
+# SPECIFIC RESTORATION
 #=================================================
 # REINSTALL DEPENDENCIES
 #=================================================
@@ -128,6 +119,14 @@ ynh_script_progression --message="Restoring the PostgreSQL database..."
 ynh_psql_test_if_first_run
 ynh_psql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
 ynh_psql_execute_file_as_root --file="./db.sql" --database=$db_name
+
+#=================================================
+# OPEN A PORT
+#=================================================
+ynh_script_progression --message="Configuring firewall..."
+
+# Open the port
+ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
 
 #=================================================
 # RESTORE SYSTEMD

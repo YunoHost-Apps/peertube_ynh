@@ -14,6 +14,8 @@
 		upgrade=1
 		# 3.2.1~ynh1
 		upgrade=1	from_commit=f4b43fd85ad3a169d27c53865a13548e44f17ebf
+		# 3.2.1~ynh4
+		upgrade=1	from_commit=08bf3fce3ad99e27e7f7d251838a9f9c63243e44
 		backup_restore=1
 		multi_instance=0
 		port_already_use=0
@@ -24,4 +26,5 @@ Notification=yes
 ;;; Upgrade options
 	; commit=f4b43fd85ad3a169d27c53865a13548e44f17ebf
 		name=3.2.1~ynh1
-		
+	; commit=08bf3fce3ad99e27e7f7d251838a9f9c63243e44
+		name=3.2.1~ynh4

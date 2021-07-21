@@ -26,4 +26,5 @@ Notification=yes
 ;;; Upgrade options
 	; commit=f4b43fd85ad3a169d27c53865a13548e44f17ebf
 		name=3.2.1~ynh1
-		
+	; commit=08bf3fce3ad99e27e7f7d251838a9f9c63243e44
+		name=3.2.1~ynh4	

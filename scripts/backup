@@ -15,7 +15,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 ynh_clean_setup () {
-	ynh_clean_check_starting
+	true
 }
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
@@ -44,6 +44,12 @@ ynh_print_info --message="Declaring files to be backed up..."
 ynh_backup --src_path="$final_path"
 
 #=================================================
+# BACKUP THE DATA DIR
+#=================================================
+
+ynh_backup --src_path="$datadir" --is_big
+
+#=================================================
 # BACKUP THE NGINX CONFIGURATION
 #=================================================
 
@@ -62,13 +68,6 @@ ynh_backup --src_path="/etc/logrotate.d/$app"
 #=================================================
 
 ynh_backup --src_path="/etc/systemd/system/$app.service"
-
-#=================================================
-# BACKUP THE DATA DIRECTORY
-#=================================================
-ynh_print_info --message="Backing up data directory..."
-
-ynh_backup --src_path="$datadir" --is_big
 
 #=================================================
 # BACKUP THE POSTGRESQL DATABASE

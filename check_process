@@ -1,9 +1,9 @@
 ;; Test complet
 	; Manifest
-		domain="domain.tld"	(DOMAIN)
+		domain="domain.tld"
 		email="admin@example.com"
-		is_public=1	(PUBLIC|public=1|private=0)
-		port="9000"	(PORT)
+		is_public=1
+		port="9000"
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=0
@@ -12,24 +12,10 @@
 		setup_private=1
 		setup_public=1
 		upgrade=1
-		# 2.1.0
-		# upgrade=1	from_commit=d049b71061d12ffab92bbf106af200e7d8a69572
-		# 2.1.1~ynh1
-		# upgrade=1	from_commit=63f076db215f8f438dbdcd2966c12d9ee7976121
-		# 2.2.0~ynh1
-		# upgrade=1	from_commit=2b24ab443dc95fc78654e8232351933491cf04b4
-		# 2.3.0~ynh1
-		upgrade=1	from_commit=141e5a370e552760b83066fbfe044ca3e5283a72
-		# 2.4.0~ynh1
-		upgrade=1	from_commit=10d79175a8a45137d271931cbd6d14e927400729
-		# 3.0.1~ynh1
-		upgrade=1	from_commit=5a74f4033eafa657fcd32a9713cd77ba0f4f79c9
-		# 3.1.0~ynh2
-		upgrade=1	from_commit=1be4caaaf2787e614cd315ca8564573d4268032a
-		# 3.1.0~ynh5
-		upgrade=1	from_commit=343f2b80e0f3bddc87ad8ed143411a0920c21150
-		# 3.2.1~ynh6
+		# 3.2.1~ynh1
 		upgrade=1	from_commit=f4b43fd85ad3a169d27c53865a13548e44f17ebf
+		# 3.2.1~ynh4
+		upgrade=1	from_commit=08bf3fce3ad99e27e7f7d251838a9f9c63243e44
 		backup_restore=1
 		multi_instance=0
 		port_already_use=0
@@ -38,22 +24,7 @@
 Email=anmol@datamol.org;yalh@yahoo.com
 Notification=yes
 ;;; Upgrade options
-	; commit=d049b71061d12ffab92bbf106af200e7d8a69572
-		name=2.1.0
-	; commit=63f076db215f8f438dbdcd2966c12d9ee7976121
-		name=2.1.1~ynh1
-	; commit=2b24ab443dc95fc78654e8232351933491cf04b4
-		name=2.2.0~ynh1
-	; commit=141e5a370e552760b83066fbfe044ca3e5283a72
-		name=2.3.0~ynh1
-	; commit=10d79175a8a45137d271931cbd6d14e927400729
-		name=2.4.0~ynh1
-	; commit=5a74f4033eafa657fcd32a9713cd77ba0f4f79c9
-		name=3.0.1~ynh1
-	; commit=1be4caaaf2787e614cd315ca8564573d4268032a
-		name=3.1.0~ynh2
-	; commit=343f2b80e0f3bddc87ad8ed143411a0920c21150
-		name=3.1.0~ynh5
 	; commit=f4b43fd85ad3a169d27c53865a13548e44f17ebf
-		name=3.2.1~ynh6
-		
+		name=3.2.1~ynh1
+	; commit=08bf3fce3ad99e27e7f7d251838a9f9c63243e44
+		name=3.2.1~ynh4	

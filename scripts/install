@@ -33,6 +33,8 @@ admin_pass=$(ynh_string_random --length=24)
 
 app=$YNH_APP_INSTANCE_NAME
 
+datadir=/home/yunohost.app/$app
+
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
@@ -51,6 +53,7 @@ ynh_script_progression --message="Storing installation settings..."
 
 ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=admin --value=$admin
+ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -144,9 +147,6 @@ ynh_add_nginx_config
 # CREATE DATA DIRECTORY
 #=================================================
 ynh_script_progression --message="Creating a data directory..."
-
-datadir=/home/yunohost.app/$app
-ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 
 mkdir -p $datadir
 

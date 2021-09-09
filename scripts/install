@@ -33,9 +33,6 @@ admin_pass=$(ynh_string_random --length=24)
 
 app=$YNH_APP_INSTANCE_NAME
 
-# Define app's data directory
-datadir="/home/yunohost.app/${app}/storage"
-
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
@@ -54,7 +51,6 @@ ynh_script_progression --message="Storing installation settings..."
 
 ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=admin --value=$admin
-ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -85,7 +81,7 @@ ynh_script_progression --message="Installing dependencies..."
 ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 
 # Install dependencies
-ynh_install_app_dependencies $pkg_dependencies
+ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 
 # Install ffmpeg from backports for Debian Jessie and from main for others
 if [ "$(lsb_release --codename --short)" == "jessie" ]; then
@@ -149,11 +145,14 @@ ynh_add_nginx_config
 #=================================================
 ynh_script_progression --message="Creating a data directory..."
 
+datadir=/home/yunohost.app/$app
+ynh_app_setting_set --app=$app --key=datadir --value=$datadir
+
 mkdir -p $datadir
 
-chmod 750 "$datadir/.."
-chmod -R o-rwx "$datadir/.."
-chown -R $app:www-data "$datadir/.."
+chmod 750 "$datadir"
+chmod -R o-rwx "$datadir"
+chown -R $app:www-data "$datadir"
 
 #=================================================
 # BUILD YARN DEPENDENCIES

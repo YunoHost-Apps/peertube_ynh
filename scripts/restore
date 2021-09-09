@@ -97,7 +97,7 @@ ynh_script_progression --message="Reinstalling dependencies..."
 ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 
 # Install dependencies
-ynh_install_app_dependencies $pkg_dependencies
+ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 
 # Install ffmpeg from backports for Debian Jessie and from main for others
 if [ "$(lsb_release --codename --short)" == "jessie" ]; then

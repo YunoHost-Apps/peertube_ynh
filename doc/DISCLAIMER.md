@@ -10,7 +10,7 @@ Thanks to [WebTorrent](https://github.com/feross/webtorrent), we can make P2P (t
 ### Why is that cool?
 Servers are run independently by different people and organizations. They can apply wildly different moderation policies, so you can find or make one that fits your taste perfectly.
 
-By watching a video, you help the hosting provider to broadcast it by becoming a broadcaster of the video yourself. Each instance doesn’t need much money to broadcast the videos of its users.
+By watching a video, you help the hosting provider to broadcast it by becoming a broadcaster of the video yourself. Each instance doesn't need much money to broadcast the videos of its users.
 
 * Any known limitations, constrains or stuff not working, such as (but not limited to):
     * Require **dedicated domain** like **peertube.domain.tld**.

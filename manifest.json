@@ -13,7 +13,6 @@
         "website": "https://joinpeertube.org/fr/",
         "demo": "http://peertube.cpy.re",
         "admindoc": "https://docs.joinpeertube.org/",
-        "userdoc": "https://yunohost.org/#/app_peertube",
         "code": "https://github.com/Chocobozzz/PeerTube/"
     },
     "license": "AGPL-3.0-only",
@@ -27,7 +26,7 @@
         }
     ],
     "requirements": {
-        "yunohost": ">= 4.2.0"
+        "yunohost": ">= 4.3.0"
     },
     "multi_instance": false,
     "services": [
@@ -37,13 +36,11 @@
         "install" : [
             {
                 "name": "domain",
-                "type": "domain",
-                "example": "example.com"
+                "type": "domain"
             },
             {
                 "name": "admin",
-                "type": "user",
-                "example": "johndoe"
+                "type": "user"
             },
             {
                 "name": "is_public",

@@ -61,7 +61,6 @@ By watching a video, you help the hosting provider to broadcast it by becoming a
 ## Documentation and resources
 
 * Official app website: https://joinpeertube.org/fr/
-* Official user documentation: https://yunohost.org/#/app_peertube
 * Official admin documentation: https://docs.joinpeertube.org/
 * Upstream app code repository: https://github.com/Chocobozzz/PeerTube/
 * YunoHost documentation for this app: https://yunohost.org/app_peertube

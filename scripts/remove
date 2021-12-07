@@ -75,6 +75,17 @@ ynh_script_progression --message="Removing app main directory..."
 ynh_secure_remove --file="$final_path"
 
 #=================================================
+# REMOVE DATA DIR
+#=================================================
+
+# Remove the data directory if --purge option is used
+if [ "${YNH_APP_PURGE:-0}" -eq 1 ]
+then
+	ynh_script_progression --message="Removing app data directory..."
+	ynh_secure_remove --file="$datadir"
+fi
+
+#=================================================
 # REMOVE NGINX CONFIGURATION
 #=================================================
 ynh_script_progression --message="Removing NGINX web server configuration..."

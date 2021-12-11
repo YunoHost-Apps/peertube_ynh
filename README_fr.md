@@ -13,7 +13,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 Plateforme de diffusion vidéo par P2P directement dans le navigateur, et connectée à un réseau fédéralisé
 
-**Version incluse :** 3.4.1~ynh2
+**Version incluse :** 3.4.1~ynh3
 
 **Démo :** http://peertube.cpy.re
 
@@ -67,7 +67,6 @@ En regardant une vidéo, vous aidez l'hébergeur à la diffuser en devenant vous
 ## Documentations et ressources
 
 * Site officiel de l'app : https://joinpeertube.org/fr/
-* Documentation officielle utilisateur : https://yunohost.org/#/app_peertube
 * Documentation officielle de l'admin : https://docs.joinpeertube.org/
 * Dépôt de code officiel de l'app : https://github.com/Chocobozzz/PeerTube/
 * Documentation YunoHost pour cette app : https://yunohost.org/app_peertube

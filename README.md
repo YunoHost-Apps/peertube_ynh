@@ -17,7 +17,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 Video streaming platform using P2P directly in the web browser, connected to a federated network
 
-**Shipped version:** 3.4.1~ynh2
+**Shipped version:** 3.4.1~ynh3
 
 **Demo:** http://peertube.cpy.re
 
@@ -61,7 +61,6 @@ By watching a video, you help the hosting provider to broadcast it by becoming a
 ## Documentation and resources
 
 * Official app website: https://joinpeertube.org/fr/
-* Official user documentation: https://yunohost.org/#/app_peertube
 * Official admin documentation: https://docs.joinpeertube.org/
 * Upstream app code repository: https://github.com/Chocobozzz/PeerTube/
 * YunoHost documentation for this app: https://yunohost.org/app_peertube

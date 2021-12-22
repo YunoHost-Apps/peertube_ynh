@@ -83,6 +83,7 @@ client:
 # From the project root directory
 storage:
   tmp: '__DATADIR__/tmp/' # Use to download data (imports etc), store uploaded files before processing...
+  bin: '__DATADIR__/bin/'
   avatars: '__DATADIR__/avatars/'
   videos: '__DATADIR__/videos/'
   streaming_playlists: '__DATADIR__/streaming-playlists/'

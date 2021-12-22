@@ -13,7 +13,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 Plateforme de diffusion vidéo par P2P directement dans le navigateur, et connectée à un réseau fédéralisé
 
-**Version incluse :** 3.4.1~ynh3
+**Version incluse :** 4.0.0~ynh1
 
 **Démo :** http://peertube.cpy.re
 

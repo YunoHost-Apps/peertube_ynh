@@ -286,6 +286,16 @@ ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 
+
+#=================================================
+# PEERTUBE 4.0.0 UPGRADE MIGRATION SCRIPT
+#=================================================
+ynh_script_progression --message="Running Peertube 4.0.0 migration script..."
+
+pushd "$final_path"
+        ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production node dist/scripts/migrations/peertube-4.0.js
+popd
+
 #=================================================
 # END OF SCRIPT
 #=================================================

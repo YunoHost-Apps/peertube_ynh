@@ -529,7 +529,7 @@ services:
     username: '@yunohost' # Indicates the Twitter account for the website or platform on which the content was published
     # If true, a video player will be embedded in the Twitter feed on PeerTube video share
     # If false, we use an image link card that will redirect on your PeerTube instance
-    # Change it to `true, and then test on https://cards-dev.twitter.com/validator to see if you are whitelisted
+    # Change it to `true`, and then test on https://cards-dev.twitter.com/validator to see if you are whitelisted
     whitelisted: false
 
 followers:

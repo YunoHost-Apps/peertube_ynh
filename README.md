@@ -17,7 +17,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 Video streaming platform using P2P directly in the web browser, connected to a federated network
 
-**Shipped version:** 3.4.1~ynh2
+**Shipped version:** 3.4.1~ynh3
 
 **Demo:** http://peertube.cpy.re
 

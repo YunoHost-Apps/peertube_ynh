@@ -50,7 +50,7 @@ redis:
   hostname: 'localhost'
   port: 6379
   auth: null
-  db: 0
+  db: __REDIS_DB__
 
 # SMTP server to send emails
 smtp:

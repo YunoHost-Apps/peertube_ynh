@@ -23,7 +23,8 @@ Restart=always
 NoNewPrivileges=yes
 PrivateTmp=yes
 PrivateDevices=yes
-RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+# RestrictAddressFamilies is causing peeertube to fail with error "uv_interface_addresses returned Unknown system error 97"
+# RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 RestrictNamespaces=yes
 RestrictRealtime=yes
 DevicePolicy=closed

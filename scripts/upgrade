@@ -93,8 +93,8 @@ then
 fi
 
 # Add PostgreSQL extension for v1.0.0-beta.10.pre.1
-ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --database=$db_name 
-ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name 
+ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --database=$db_name
+ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name
 
 # Remove repository
 ynh_secure_remove --file="/etc/apt/sources.list.d/jessie-backports.list"
@@ -158,8 +158,8 @@ then
 	# Download, check integrity, uncompress and patch the source from app.src
 	ynh_setup_source --dest_dir="$final_path"
 
-	#Copy the admin saved settings from tmp directory to final path	
-	cp -af "$tmpdir/production.yaml" "$final_path/config/production.yaml"	
+	#Copy the admin saved settings from tmp directory to final path
+	cp -af "$tmpdir/production.yaml" "$final_path/config/production.yaml"
 
 	if [ -s "$tmpdir/local-production.json" ]
 	then
@@ -235,7 +235,7 @@ ynh_script_progression --message="Building Yarn dependencies..."
 
 pushd "$final_path"
 	ynh_use_nodejs
-	ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile 
+	ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile
 popd
 
 #=================================================
@@ -290,11 +290,13 @@ ynh_systemd_action --service_name=nginx --action=reload
 #=================================================
 # PEERTUBE 4.0.0 UPGRADE MIGRATION SCRIPT
 #=================================================
-ynh_script_progression --message="Running Peertube 4.0.0 migration script..."
 
-pushd "$final_path"
-        ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production node dist/scripts/migrations/peertube-4.0.js
-popd
+if ynh_compare_current_package_version --comparison lt --version 4.0.0~ynh1; then
+        ynh_script_progression --message="Running Peertube 4.0.0 migration script..."
+	pushd "$final_path"
+		ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production node dist/scripts/migrations/peertube-4.0.js
+	popd
+fi
 
 #=================================================
 # END OF SCRIPT

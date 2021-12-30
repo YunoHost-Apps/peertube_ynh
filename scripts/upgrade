@@ -97,7 +97,6 @@ ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --data
 ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name
 
 # Remove repository
-#ynh_secure_remove --file="/etc/apt/sources.list.d/jessie-backports.list"
 ynh_secure_remove --file="/etc/apt/sources.list.d/yarn.list"
 
 # Remove not needed checksum

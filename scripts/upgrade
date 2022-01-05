@@ -27,6 +27,7 @@ db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
 admin_email=$(ynh_user_get_info --username=$admin --key="mail")
+redis_db=$(ynh_app_setting_get --app=$app --key=redis_db)
 
 #=================================================
 # CHECK VERSION
@@ -77,6 +78,12 @@ fi
 if [ -z "$db_pwd" ]; then
 	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
 	ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
+fi
+
+# If redis_db doesn't exist, create it
+if [ -z "$redis_db" ]; then
+	redis_db=$(ynh_redis_get_free_db)
+	ynh_app_setting_set --app="$app" --key=redis_db --value="$redis_db"
 fi
 
 if [ -z "$datadir" ];

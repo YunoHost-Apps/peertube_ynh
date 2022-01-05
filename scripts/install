@@ -115,6 +115,13 @@ ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --data
 ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name
 
 #=================================================
+# CONFIGURE REDIS
+#=================================================
+
+redis_db=$(ynh_redis_get_free_db)
+ynh_app_setting_set --app="$app" --key=redis_db --value="$redis_db"
+
+#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_script_progression --message="Setting up source files..."

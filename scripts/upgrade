@@ -7,6 +7,7 @@
 #=================================================
 
 source _common.sh
+source ynh_redis
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -22,7 +23,7 @@ final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 port=$(ynh_app_setting_get --app=$app --key=port)
 rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_user=$app
+db_user=$(ynh_app_setting_get --app=$app --key=db_user)
 db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
@@ -72,6 +73,12 @@ ynh_app_setting_delete --app=$app --key=admin_email
 if [ -z "$db_name" ]; then
 	db_name="peertube_${app}"
 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+fi
+
+# If db_user doesn't exist, create it
+if [ -z "$db_user" ]; then
+	db_user=$app
+	ynh_app_setting_set --app=$app --key=db_user --value=$db_user
 fi
 
 # If db_pwd doesn't exist, create it
@@ -254,6 +261,17 @@ pushd "$final_path"
 popd
 
 #=================================================
+# PEERTUBE 4.0.0 UPGRADE MIGRATION SCRIPT
+#=================================================
+
+if ynh_compare_current_package_version --comparison lt --version 4.0.0~ynh1; then
+	ynh_script_progression --message="Running Peertube 4.0.0 migration script..."
+	pushd "$final_path"
+		ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production node dist/scripts/migrations/peertube-4.0.js
+	popd
+fi
+
+#=================================================
 # SETUP SYSTEMD
 #=================================================
 ynh_script_progression --message="Upgrading systemd configuration..."
@@ -291,18 +309,6 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --l
 ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
-
-
-#=================================================
-# PEERTUBE 4.0.0 UPGRADE MIGRATION SCRIPT
-#=================================================
-
-if ynh_compare_current_package_version --comparison lt --version 4.0.0~ynh1; then
-        ynh_script_progression --message="Running Peertube 4.0.0 migration script..."
-	pushd "$final_path"
-		ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production node dist/scripts/migrations/peertube-4.0.js
-	popd
-fi
 
 #=================================================
 # END OF SCRIPT

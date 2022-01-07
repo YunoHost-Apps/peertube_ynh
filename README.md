@@ -15,7 +15,8 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 ## Overview
 
-Video streaming platform using P2P directly in the web browser, connected to a federated network
+Federated (ActivityPub) video streaming platform using P2P (BitTorrent) directly in the web browser, using <a href="https://github.com/feross/webtorrent">WebTorrent</a>.
+
 
 **Shipped version:** 4.0.0~ynh1
 

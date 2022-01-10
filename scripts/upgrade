@@ -267,7 +267,7 @@ popd
 if ynh_compare_current_package_version --comparison lt --version 4.0.0~ynh1; then
 	ynh_script_progression --message="Running Peertube 4.0.0 migration script..."
 	pushd "$final_path"
-		ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production node dist/scripts/migrations/peertube-4.0.js
+		ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-4.0.js
 	popd
 fi
 

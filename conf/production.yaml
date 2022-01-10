@@ -429,7 +429,7 @@ import:
         # Examples:
         #   * https://api.github.com/repos/ytdl-org/youtube-dl/releases
         #   * https://api.github.com/repos/yt-dlp/yt-dlp/releases
-        url: 'https://yt-dl.org/downloads/latest/youtube-dl'
+        url: 'https://api.github.com/repos/yt-dlp/yt-dlp/releases'
 
         # youtube-dl binary name
         # yt-dlp is also supported

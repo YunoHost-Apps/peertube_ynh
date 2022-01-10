@@ -252,6 +252,22 @@ pushd "$final_path"
 popd
 
 #=================================================
+# SETUP SYSTEMD
+#=================================================
+ynh_script_progression --message="Upgrading systemd configuration..."
+
+# Create a dedicated systemd config
+ynh_add_systemd_config
+
+#=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Starting a systemd service..."
+
+# Start a systemd service
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on localhost"
+
+#=================================================
 # INSTALL LDAP PLUGIN
 #=================================================
 ynh_script_progression --message="Installing LDAP plugin..."
@@ -272,12 +288,12 @@ if ynh_compare_current_package_version --comparison lt --version 4.0.0~ynh1; the
 fi
 
 #=================================================
-# SETUP SYSTEMD
+# STOP SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Upgrading systemd configuration..."
+ynh_script_progression --message="Stopping a systemd service..."
 
-# Create a dedicated systemd config
-ynh_add_systemd_config
+# Stop a systemd service
+ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
 
 #=================================================
 # GENERIC FINALIZATION

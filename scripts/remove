@@ -7,6 +7,7 @@
 #=================================================
 
 source _common.sh
+source ynh_redis
 source ynh_send_readme_to_admin__2
 source /usr/share/yunohost/helpers
 
@@ -21,7 +22,7 @@ domain=$(ynh_app_setting_get --app=$app --key=domain)
 port=$(ynh_app_setting_get --app=$app --key=port)
 rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_user=$app
+db_user=$(ynh_app_setting_get --app=$app --key=db_user)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
 admin_email=$(ynh_user_get_info --username=$admin --key="mail")
@@ -51,6 +52,14 @@ ynh_script_progression --message="Stopping and removing the systemd service..."
 ynh_remove_systemd_config
 
 #=================================================
+# REMOVE LOGROTATE CONFIGURATION
+#=================================================
+ynh_script_progression --message="Removing logrotate configuration..."
+
+# Remove the app-specific logrotate config
+ynh_remove_logrotate
+
+#=================================================
 # REMOVE THE POSTGRESQL DATABASE
 #=================================================
 ynh_script_progression --message="Removing the PostgreSQL database..."
@@ -64,15 +73,6 @@ ynh_psql_remove_db --db_user=$db_user --db_name=$db_name
 ynh_script_progression --message="Removing the redis database..."
 
 ynh_redis_remove_db "$redis_db"
-
-#=================================================
-# REMOVE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Removing dependencies..."
-
-# Remove metapackage and its dependencies
-ynh_remove_nodejs
-ynh_remove_app_dependencies
 
 #=================================================
 # REMOVE APP MAIN DIR
@@ -102,12 +102,13 @@ ynh_script_progression --message="Removing NGINX web server configuration..."
 ynh_remove_nginx_config
 
 #=================================================
-# REMOVE LOGROTATE CONFIGURATION
+# REMOVE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Removing logrotate configuration..."
+ynh_script_progression --message="Removing dependencies..."
 
-# Remove the app-specific logrotate config
-ynh_remove_logrotate
+# Remove metapackage and its dependencies
+ynh_remove_nodejs
+ynh_remove_app_dependencies
 
 #=================================================
 # CLOSE A PORT

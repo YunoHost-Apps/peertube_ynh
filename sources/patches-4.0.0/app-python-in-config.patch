@@ -1,0 +1,26 @@
+diff '--color=auto' -ru ./dist/server/helpers/youtube-dl/youtube-dl-cli.js ./dist/server/helpers/youtube-dl/youtube-dl-cli.js
+--- ./dist/server/helpers/youtube-dl/youtube-dl-cli.js	2021-12-13 09:22:44.000000000 +0100
++++ ./dist/server/helpers/youtube-dl/youtube-dl-cli.js	2022-01-11 22:35:52.992330841 +0100
+@@ -104,7 +104,8 @@
+             let completeArgs = this.wrapWithProxyOptions(args);
+             completeArgs = this.wrapWithIPOptions(completeArgs);
+             completeArgs = this.wrapWithFFmpegOptions(completeArgs);
+-            const output = yield (0, execa_1.default)('python', [youtubeDLBinaryPath, ...completeArgs, url], processOptions);
++            const { PYTHON_PATH } = config_1.CONFIG.IMPORT.VIDEOS.HTTP.YOUTUBE_DL_RELEASE;
++            const output = yield (0, execa_1.default)(PYTHON_PATH, [youtubeDLBinaryPath, ...completeArgs, url], processOptions);
+             logger_1.logger.debug('Runned youtube-dl command.', Object.assign({ command: output.command }, lTags()));
+             return output.stdout
+                 ? output.stdout.trim().split(/\r?\n/)
+diff '--color=auto' -ru ./dist/server/initializers/config.js ./dist/server/initializers/config.js
+--- ./dist/server/initializers/config.js	2021-12-13 09:22:43.000000000 +0100
++++ ./dist/server/initializers/config.js	2022-01-11 22:35:51.812344562 +0100
+@@ -295,7 +295,8 @@
+                 get ENABLED() { return config.get('import.videos.http.enabled'); },
+                 YOUTUBE_DL_RELEASE: {
+                     get URL() { return config.get('import.videos.http.youtube_dl_release.url'); },
+-                    get NAME() { return config.get('import.videos.http.youtube_dl_release.name'); }
++                    get NAME() { return config.get('import.videos.http.youtube_dl_release.name'); },
++                    get PYTHON_PATH() { return config.get('import.videos.http.youtube_dl_release.python_path'); }
+                 },
+                 get FORCE_IPV4() { return config.get('import.videos.http.force_ipv4'); }
+             },

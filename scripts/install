@@ -7,6 +7,7 @@
 #=================================================
 
 source _common.sh
+source ynh_redis
 source ynh_send_readme_to_admin__2
 source /usr/share/yunohost/helpers
 
@@ -69,7 +70,7 @@ ynh_app_setting_set --app=$app --key=port --value=$port
 
 # PeerTube Live port
 rtmp_port=1935
-ynh_port_available --port=$rtmp_port || ynh_die "Port $rtmp_port is needs to be available for this app"
+ynh_port_available --port=$rtmp_port || ynh_die --message="Port $rtmp_port is needs to be available for this app"
 ynh_app_setting_set --app=$app --key=rtmp_port --value=$rtmp_port
 
 # Open the port
@@ -85,14 +86,7 @@ ynh_script_progression --message="Installing dependencies..."
 #ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 
 # Install dependencies
-ynh_install_app_dependencies $pkg_dependencies
-
-# Install ffmpeg from backports for Debian Jessie and from main for others
-if [ "$(lsb_release --codename --short)" == "jessie" ]; then
-	ynh_install_extra_app_dependencies --repo="deb http://httpredir.debian.org/debian jessie-backports main" --package="ffmpeg"
-else
-	ynh_add_app_dependencies --package="ffmpeg"
-fi
+ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 
 # Install Yarn
 ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
@@ -111,9 +105,10 @@ ynh_system_user_create --username=$app --home_dir=$final_path
 ynh_script_progression --message="Creating a PostgreSQL database..."
 
 db_name="peertube_${app}"
-db_user=$app
+db_user=$(ynh_sanitize_dbid --db_name=$app)
 db_pwd=$(ynh_string_random --length=30)
 ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+ynh_app_setting_set --app=$app --key=db_user --value=$db_user
 ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
 ynh_psql_test_if_first_run
 ynh_psql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
@@ -122,12 +117,20 @@ ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --data
 ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name
 
 #=================================================
+# CONFIGURE REDIS
+#=================================================
+
+redis_db=$(ynh_redis_get_free_db)
+ynh_app_setting_set --app="$app" --key=redis_db --value="$redis_db"
+
+#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_script_progression --message="Setting up source files..."
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
+[ -d "../sources/patches-$(ynh_app_upstream_version)" ] && cp -a "../sources/patches-$(ynh_app_upstream_version)" "../sources/patches"
 ynh_setup_source --dest_dir="$final_path"
 
 chmod 750 "$final_path"

@@ -74,3 +74,5 @@ $ chown -R peertube:peertube /var/www/peertube
 ```
 $ service peertube restart
 ```
+
+**More info regarding app packaging:** https://yunohost.org/packaging_apps

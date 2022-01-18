@@ -7,6 +7,7 @@
 #=================================================
 
 source _common.sh
+source ynh_redis
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -22,11 +23,12 @@ final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 port=$(ynh_app_setting_get --app=$app --key=port)
 rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_user=$app
+db_user=$(ynh_app_setting_get --app=$app --key=db_user)
 db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
 admin_email=$(ynh_user_get_info --username=$admin --key="mail")
+redis_db=$(ynh_app_setting_get --app=$app --key=redis_db)
 
 #=================================================
 # CHECK VERSION
@@ -73,10 +75,22 @@ if [ -z "$db_name" ]; then
 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 fi
 
+# If db_user doesn't exist, create it
+if [ -z "$db_user" ]; then
+	db_user=$app
+	ynh_app_setting_set --app=$app --key=db_user --value=$db_user
+fi
+
 # If db_pwd doesn't exist, create it
 if [ -z "$db_pwd" ]; then
 	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
 	ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
+fi
+
+# If redis_db doesn't exist, create it
+if [ -z "$redis_db" ]; then
+	redis_db=$(ynh_redis_get_free_db)
+	ynh_app_setting_set --app="$app" --key=redis_db --value="$redis_db"
 fi
 
 if [ -z "$datadir" ];
@@ -93,11 +107,10 @@ then
 fi
 
 # Add PostgreSQL extension for v1.0.0-beta.10.pre.1
-ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --database=$db_name 
-ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name 
+ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --database=$db_name
+ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name
 
 # Remove repository
-ynh_secure_remove --file="/etc/apt/sources.list.d/jessie-backports.list"
 ynh_secure_remove --file="/etc/apt/sources.list.d/yarn.list"
 
 # Remove not needed checksum
@@ -106,7 +119,7 @@ ynh_delete_file_checksum --file="../conf/msg_install"
 if [ -z "$rtmp_port" ];
 then
 	rtmp_port=1935
-	ynh_port_available --port=$rtmp_port || ynh_die "Port $rtmp_port is needs to be available for this app"
+	ynh_port_available --port=$rtmp_port || ynh_die --message="Port $rtmp_port is needs to be available for this app"
 	ynh_app_setting_set --app=$app --key=rtmp_port --value=$rtmp_port
 
 	# Open the port
@@ -156,10 +169,11 @@ then
 	ynh_secure_remove --file="$final_path"
 
 	# Download, check integrity, uncompress and patch the source from app.src
+        [ -d "../sources/patches-$(ynh_app_upstream_version)" ] && cp -a "../sources/patches-$(ynh_app_upstream_version)" "../sources/patches"
 	ynh_setup_source --dest_dir="$final_path"
 
-	#Copy the admin saved settings from tmp directory to final path	
-	cp -af "$tmpdir/production.yaml" "$final_path/config/production.yaml"	
+	#Copy the admin saved settings from tmp directory to final path
+	cp -af "$tmpdir/production.yaml" "$final_path/config/production.yaml"
 
 	if [ -s "$tmpdir/local-production.json" ]
 	then
@@ -193,14 +207,7 @@ ynh_script_progression --message="Upgrading dependencies..."
 #ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 
 # Install dependencies
-ynh_install_app_dependencies $pkg_dependencies
-
-# Install ffmpeg from backports for Debian Jessie and from main for others
-if [ "$(lsb_release --codename --short)" == "jessie" ]; then
-	ynh_install_extra_app_dependencies --repo="deb http://httpredir.debian.org/debian jessie-backports main" --package="ffmpeg"
-else
-	ynh_add_app_dependencies --package="ffmpeg"
-fi
+ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 
 # Install Yarn
 ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
@@ -246,6 +253,22 @@ pushd "$final_path"
 popd
 
 #=================================================
+# SETUP SYSTEMD
+#=================================================
+ynh_script_progression --message="Upgrading systemd configuration..."
+
+# Create a dedicated systemd config
+ynh_add_systemd_config
+
+#=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Starting a systemd service..."
+
+# Start a systemd service
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on localhost"
+
+#=================================================
 # INSTALL LDAP PLUGIN
 #=================================================
 ynh_script_progression --message="Installing LDAP plugin..."
@@ -255,12 +278,23 @@ pushd "$final_path"
 popd
 
 #=================================================
-# SETUP SYSTEMD
+# PEERTUBE 4.0.0 UPGRADE MIGRATION SCRIPT
 #=================================================
-ynh_script_progression --message="Upgrading systemd configuration..."
 
-# Create a dedicated systemd config
-ynh_add_systemd_config
+if ynh_compare_current_package_version --comparison lt --version 4.0.0~ynh1; then
+	ynh_script_progression --message="Running Peertube 4.0.0 migration script..."
+	pushd "$final_path"
+		ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-4.0.js
+	popd
+fi
+
+#=================================================
+# STOP SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Stopping a systemd service..."
+
+# Stop a systemd service
+ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
 
 #=================================================
 # GENERIC FINALIZATION

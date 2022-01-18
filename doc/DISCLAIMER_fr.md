@@ -1,27 +1,27 @@
 ## Vue d'ensemble
 
 ### Qu'est-ce que PeerTube ?
-PeerTube est une plateforme de streaming vidéo fédérée (ActivityPub) utilisant P2P (BitTorrent) directement dans le navigateur Web, en utilisant <a href="https://github.com/feross/webtorrent"> WebTorrent </a>.
+PeerTube est une plateforme de streaming vidÃ©o fÃ©dÃ©rÃ©e (ActivityPub) utilisant P2P (BitTorrent) directement dans le navigateur Web, en utilisant <a href="https://github.com/feross/webtorrent"> WebTorrent </a>.
 
 ### Pourquoi PeerTube?
 
-Nous ne pouvons pas créer d'alternatives de streaming vidéo FOSS à YouTube, Dailymotion, Vimeo... avec un logiciel centralisé. Une organisation seule ne peut pas avoir assez d'argent pour payer la bande passante et le stockage vidéo de son serveur.
-Nous avons donc besoin d'un réseau décentralisé de serveurs « semant » des vidéos (comme [Hubzilla YunoHost](https://github.com/YunoHost-Apps/hubzilla_ynh), [Friendica YunoHost](https://github.com/YunoHost-Apps/friendica_ynh), [Mastodon YunoHost](https://github.com/YunoHost-Apps/mastodon_ynh)), [Diaspora](https://github.com/diaspora/diaspora) ([Diaspora YunoHost](https://github.com/YunoHost-Apps/diaspora_ynh)),[Funkwhale](https://funkwhale.audio) ([Funkwhale YunoHost](https://github.com/YunoHost-Apps/funkwhale_ynh)).
-Mais ce n'est pas suffisant car une vidéo pourrait devenir célèbre et surcharger le serveur. C'est la raison pour laquelle nous devons utiliser un protocole P2P pour limiter la charge du serveur. Grâce à [WebTorrent](https://github.com/feross/webtorrent), nous pouvons faire du P2P (donc BitTorrent) dans le navigateur Web, dès aujourd'hui.
+Nous ne pouvons pas crÃ©er d'alternatives de streaming vidÃ©o FOSS Ã  YouTube, Dailymotion, Vimeo... avec un logiciel centralisÃ©. Une organisation seule ne peut pas avoir assez d'argent pour payer la bande passante et le stockage vidÃ©o de son serveur.
+Nous avons donc besoin d'un rÃ©seau dÃ©centralisÃ© de serveurs Â« semant Â» des vidÃ©os (comme [Hubzilla YunoHost](https://github.com/YunoHost-Apps/hubzilla_ynh), [Friendica YunoHost](https://github.com/YunoHost-Apps/friendica_ynh), [Mastodon YunoHost](https://github.com/YunoHost-Apps/mastodon_ynh)), [Diaspora](https://github.com/diaspora/diaspora) ([Diaspora YunoHost](https://github.com/YunoHost-Apps/diaspora_ynh)),[Funkwhale](https://funkwhale.audio) ([Funkwhale YunoHost](https://github.com/YunoHost-Apps/funkwhale_ynh)).
+Mais ce n'est pas suffisant car une vidÃ©o pourrait devenir cÃ©lÃ¨bre et surcharger le serveur. C'est la raison pour laquelle nous devons utiliser un protocole P2P pour limiter la charge du serveur. GrÃ¢ce Ã  [WebTorrent](https://github.com/feross/webtorrent), nous pouvons faire du P2P (donc BitTorrent) dans le navigateur Web, dÃ¨s aujourd'hui.
 
 ### Pourquoi est-ce cool ?
 
-Les serveurs sont gérés indépendamment par différentes personnes et organisations. Ils peuvent appliquer des politiques de modération extrêmement différentes, afin que vous puissiez en trouver ou en créer une qui correspond parfaitement à vos goûts.
+Les serveurs sont gÃ©rÃ©s indÃ©pendamment par diffÃ©rentes personnes et organisations. Ils peuvent appliquer des politiques de modÃ©ration extrÃªmement diffÃ©rentes, afin que vous puissiez en trouver ou en crÃ©er une qui correspond parfaitement Ã  vos goÃ»ts.
 
-En regardant une vidéo, vous aidez l'hébergeur à la diffuser en devenant vous-même un diffuseur de la vidéo. Chaque instance n'a pas besoin de beaucoup d'argent pour diffuser les vidéos de ses utilisateurs.
+En regardant une vidÃ©o, vous aidez l'hÃ©bergeur Ã  la diffuser en devenant vous-mÃªme un diffuseur de la vidÃ©o. Chaque instance n'a pas besoin de beaucoup d'argent pour diffuser les vidÃ©os de ses utilisateurs.
 
-## Points importants à lire avant l'installation
+## Points importants Ã  lire avant l'installation
 
-1. Nécessite un **domaine dédié** comme **peertube.domain.tld**.
+1. NÃ©cessite un **domaine dÃ©diÃ©** comme **peertube.domain.tld**.
 1. Le nom d'utilisateur de l'administrateur est: **root**.
-1. **Le mot de passe administrateur et la configuration LDAP** seront envoyés à l'adresse email indiquée au moment de l'installation.
-1. L'URL ne peut pas être modifiée une fois sélectionnée. Choisissez judicieusement le domaine.
-1. Vous avez besoin de plus de **1 Go** de RAM. Si vous ne l'avez pas, veuillez créer une **mémoire swap**.
+1. **Le mot de passe administrateur et la configuration LDAP** seront envoyÃ©s Ã  l'adresse email indiquÃ©e au moment de l'installation.
+1. L'URL ne peut pas Ãªtre modifiÃ©e une fois sÃ©lectionnÃ©e. Choisissez judicieusement le domaine.
+1. Vous avez besoin de plus de **1 Go** de RAM. Si vous ne l'avez pas, veuillez crÃ©er une **mÃ©moire swap**.
 
  
         $ dd if=/dev/zero of=/swapfile bs=1024 count=1048576
@@ -29,12 +29,12 @@ En regardant une vidéo, vous aidez l'hébergeur à la diffuser en devenant vous-mê
         $ swapon /swapfile
         $ echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
 
-1. Cette application est **multi-instance** (vous pouvez avoir plus d'une instance PeerTube en cours d'exécution sur un serveur YunoHost)
-1. **Si vous êtes hébergé sur une machine virtuelle OVH ou rencontrez `gyp ERR! configure error`, veuillez passer à [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix)**
+1. Cette application est **multi-instance** (vous pouvez avoir plus d'une instance PeerTube en cours d'exÃ©cution sur un serveur YunoHost)
+1. **Si vous Ãªtes hÃ©bergÃ© sur une machine virtuelle OVH ou rencontrez `gyp ERR! configure error`, veuillez passer Ã  [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix)**
 
-## Caractéristiques spécifiques YunoHost
+## CaractÃ©ristiques spÃ©cifiques YunoHost
 
 #### Support multi-utilisateur
 
-* L'authentification LDAP est prise en charge, les instructions de configuration sont envoyées à l'adresse email indiquée au moment de l'installation
+* L'authentification LDAP est prise en charge, les instructions de configuration sont envoyÃ©es Ã  l'adresse email indiquÃ©e au moment de l'installation
 * L'authentification HTTP n'est pas prise en charge

@@ -119,7 +119,7 @@ ynh_delete_file_checksum --file="../conf/msg_install"
 if [ -z "$rtmp_port" ];
 then
 	rtmp_port=1935
-	ynh_port_available --port=$rtmp_port || ynh_die "Port $rtmp_port is needs to be available for this app"
+	ynh_port_available --port=$rtmp_port || ynh_die --message="Port $rtmp_port is needs to be available for this app"
 	ynh_app_setting_set --app=$app --key=rtmp_port --value=$rtmp_port
 
 	# Open the port
@@ -169,6 +169,7 @@ then
 	ynh_secure_remove --file="$final_path"
 
 	# Download, check integrity, uncompress and patch the source from app.src
+        [ -d "../sources/patches-$(ynh_app_upstream_version)" ] && cp -a "../sources/patches-$(ynh_app_upstream_version)" "../sources/patches"
 	ynh_setup_source --dest_dir="$final_path"
 
 	#Copy the admin saved settings from tmp directory to final path

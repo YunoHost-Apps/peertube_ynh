@@ -70,7 +70,7 @@ ynh_app_setting_set --app=$app --key=port --value=$port
 
 # PeerTube Live port
 rtmp_port=1935
-ynh_port_available --port=$rtmp_port || ynh_die "Port $rtmp_port is needs to be available for this app"
+ynh_port_available --port=$rtmp_port || ynh_die --message="Port $rtmp_port is needs to be available for this app"
 ynh_app_setting_set --app=$app --key=rtmp_port --value=$rtmp_port
 
 # Open the port
@@ -130,6 +130,7 @@ ynh_script_progression --message="Setting up source files..."
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
+[ -d "../sources/patches-$(ynh_app_upstream_version)" ] && cp -a "../sources/patches-$(ynh_app_upstream_version)" "../sources/patches"
 ynh_setup_source --dest_dir="$final_path"
 
 chmod 750 "$final_path"
@@ -164,7 +165,7 @@ ynh_script_progression --message="Building Yarn dependencies..."
 
 pushd "$final_path"
 	ynh_use_nodejs
-	ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile 
+	ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile
 popd
 
 #=================================================

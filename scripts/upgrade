@@ -139,6 +139,10 @@ if ! ynh_permission_exists --permission="api"; then
 	ynh_permission_create --permission="api" --url="/api" --allowed="visitors" --auth_header="false" --show_tile="false" --protected="true"
 fi
 
+# Remove hook
+ynh_secure_remove --file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
+yunohost tools regen-conf nginx
+
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
@@ -212,9 +216,10 @@ ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 # Install Yarn
 ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
-# Remove hook
-ynh_secure_remove --file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
-yunohost tools regen-conf nginx
+if ! yunohost app list | grep -q "prosody"
+then
+	yunohost app install prosody --args "domain=$domain&admin=$admin&language=$language&password=$password"
+fi
 
 #=================================================
 # SPECIFIC UPGRADE
@@ -249,7 +254,7 @@ ynh_script_progression --message="Building Yarn dependencies..."
 
 pushd "$final_path"
 	ynh_use_nodejs
-	ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH yarn install --production --pure-lockfile
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --production --pure-lockfile
 popd
 
 #=================================================
@@ -274,7 +279,16 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --l
 ynh_script_progression --message="Installing LDAP plugin..."
 
 pushd "$final_path"
-	ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
+popd
+
+#=================================================
+# INSTALL PEERTUBE LIVECHAT PLUGIN
+#=================================================
+ynh_script_progression --message="Installing PeerTube livechat plugin..."
+
+pushd "$final_path"
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name  peertube-plugin-livechat
 popd
 
 #=================================================
@@ -284,7 +298,7 @@ popd
 if ynh_compare_current_package_version --comparison lt --version 4.0.0~ynh1; then
 	ynh_script_progression --message="Running Peertube 4.0.0 migration script..."
 	pushd "$final_path"
-		ynh_exec_warn_less sudo -u $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-4.0.js
+		ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-4.0.js
 	popd
 fi
 

@@ -24,11 +24,6 @@ Plateforme de streaming vidéo fédérée (ActivityPub) utilisant P2P (BitTorren
 
 ## Avertissements / informations importantes
 
-## Vue d'ensemble
-
-### Qu'est-ce que PeerTube ?
-PeerTube est une plateforme de streaming vidéo fédérée (ActivityPub) utilisant P2P (BitTorrent) directement dans le navigateur Web, en utilisant <a href="https://github.com/feross/webtorrent"> WebTorrent </a>.
-
 ### Pourquoi PeerTube?
 
 Nous ne pouvons pas créer d'alternatives de streaming vidéo FOSS à YouTube, Dailymotion, Vimeo... avec un logiciel centralisé. Une organisation seule ne peut pas avoir assez d'argent pour payer la bande passante et le stockage vidéo de son serveur.
@@ -41,29 +36,25 @@ Les serveurs sont gérés indépendamment par différentes personnes et organisa
 
 En regardant une vidéo, vous aidez l'hébergeur à la diffuser en devenant vous-même un diffuseur de la vidéo. Chaque instance n'a pas besoin de beaucoup d'argent pour diffuser les vidéos de ses utilisateurs.
 
-## Points importants à lire avant l'installation
-
-1. Nécessite un **domaine dédié** comme **peertube.domain.tld**.
-1. Le nom d'utilisateur de l'administrateur est: **root**.
-1. **Le mot de passe administrateur et la configuration LDAP** seront envoyés à l'adresse email indiquée au moment de l'installation.
-1. L'URL ne peut pas être modifiée une fois sélectionnée. Choisissez judicieusement le domaine.
-1. Vous avez besoin de plus de **1 Go** de RAM. Si vous ne l'avez pas, veuillez créer une **mémoire swap**.
-
+### Points importants à lire avant l'installation
+* Nécessite un **domaine dédié** comme **peertube.domain.tld**.
+* Le nom d'utilisateur de l'administrateur est: **root**.
+* **Le mot de passe administrateur et la configuration LDAP** seront envoyés à l'adresse email indiquée au moment de l'installation.
+* L'URL ne peut pas être modifiée une fois sélectionnée. Choisissez judicieusement le domaine.
+* Vous avez besoin de plus de **1 Go** de RAM. Si vous ne l'avez pas, veuillez créer une **mémoire swap**.
  
         $ dd if=/dev/zero of=/swapfile bs=1024 count=1048576
         $ mkswap /swapfile
         $ swapon /swapfile
         $ echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
 
-1. Cette application est **multi-instance** (vous pouvez avoir plus d'une instance PeerTube en cours d'exécution sur un serveur YunoHost)
-1. **Si vous êtes hébergé sur une machine virtuelle OVH ou rencontrez `gyp ERR! configure error`, veuillez passer à [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix)**
+* Cette application est **multi-instance** (vous pouvez avoir plus d'une instance PeerTube en cours d'exécution sur un serveur YunoHost)
+* **Si vous êtes hébergé sur une machine virtuelle OVH ou rencontrez `gyp ERR! configure error`, veuillez passer à [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix)**
 
-## Caractéristiques spécifiques YunoHost
-
-#### Support multi-utilisateur
+#### PLUGINS
 
 * L'authentification LDAP est prise en charge, les instructions de configuration sont envoyées à l'adresse email indiquée au moment de l'installation
-* L'authentification HTTP n'est pas prise en charge
+* le plugin PeerTube livechat est installé ainsi que Prosody. pour l'activer, sélectionner «Prosody server controlled by Peertube» dans le paramétre chat mode du plugin dans la page d'administration de PeerTube.
 
 ## Documentations et ressources
 

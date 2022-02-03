@@ -219,6 +219,8 @@ ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ st
 if ! yunohost app list | grep -q "prosody"
 then
 	yunohost app install prosody --args "domain=$domain&admin=$admin&language=$language&password=$password"
+elfi
+	yunohost app upgrade 
 fi
 
 #=================================================

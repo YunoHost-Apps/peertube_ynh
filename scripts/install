@@ -218,11 +218,6 @@ popd
 #=================================================
 ynh_script_progression --message="Installing PeerTube livechat plugin..."
 
-if ! yunohost app list | grep -q "prosody"
-then
-	yunohost app install prosody --args "domain=$domain&admin=$admin&language=$language&password=$password"
-fi
-
 pushd "$final_path"
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name  peertube-plugin-livechat
 popd

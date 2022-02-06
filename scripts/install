@@ -93,8 +93,12 @@ ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ st
 
 if ! yunohost app list | grep -q "prosody"
 then
-	yunohost app install prosody --args "domain=$domain&admin=$admin&language=$language&password=$password"
+	yunohost app install prosody --force
+else
+	yunohost app upgrade prosody --force
 fi
+
+ynh_app_setting_set --app=$app --key=require_prosody --value="1"
 
 #=================================================
 # CREATE DEDICATED USER

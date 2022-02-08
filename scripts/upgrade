@@ -143,13 +143,18 @@ fi
 ynh_secure_remove --file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
 yunohost tools regen-conf nginx
 
+# Remove old log file
+ynh_secure_remove --file="$datadir/logs"
+mkdir -p "/var/log/$app"
+chown -R $app:$app "/var/log/$app"
+
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
 ynh_script_progression --message="Making sure dedicated system user exists..."
 
 # Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app --home_dir=$final_path
+ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -236,9 +241,9 @@ ynh_script_progression --message="Creating a data directory..."
 
 mkdir -p $datadir
 
-chmod 750 "$datadir/.."
-chmod -R o-rwx "$datadir/.."
-chown -R $app:www-data "$datadir/.."
+chmod 750 "$datadir"
+chmod -R o-rwx "$datadir"
+chown -R $app:www-data "$datadir"
 
 #=================================================
 # UPDATE A CONFIG FILE
@@ -261,6 +266,7 @@ ynh_script_progression --message="Building Yarn dependencies..."
 pushd "$final_path"
 	ynh_use_nodejs
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --production --pure-lockfile
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn cache clean
 popd
 
 #=================================================
@@ -331,7 +337,7 @@ ynh_use_logrotate --non-append
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description="$app daemon for Peertube" --log="$datadir/logs/peertube.log" --needs_exposed_ports $rtmp_port
+yunohost service add $app --description="$app daemon for Peertube" --log="/var/log/$app/$app.log" --needs_exposed_ports $rtmp_port
 
 #=================================================
 # START SYSTEMD SERVICE

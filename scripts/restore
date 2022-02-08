@@ -60,7 +60,7 @@ ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_script_progression --message="Recreating the dedicated system user..."
 
 # Create the dedicated user (if not existing)
-ynh_system_user_create --username=$app --home_dir=$final_path
+ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
 # RESTORE THE APP MAIN DIR
@@ -98,9 +98,6 @@ ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 
 # Install dependencies
 ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
-
-# Install Yarn
-ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
 if ! yunohost app list | grep -q "prosody"
 then
@@ -143,6 +140,8 @@ systemctl enable $app.service --quiet
 #=================================================
 ynh_script_progression --message="Restoring the logrotate configuration..."
 
+mkdir -p "/var/log/$app"
+chown -R $app:$app "/var/log/$app"
 ynh_restore_file --origin_path="/etc/logrotate.d/$app"
 
 #=================================================
@@ -150,7 +149,7 @@ ynh_restore_file --origin_path="/etc/logrotate.d/$app"
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description="$app daemon for Peertube" --log="$datadir/logs/peertube.log" --needs_exposed_ports $rtmp_port
+yunohost service add $app --description="$app daemon for Peertube" --log="/var/log/$app/$app.log" --needs_exposed_ports $rtmp_port
 
 #=================================================
 # START SYSTEMD SERVICE

@@ -152,6 +152,16 @@ then
 fi
 
 #=================================================
+# SPECIFIC REMOVE
+#=================================================
+# REMOVE VARIOUS FILES
+#=================================================
+ynh_script_progression --message="Removing various files..."
+
+# Remove the log files
+ynh_secure_remove --file="/var/log/$app"
+
+#=================================================
 # GENERIC FINALIZATION
 #=================================================
 # REMOVE DEDICATED USER

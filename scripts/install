@@ -55,7 +55,6 @@ ynh_script_progression --message="Storing installation settings..."
 
 ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=admin --value=$admin
-ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -163,11 +162,13 @@ ynh_add_nginx_config
 #=================================================
 ynh_script_progression --message="Creating a data directory..."
 
+ynh_app_setting_set --app=$app --key=datadir --value=$datadir
+
 mkdir -p $datadir
 
-chmod 750 "$datadir/.."
-chmod -R o-rwx "$datadir/.."
-chown -R $app:www-data "$datadir/.."
+chmod 750 "$datadir"
+chmod -R o-rwx "$datadir"
+chown -R $app:www-data "$datadir"
 
 #=================================================
 # BUILD YARN DEPENDENCIES
@@ -177,6 +178,7 @@ ynh_script_progression --message="Building Yarn dependencies..."
 pushd "$final_path"
 	ynh_use_nodejs
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --production --pure-lockfile
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn cache clean
 popd
 
 #=================================================
@@ -207,6 +209,8 @@ ynh_add_systemd_config
 #=================================================
 ynh_script_progression --message="Starting a systemd service..."
 
+mkdir -p "/var/log/$app"
+chown -R $app:$app "/var/log/$app"
 # Start a systemd service
 ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on localhost"
 
@@ -253,14 +257,14 @@ ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
 ynh_script_progression --message="Configuring log rotation..."
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate --logfile="$datadir/logs/peertube.log"
+ynh_use_logrotate
 
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description="$app daemon for Peertube" --log="$datadir/logs/peertube.log" --needs_exposed_ports $rtmp_port
+yunohost service add $app --description="$app daemon for Peertube" --log="/var/log/$app/$app.log" --needs_exposed_ports $rtmp_port
 
 #=================================================
 # START SYSTEMD SERVICE

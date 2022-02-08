@@ -13,13 +13,13 @@
 		setup_public=1
 		upgrade=1
 		# 3.2.1~ynh1
-		upgrade=1	from_commit=f4b43fd85ad3a169d27c53865a13548e44f17ebf
+		# upgrade=1	from_commit=f4b43fd85ad3a169d27c53865a13548e44f17ebf
 		# 3.2.1~ynh4
-		upgrade=1	from_commit=08bf3fce3ad99e27e7f7d251838a9f9c63243e44
+		# upgrade=1	from_commit=08bf3fce3ad99e27e7f7d251838a9f9c63243e44
 		# 3.3.0~ynh2
-		upgrade=1	from_commit=f3bb02002c8fa28748744302475139b6fcf7c651
+		# upgrade=1	from_commit=f3bb02002c8fa28748744302475139b6fcf7c651
 		# 3.3.0~ynh3
-		upgrade=1	from_commit=ed59a268e93910f8b35b0f87399f91b8cad9ede0
+		# upgrade=1	from_commit=ed59a268e93910f8b35b0f87399f91b8cad9ede0
 		# 3.4.0~ynh1
 		upgrade=1	from_commit=83a06ca4c96ccd941b49647b3698db2c6b771b79
 		# 4.0.0~ynh1

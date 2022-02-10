@@ -88,7 +88,7 @@ storage:
   videos: '__DATADIR__/videos/'
   streaming_playlists: '__DATADIR__/streaming-playlists/'
   redundancy: '__DATADIR__/redundancy/'
-  logs: '__DATADIR__/logs/'
+  logs: '/var/log/__APP__/'
   previews: '__DATADIR__/previews/'
   thumbnails: '__DATADIR__/thumbnails/'
   torrents: '__DATADIR__/torrents/'

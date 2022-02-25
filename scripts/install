@@ -140,7 +140,6 @@ ynh_script_progression --message="Setting up source files..."
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
-[ -d "../sources/patches-$(ynh_app_upstream_version)" ] && cp -a "../sources/patches-$(ynh_app_upstream_version)" "../sources/patches"
 ynh_setup_source --dest_dir="$final_path"
 
 chmod 750 "$final_path"

@@ -97,18 +97,8 @@ ynh_script_progression --message="Reinstalling dependencies..."
 ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 
 # Install dependencies
+ynh_install_apps --apps="$ynh_app_dependencies"
 ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
-
-if ! yunohost app list | grep -q "prosody"
-then
-	yunohost tools update
-	yunohost app install prosody
-else
-	yunohost tools update
-	yunohost app upgrade prosody
-fi
-
-ynh_app_setting_set --app=$app --key=require_prosody --value="1"
 
 #=================================================
 # RESTORE THE POSTGRESQL DATABASE

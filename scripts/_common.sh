@@ -113,5 +113,6 @@ ynh_remove_apps() {
 			# Remove $oneapp
 			ynh_print_info --message="Removing of $oneapp"
 			yunohost app remove $oneapp --purge
+		fi
 	done
 }

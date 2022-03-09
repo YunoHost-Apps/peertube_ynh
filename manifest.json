@@ -10,10 +10,10 @@
     "url": "https://github.com/Chocobozzz/PeerTube",
     "upstream": {
         "license": "AGPL-3.0-only",
-        "website": "https://joinpeertube.org/fr/",
+        "website": "https://joinpeertube.org/fr",
         "demo": "http://peertube.cpy.re",
-        "admindoc": "https://docs.joinpeertube.org/",
-        "code": "https://github.com/Chocobozzz/PeerTube/"
+        "admindoc": "https://docs.joinpeertube.org",
+        "code": "https://github.com/Chocobozzz/PeerTube"
     },
     "license": "AGPL-3.0-only",
     "maintainer": [

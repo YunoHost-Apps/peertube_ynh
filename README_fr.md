@@ -58,9 +58,9 @@ En regardant une vidéo, vous aidez l'hébergeur à la diffuser en devenant vous
 
 ## Documentations et ressources
 
-* Site officiel de l'app : https://joinpeertube.org/fr/
-* Documentation officielle de l'admin : https://docs.joinpeertube.org/
-* Dépôt de code officiel de l'app : https://github.com/Chocobozzz/PeerTube/
+* Site officiel de l'app : https://joinpeertube.org/fr
+* Documentation officielle de l'admin : https://docs.joinpeertube.org
+* Dépôt de code officiel de l'app : https://github.com/Chocobozzz/PeerTube
 * Documentation YunoHost pour cette app : https://yunohost.org/app_peertube
 * Signaler un bug : https://github.com/YunoHost-Apps/peertube_ynh/issues
 

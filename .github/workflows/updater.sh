@@ -89,8 +89,8 @@ checksum=$(sha256sum "$tempdir/$filename" | head -c 64)
 rm -rf $tempdir
 
 # Get extension
-if [[ $filename == *.tar.gz ]]; then
-  extension=tar.gz
+if [[ $filename == *.tar.xz ]]; then
+  extension=tar.xz
 else
   extension=${filename##*.}
 fi

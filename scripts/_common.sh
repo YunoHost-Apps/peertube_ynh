@@ -27,7 +27,7 @@ ynh_app_dependencies="prosody_ynh"
 
 # Install other YunoHost apps
 #
-# usage: ynh_install_apps --apps="a_ynh b_ynh?domain=DOMAIN&path=PATH&admin=USER&language=fr&is_public=1&password=pass&port=666"
+# usage: ynh_install_apps --apps="appfoo appbar?domain=DOMAIN&path=PATH&admin=USER&language=fr&is_public=1&password=pass&port=666"
 # | arg: -a, --apps=     - apps to install
 #
 # Requires YunoHost version *.*.* or higher.
@@ -43,14 +43,14 @@ ynh_install_apps() {
 	local apps_list=($(echo $apps | tr " " "\n"))
 	
 	# For each app
-	for i in "${apps_list[@]}"
+	for oneapp_and_its_args in "${apps_list[@]}"
 	do
 		# Retrieve the name of the app (part before _ynh)
-		local oneapp=$(echo "$i" | awk -F'_ynh' '{print $1}')
+		local oneapp=$(echo "$oneapp_and_its_args" | awk -F'?' '{print $1}')
 		[ -z "$oneapp" ] && ynh_die --message="You didn't provided a YunoHost app to install"
 
 		# Retrieve the arguments of the app (part after ?)
-		local oneargument=$(echo "$i" | awk -F'?' '{print $2}')
+		local oneargument=$(echo "$oneapp_and_its_args" | awk -F'?' '{print $2}')
 		[ ! -z "$oneargument" ] && oneargument="--args \"$oneargument\""
 
 		if ! yunohost app list | grep -q "$oneapp"
@@ -69,7 +69,7 @@ ynh_install_apps() {
 #
 # apps will be removed only if no other apps need them.
 #
-# usage: ynh_remove_apps --apps="a_ynh b_ynh?domain=DOMAIN&path=PATH&admin=USER&language=fr&is_public=1&password=pass&port=666"
+# usage: ynh_remove_apps --apps="appfoo appbar?domain=DOMAIN&path=PATH&admin=USER&language=fr&is_public=1&password=pass&port=666"
 # | arg: -a, --apps=     - apps to install
 #
 # Requires YunoHost version *.*.* or higher.
@@ -88,7 +88,7 @@ ynh_remove_apps() {
 	for i in "${apps_list[@]}"
 	do
 		# Retrieve the name of the app (part before _ynh)
-		local oneapp=$(echo "$i" | awk -F'_ynh' '{print $1}')
+		local oneapp=$(echo "$i" | awk -F'?' '{print $1}')
 		[ -z "$oneapp" ] && ynh_die --message="You didn't provided a YunoHost app to remove"
 
 		ynh_app_setting_delete --app=$app --key=require_$oneapp
@@ -100,7 +100,7 @@ ynh_remove_apps() {
 		for installed_app in $installed_apps
 		do
 			local installed_app_required_by=$(ynh_app_setting_get --app=$installed_app --key="require_$oneapp")
-			if [[ $installed_app_required_by ]]
+			if [[ -n "$installed_app_required_by" ]]
 			then
 				required_by="${installed_app_required_by}"
 			fi
@@ -108,7 +108,7 @@ ynh_remove_apps() {
 		done
 
 		# If $oneapp is no more required
-		if [[ ! $required_by ]]
+		if [[ -z "$required_by" ]]
 		then
 			# Remove $oneapp
 			ynh_print_info --message="Removing of $oneapp"

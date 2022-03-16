@@ -9,7 +9,7 @@ pkg_dependencies="ffmpeg postgresql postgresql-contrib openssl g++ mailutils apt
 
 NODEJS_VERSION=16
 
-ynh_app_dependencies="prosody_ynh"
+ynh_app_dependencies="prosody"
 
 #=================================================
 # PERSONAL HELPERS
@@ -53,12 +53,12 @@ ynh_install_apps() {
 		local oneargument=$(echo "$oneapp_and_its_args" | awk -F'?' '{print $2}')
 		[ ! -z "$oneargument" ] && oneargument="--args \"$oneargument\""
 
-		if ! yunohost app list | grep -q "$oneapp"
+		# Installing or upgrading the app
+		yunohost tools update apps
+		if ! yunohost app list --output-as json --quiet | jq -e --arg id $oneapp '.apps[] | select(.id == $id)' >/dev/null
 		then
-			yunohost tools update
 			yunohost app install $oneapp $oneargument
 		else
-			yunohost tools update
 			yunohost app upgrade $oneapp $oneargument
 		fi
 		ynh_app_setting_set --app=$app --key=require_$oneapp --value="1"
@@ -94,7 +94,7 @@ ynh_remove_apps() {
 		ynh_app_setting_delete --app=$app --key=require_$oneapp
 
 		# List apps requiring $oneapp
-		local installed_apps=$(yunohost app list | grep -oP 'id: \K.*$')
+		local installed_apps=$(yunohost app list --output-as json --quiet | jq -r .apps[].id)
 		local required_by=""
 		local installed_app_required_by=""
 		for installed_app in $installed_apps

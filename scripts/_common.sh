@@ -76,8 +76,8 @@ ynh_install_apps() {
 ynh_remove_apps() {
 	# Declare an array to define the options of this helper.
 	local legacy_args=a
-	local -A args_array=([a]=app=)
-	local app
+    local -A args_array=([a]=apps=)
+    local apps
 	# Manage arguments with getopts
 	ynh_handle_getopts_args "$@"
 

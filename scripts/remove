@@ -109,7 +109,7 @@ ynh_script_progression --message="Removing dependencies..."
 # Remove metapackage and its dependencies
 ynh_remove_nodejs
 ynh_remove_app_dependencies
-ynh_remove_apps --apps="$ynh_app_dependencies"
+ynh_remove_apps
 
 #=================================================
 # CLOSE A PORT

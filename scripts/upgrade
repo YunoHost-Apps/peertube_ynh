@@ -8,6 +8,7 @@
 
 source _common.sh
 source ynh_redis
+source ynh_apps
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -19,15 +20,15 @@ app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
+admin=$(ynh_app_setting_get --app=$app --key=admin)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 port=$(ynh_app_setting_get --app=$app --key=port)
 rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$(ynh_app_setting_get --app=$app --key=db_user)
-db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
+db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
-admin=$(ynh_app_setting_get --app=$app --key=admin)
-admin_email=$(ynh_user_get_info --username=$admin --key="mail")
+admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 redis_db=$(ynh_app_setting_get --app=$app --key=redis_db)
 
 #=================================================
@@ -67,7 +68,7 @@ ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
 ynh_script_progression --message="Ensuring downward compatibility..."
 
 ynh_app_setting_delete --app=$app --key=admin_pass
-ynh_app_setting_delete --app=$app --key=admin_email
+ynh_app_setting_delete --app=$app --key=admin_mail
 
 # If db_name doesn't exist, create it
 if [ -z "$db_name" ]; then
@@ -164,39 +165,23 @@ if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
 	ynh_script_progression --message="Upgrading source files..."
 
-	# Create a temporary directory
-	tmpdir="$(mktemp -d)"
-
-	# Backup the config file in the temp dir
-	cp -af "$final_path/config/production.yaml" "$tmpdir/production.yaml"
-	if [ -s "$final_path/config/local-production.json" ]
-	then
-		cp -af "$final_path/config/local-production.json" "$tmpdir/local-production.json"
-	fi
-
-	# Remove the app directory securely
-	ynh_secure_remove --file="$final_path"
-
 	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$final_path"
-
-	#Copy the admin saved settings from tmp directory to final path
-	cp -af "$tmpdir/production.yaml" "$final_path/config/production.yaml"
-
-	if [ -s "$tmpdir/local-production.json" ]
-	then
-		cp -af "$tmpdir/local-production.json" "$final_path/config/local-production.json"
-	else
-		cp ../conf/local-production.json "$final_path/config/local-production.json"
-	fi
-
-	# Remove the tmp directory securely
-	ynh_secure_remove --file="$tmpdir"
+	ynh_setup_source --dest_dir="$final_path" --keep="config/production.yaml config/local-production.json"
 fi
 
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
 chown -R $app:www-data "$final_path"
+
+#=================================================
+# UPGRADE DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Upgrading dependencies..."
+
+ynh_install_apps --apps="$ynh_app_dependencies"
+ynh_install_app_dependencies $pkg_dependencies
+ynh_install_nodejs --nodejs_version=$nodejs_version
+ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -205,31 +190,6 @@ ynh_script_progression --message="Upgrading NGINX web server configuration..."
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
-
-#=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Upgrading dependencies..."
-
-# Install nodejs
-ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
-
-# Install dependencies
-ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
-
-# Install Yarn
-ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
-
-if ! yunohost app list | grep -q "prosody"
-then
-	yunohost tools update
-	yunohost app install prosody
-else
-	yunohost tools update
-	yunohost app upgrade prosody
-fi
-
-ynh_app_setting_set --app=$app --key=require_prosody --value="1"
 
 #=================================================
 # SPECIFIC UPGRADE
@@ -303,7 +263,7 @@ pushd "$final_path"
 popd
 
 #=================================================
-# PEERTUBE 4.0.0 UPGRADE MIGRATION SCRIPT
+# PEERTUBE UPGRADE MIGRATION SCRIPT
 #=================================================
 
 if ynh_compare_current_package_version --comparison lt --version 4.0.0~ynh1; then

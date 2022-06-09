@@ -1,9 +1,8 @@
 ;; Test complet
 	; Manifest
 		domain="domain.tld"
-		email="admin@example.com"
 		is_public=1
-		port="9000"
+		admin="john"
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=0
@@ -26,6 +25,8 @@
 		upgrade=1	from_commit=7c2bb0bb6a91b6b957b734f684aa3d64da892f4c
 		# 4.0.0~ynh2
 		upgrade=1	from_commit=6995b27972e27c6cf8ee3e1f23a2de5cc8c8e8ee
+		# 4.1.1~ynh1
+		upgrade=1	from_commit=24c8333d70312e9dcf8d278e64787ca561a10b2e
 		backup_restore=1
 		multi_instance=0
 		port_already_use=0

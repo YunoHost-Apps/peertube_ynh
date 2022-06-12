@@ -46,6 +46,7 @@ ynh_script_progression --message="Backing up the app before upgrading (may take 
 # Backup the current version of the app
 ynh_backup_before_upgrade
 ynh_clean_setup () {
+	read -p "123"
 	ynh_clean_check_starting
 	# Restore it if the upgrade fails
 	ynh_restore_upgradebackup
@@ -165,8 +166,34 @@ if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
 	ynh_script_progression --message="Upgrading source files..."
 
+	# Create a temporary directory
+	tmpdir="$(mktemp -d)"
+
+	# Backup the config file in the temp dir
+	cp -af "$final_path/config/production.yaml" "$tmpdir/production.yaml"
+	if [ -s "$final_path/config/local-production.json" ]
+	then
+		cp -af "$final_path/config/local-production.json" "$tmpdir/local-production.json"
+	fi
+
+	# Remove the app directory securely
+	ynh_secure_remove --file="$final_path"
+
 	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$final_path" --keep="config/production.yaml config/local-production.json"
+	ynh_setup_source --dest_dir="$final_path"
+
+	#Copy the admin saved settings from tmp directory to final path
+	cp -af "$tmpdir/production.yaml" "$final_path/config/production.yaml"
+
+	if [ -s "$tmpdir/local-production.json" ]
+	then
+		cp -af "$tmpdir/local-production.json" "$final_path/config/local-production.json"
+	else
+		cp ../conf/local-production.json "$final_path/config/local-production.json"
+	fi
+
+	# Remove the tmp directory securely
+	ynh_secure_remove --file="$tmpdir"
 fi
 
 chmod 750 "$final_path"

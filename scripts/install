@@ -9,6 +9,7 @@
 source _common.sh
 source ynh_redis
 source ynh_send_readme_to_admin__2
+source ynh_apps
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -27,9 +28,9 @@ ynh_abort_if_errors
 
 domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
-admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
-admin_email=$(ynh_user_get_info --username=$admin --key="mail")
+admin=$YNH_APP_ARG_ADMIN
+admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 admin_pass=$(ynh_string_random --length=24)
 
 app=$YNH_APP_INSTANCE_NAME
@@ -64,7 +65,7 @@ ynh_app_setting_set --app=$app --key=admin --value=$admin
 ynh_script_progression --message="Finding an available port..."
 
 # Find an available port
-port=$(ynh_find_port --port=9000)
+port=$(ynh_find_port --port=8095)
 ynh_app_setting_set --app=$app --key=port --value=$port
 
 # PeerTube Live port
@@ -81,25 +82,10 @@ ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
 #=================================================
 ynh_script_progression --message="Installing dependencies..."
 
-# Install nodejs
-ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
-
-# Install dependencies
-ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
-
-# Install Yarn
+ynh_install_apps --apps="$ynh_app_dependencies"
+ynh_install_app_dependencies $pkg_dependencies
+ynh_install_nodejs --nodejs_version=$nodejs_version
 ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
-
-if ! yunohost app list | grep -q "prosody"
-then
-	yunohost tools update
-	yunohost app install prosody
-else
-	yunohost tools update
-	yunohost app upgrade prosody
-fi
-
-ynh_app_setting_set --app=$app --key=require_prosody --value="1"
 
 #=================================================
 # CREATE DEDICATED USER
@@ -107,7 +93,7 @@ ynh_app_setting_set --app=$app --key=require_prosody --value="1"
 ynh_script_progression --message="Configuring system user..."
 
 # Create a system user
-ynh_system_user_create --username=$app --home_dir=$final_path
+ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
 # CREATE A POSTGRESQL DATABASE
@@ -116,12 +102,11 @@ ynh_script_progression --message="Creating a PostgreSQL database..."
 
 db_name="peertube_${app}"
 db_user=$(ynh_sanitize_dbid --db_name=$app)
-db_pwd=$(ynh_string_random --length=30)
 ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 ynh_app_setting_set --app=$app --key=db_user --value=$db_user
-ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
 ynh_psql_test_if_first_run
-ynh_psql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
+ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
+db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
 
 ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --database=$db_name
 ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name
@@ -300,7 +285,7 @@ ynh_systemd_action --service_name=nginx --action=reload
 #=================================================
 ynh_script_progression --message="Sending a readme for the admin..."
 
-ynh_send_readme_to_admin --app_message="../conf/msg_install" --recipients=$admin_email --type='install'
+ynh_send_readme_to_admin --app_message="../conf/msg_install" --recipients=$admin_mail --type='install'
 
 #=================================================
 # END OF SCRIPT

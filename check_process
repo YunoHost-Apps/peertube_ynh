@@ -1,9 +1,8 @@
 ;; Test complet
 	; Manifest
 		domain="domain.tld"
-		email="admin@example.com"
 		is_public=1
-		port="9000"
+		admin="john"
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=0
@@ -13,17 +12,21 @@
 		setup_public=1
 		upgrade=1
 		# 3.2.1~ynh1
-		upgrade=1	from_commit=f4b43fd85ad3a169d27c53865a13548e44f17ebf
+		# upgrade=1	from_commit=f4b43fd85ad3a169d27c53865a13548e44f17ebf
 		# 3.2.1~ynh4
-		upgrade=1	from_commit=08bf3fce3ad99e27e7f7d251838a9f9c63243e44
+		# upgrade=1	from_commit=08bf3fce3ad99e27e7f7d251838a9f9c63243e44
 		# 3.3.0~ynh2
-		upgrade=1	from_commit=f3bb02002c8fa28748744302475139b6fcf7c651
+		# upgrade=1	from_commit=f3bb02002c8fa28748744302475139b6fcf7c651
 		# 3.3.0~ynh3
-		upgrade=1	from_commit=ed59a268e93910f8b35b0f87399f91b8cad9ede0
+		# upgrade=1	from_commit=ed59a268e93910f8b35b0f87399f91b8cad9ede0
 		# 3.4.0~ynh1
 		upgrade=1	from_commit=83a06ca4c96ccd941b49647b3698db2c6b771b79
 		# 4.0.0~ynh1
 		upgrade=1	from_commit=7c2bb0bb6a91b6b957b734f684aa3d64da892f4c
+		# 4.0.0~ynh2
+		upgrade=1	from_commit=6995b27972e27c6cf8ee3e1f23a2de5cc8c8e8ee
+		# 4.1.1~ynh1
+		upgrade=1	from_commit=24c8333d70312e9dcf8d278e64787ca561a10b2e
 		backup_restore=1
 		multi_instance=0
 		port_already_use=0
@@ -31,16 +34,3 @@
 ;;; Options
 Email=anmol@datamol.org;yalh@yahoo.com
 Notification=yes
-;;; Upgrade options
-	; commit=f4b43fd85ad3a169d27c53865a13548e44f17ebf
-		name=3.2.1~ynh1
-	; commit=08bf3fce3ad99e27e7f7d251838a9f9c63243e44
-		name=3.2.1~ynh4
-	; commit=f3bb02002c8fa28748744302475139b6fcf7c651
-		name=3.3.0~ynh2
-	; commit=ed59a268e93910f8b35b0f87399f91b8cad9ede0
-		name=3.3.0~ynh3
-	; commit=83a06ca4c96ccd941b49647b3698db2c6b771b79
-		name=3.4.0~ynh1
-	; commit=7c2bb0bb6a91b6b957b734f684aa3d64da892f4c
-		name=4.0.0~ynh1

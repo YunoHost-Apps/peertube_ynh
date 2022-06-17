@@ -9,6 +9,7 @@
 source _common.sh
 source ynh_redis
 source ynh_send_readme_to_admin__2
+source ynh_apps
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -25,7 +26,7 @@ db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$(ynh_app_setting_get --app=$app --key=db_user)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
-admin_email=$(ynh_user_get_info --username=$admin --key="mail")
+admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
 redis_db=$(ynh_app_setting_get --app=$app --key=redis_db)
@@ -109,22 +110,27 @@ ynh_script_progression --message="Removing dependencies..."
 # Remove metapackage and its dependencies
 ynh_remove_nodejs
 ynh_remove_app_dependencies
+ynh_remove_apps
 
 #=================================================
 # CLOSE A PORT
 #=================================================
-
-if yunohost firewall list | grep -q "\- $port$"
-then
-	ynh_script_progression --message="Closing port $port..."
-	ynh_exec_warn_less yunohost firewall disallow TCP $port
-fi
 
 if yunohost firewall list | grep -q "\- $rtmp_port$"
 then
 	ynh_script_progression --message="Closing port $rtmp_port..."
 	ynh_exec_warn_less yunohost firewall disallow TCP $rtmp_port
 fi
+
+#=================================================
+# SPECIFIC REMOVE
+#=================================================
+# REMOVE VARIOUS FILES
+#=================================================
+ynh_script_progression --message="Removing various files..."
+
+# Remove the log files
+ynh_secure_remove --file="/var/log/$app"
 
 #=================================================
 # GENERIC FINALIZATION
@@ -141,7 +147,7 @@ ynh_system_user_delete --username=$app
 #=================================================
 ynh_script_progression --message="Sending a readme for the admin..."
 
-ynh_send_readme_to_admin --app_message="../conf/msg_remove" --recipients=$admin_email --type='remove'
+ynh_send_readme_to_admin --app_message="../conf/msg_remove" --recipients=$admin_mail --type='remove'
 
 #=================================================
 # END OF SCRIPT

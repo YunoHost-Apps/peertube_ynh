@@ -5,7 +5,7 @@ It shall NOT be edited by hand.
 
 # PeerTube for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/peertube.svg)](https://dash.yunohost.org/appci/app/peertube) ![](https://ci-apps.yunohost.org/ci/badges/peertube.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/peertube.maintain.svg)  
+[![Integration level](https://dash.yunohost.org/integration/peertube.svg)](https://dash.yunohost.org/appci/app/peertube) ![Working status](https://ci-apps.yunohost.org/ci/badges/peertube.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/peertube.maintain.svg)  
 [![Install PeerTube with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=peertube)
 
 *[Lire ce readme en français.](./README_fr.md)*
@@ -18,13 +18,13 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 Federated (ActivityPub) video streaming platform using P2P (BitTorrent) directly in the web browser, using <a href="https://github.com/feross/webtorrent">WebTorrent</a>.
 
 
-**Shipped version:** 4.0.0~ynh2
+**Shipped version:** 4.2.0~ynh1
 
 **Demo:** http://peertube.cpy.re
 
 ## Screenshots
 
-![](./doc/screenshots/screenshot1.png)
+![Screenshot of PeerTube](./doc/screenshots/screenshot1.png)
 
 ## Disclaimers / important information
 
@@ -42,40 +42,44 @@ Servers are run independently by different people and organizations. They can ap
 
 By watching a video, you help the hosting provider to broadcast it by becoming a broadcaster of the video yourself. Each instance doesn't need much money to broadcast the videos of its users.
 
-* Any known limitations, constrains or stuff not working, such as (but not limited to):
-    * Require **dedicated domain** like **peertube.domain.tld**.
-    * Admin username is: **root**.
-    * **Admin password and LDAP configuration** will be sent to the email address given at the time of the installation.
-    * URL can not be changed once selected. Choose the domain wisely.
-    * You need more then **1 GB** of RAM. If you don't have it, please create a **swap memory**.
+### IMPORTANT POINT TO READ BEFORE INSTALLING
+* Require **dedicated domain** like **peertube.domain.tld**.
+* Admin username is: **root**.
+* **Admin password and LDAP configuration** will be sent to the email address given at the time of the installation.
+* URL can not be changed once selected. Choose the domain wisely.
+* You need more then **1 GB** of RAM. If you don't have it, please create a **swap memory**.
  
         $ dd if=/dev/zero of=/swapfile bs=1024 count=1048576
         $ mkswap /swapfile
         $ swapon /swapfile
         $ echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
         
-    * This app is **multi-instance** (you can have more then one PeerTube instance running on a YunoHost server)
-    * **If you are hosted on OVH virtual machine or experiencing `gyp ERR! configure error`, please switch to [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix)**
-    * LDAP auth is supported, LDAP configuration will be sent to the email address given at the time of the installation.
-    * HTTP auth is not supported
+* This app is **multi-instance** (you can have more then one PeerTube instance running on a YunoHost server)
+* **If you are hosted on OVH virtual machine or experiencing `gyp ERR! configure error`, please switch to [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix)**
+* HTTP auth is not supported
+
+### PLUGINS
+* LDAP auth is supported, LDAP configuration will be sent to the email address given at the time of the installation.
+* PeerTube plugin livechat is installed with Prosody. To enable, just select «Prosody server controlled by Peertube» as chat mode in the plugin configutation of the PeerTube admin page
 
 ## Documentation and resources
 
-* Official app website: https://joinpeertube.org/fr/
-* Official admin documentation: https://docs.joinpeertube.org/
-* Upstream app code repository: https://github.com/Chocobozzz/PeerTube/
-* YunoHost documentation for this app: https://yunohost.org/app_peertube
-* Report a bug: https://github.com/YunoHost-Apps/peertube_ynh/issues
+* Official app website: <https://joinpeertube.org/fr>
+* Official admin documentation: <https://docs.joinpeertube.org>
+* Upstream app code repository: <https://github.com/Chocobozzz/PeerTube>
+* YunoHost documentation for this app: <https://yunohost.org/app_peertube>
+* Report a bug: <https://github.com/YunoHost-Apps/peertube_ynh/issues>
 
 ## Developer info
 
 Please send your pull request to the [testing branch](https://github.com/YunoHost-Apps/peertube_ynh/tree/testing).
 
 To try the testing branch, please proceed like that.
-```
+
+``` bash
 sudo yunohost app install https://github.com/YunoHost-Apps/peertube_ynh/tree/testing --debug
 or
 sudo yunohost app upgrade peertube -u https://github.com/YunoHost-Apps/peertube_ynh/tree/testing --debug
 ```
 
-**More info regarding app packaging:** https://yunohost.org/packaging_apps
+**More info regarding app packaging:** <https://yunohost.org/packaging_apps>

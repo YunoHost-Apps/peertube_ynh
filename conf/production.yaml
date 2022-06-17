@@ -45,7 +45,7 @@ database:
 
 # Redis server for short time storage
 # You can also specify a 'socket' path to a unix socket but first need to
-# comment out hostname and port
+# set 'hostname' and 'port' to null
 redis:
   hostname: 'localhost'
   port: 6379
@@ -73,12 +73,31 @@ email:
   subject:
     prefix: '[PeerTube]'
 
-# PeerTube client/interface configuration
-client:
-  videos:
-    miniature:
-      # By default PeerTube client displays author username
-      prefer_author_display_name: false
+# Update default PeerTube values
+# Set by API when the field is not provided and put as default value in client
+defaults:
+  # Change default values when publishing a video (upload/import/go Live)
+  publish:
+    download_enabled: true
+
+    comments_enabled: true
+
+    # public = 1, unlisted = 2, private = 3, internal = 4
+    privacy: 1
+
+    # CC-BY = 1, CC-SA = 2, CC-ND = 3, CC-NC = 4, CC-NC-SA = 5, CC-NC-ND = 6, Public Domain = 7
+    # You can also choose a custom licence value added by a plugin
+    # No licence by default
+    licence: null
+
+  p2p:
+    # Enable P2P by default
+    # Can be enabled/disabled by anonymous users and logged in users
+    webapp:
+      enabled: true
+
+    embed:
+      enabled: true
 
 # From the project root directory
 storage:
@@ -114,6 +133,9 @@ object_storage:
   endpoint: '' # 's3.amazonaws.com' or 's3.fr-par.scw.cloud' for example
 
   region: 'us-east-1'
+
+  # Set this ACL on each uploaded object
+  upload_acl: 'public'
 
   credentials:
     # You can also use AWS_ACCESS_KEY_ID env variable
@@ -155,7 +177,6 @@ trending:
     interval_days: 7 # Compute trending videos for the last x days
     algorithms:
       enabled:
-        - 'best' # adaptation of Reddit's 'Best' algorithm (Hot minus History)
         - 'hot' # adaptation of Reddit's 'Hot' algorithm
         - 'most-viewed' # default, used initially by PeerTube as the trending page
         - 'most-liked'
@@ -235,6 +256,13 @@ views:
 
     ip_view_expiration: '1 hour'
 
+# Used to get country location of views of local videos
+geo_ip:
+  enabled: true
+
+  country:
+    database_url: 'https://dbip.mirror.framasoft.org/files/dbip-country-lite-latest.mmdb'
+
 plugins:
   # The website PeerTube will ask for available PeerTube plugins and themes
   # This is an unmoderated plugin index, so only install plugins/themes you trust
@@ -287,7 +315,7 @@ cache:
 admin:
   # Used to generate the root user at first startup
   # And to receive emails from the contact form
-  email: '__ADMIN_EMAIL__'
+  email: '__ADMIN_MAIL__'
 
 contact_form:
   enabled: true
@@ -381,18 +409,42 @@ live:
   # /!\ transcoding.enabled (and not live.transcoding.enabled) has to be true to create a replay
   allow_replay: true
 
+  # Allow your users to change latency settings (small latency/default/high latency)
+  # Small latency live streams cannot use P2P
+  # High latency live streams can increase P2P ratio
+  latency_setting:
+    enabled: true
+
   # Your firewall should accept traffic from this port in TCP if you enable live
   rtmp:
     enabled: true
+
+    # Listening hostname/port for RTMP server
+    # '::' to listen on IPv6 and IPv4, '0.0.0.0' to listen on IPv4
+    # Use null to automatically listen on '::' if IPv6 is available, or '0.0.0.0' otherwise
+    hostname: null
     port: 1935
+
+    # Public hostname of your RTMP server
+    # Use null to use the same value than `webserver.hostname`
+    public_hostname: null
 
   rtmps:
     enabled: false
+
+    # Listening hostname/port for RTMPS server
+    # '::' to listen on IPv6 and IPv4, '0.0.0.0' to listen on IPv4
+    # Use null to automatically listen on '::' if IPv6 is available, or '0.0.0.0' otherwise
+    hostname: null
     port: 1936
-    # Absolute path
+
+    # Absolute paths
     key_file: ''
-    # Absolute path
     cert_file: ''
+
+    # Public hostname of your RTMPS server
+    # Use null to use the same value than `webserver.hostname`
+    public_hostname: null
 
   # Allow to transcode the live streaming in multiple live resolutions
   transcoding:
@@ -414,13 +466,21 @@ live:
       1440p: false
       2160p: false
 
+video_studio:
+  # Enable video edition by users (cut, add intro/outro, add watermark etc)
+  # If enabled, users can create transcoding tasks as they wish
+  enabled: false
+
 import:
   # Add ability for your users to import remote videos (from YouTube, torrent...)
   videos:
     # Amount of import jobs to execute in parallel
     concurrency: 1
 
-    http: # Classic HTTP or all sites supported by youtube-dl https://rg3.github.io/youtube-dl/supportedsites.html
+    # Classic HTTP or all sites supported by youtube-dl https://rg3.github.io/youtube-dl/supportedsites.html
+    http:
+      # We recommend to use a HTTP proxy if you enable HTTP import to prevent private URL access from this server
+      # See https://docs.joinpeertube.org/maintain-configuration?id=security for more information
       enabled: false
 
       youtube_dl_release:
@@ -429,18 +489,22 @@ import:
         # Examples:
         #   * https://api.github.com/repos/ytdl-org/youtube-dl/releases
         #   * https://api.github.com/repos/yt-dlp/yt-dlp/releases
-        url: 'https://api.github.com/repos/yt-dlp/yt-dlp/releases'
+        url: 'https://yt-dl.org/downloads/latest/youtube-dl'
 
         # youtube-dl binary name
         # yt-dlp is also supported
-        name: 'yt-dlp'
+        name: 'youtube-dl'
+
         # Path to the python binary to execute for youtube-dl or yt-dlp
         python_path: '/usr/bin/python3'
 
       # IPv6 is very strongly rate-limited on most sites supported by youtube-dl
       force_ipv4: false
 
-    torrent: # Magnet URI or torrent file (use classic TCP/UDP/WebSeed to download the file)
+    # Magnet URI or torrent file (use classic TCP/UDP/WebSeed to download the file)
+    torrent:
+      # We recommend to only enable magnet URI/torrent import if you trust your users
+      # See https://docs.joinpeertube.org/maintain-configuration?id=security for more information
       enabled: false
 
 auto_blacklist:
@@ -593,3 +657,21 @@ search:
     disable_local_search: false
     # If you did not disable local search, you can decide to use the search index by default
     is_default_search: false
+
+# PeerTube client/interface configuration
+client:
+  videos:
+    miniature:
+      # By default PeerTube client displays author username
+      prefer_author_display_name: false
+      display_author_avatar: false
+    resumable_upload:
+      # Max size of upload chunks, e.g. '90MB'
+      # If null, it will be calculated based on network speed
+      max_chunk_size: null
+
+  menu:
+    login:
+      # If you enable only one external auth plugin
+      # You can automatically redirect your users on this external platform when they click on the login button
+      redirect_on_single_external_auth: false

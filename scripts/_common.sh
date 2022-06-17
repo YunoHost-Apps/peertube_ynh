@@ -6,8 +6,9 @@
 
 # dependencies used by the app
 pkg_dependencies="ffmpeg postgresql postgresql-contrib openssl g++ mailutils apt-transport-https"
+ynh_app_dependencies="prosody"
 
-NODEJS_VERSION=16
+nodejs_version=16
 
 #=================================================
 # PERSONAL HELPERS

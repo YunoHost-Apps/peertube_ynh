@@ -84,7 +84,8 @@ ynh_script_progression --message="Installing dependencies..."
 
 ynh_install_apps --apps="$ynh_app_dependencies"
 ynh_install_app_dependencies $pkg_dependencies
-ynh_install_nodejs --nodejs_version=$nodejs_version
+#ynh_install_nodejs --nodejs_version=$nodejs_version
+
 ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
 #=================================================
@@ -161,8 +162,8 @@ ynh_script_progression --message="Building Yarn dependencies..."
 
 pushd "$final_path"
 	ynh_use_nodejs
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --production --pure-lockfile
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn cache clean
+	#ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --production --pure-lockfile
+	#ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn cache clean
 popd
 
 #=================================================
@@ -204,7 +205,7 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --l
 ynh_script_progression --message="Installing LDAP plugin..."
 
 pushd "$final_path"
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
+	#ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
 popd
 
 #=================================================
@@ -213,7 +214,7 @@ popd
 ynh_script_progression --message="Installing PeerTube livechat plugin..."
 
 pushd "$final_path"
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name  peertube-plugin-livechat
+	#ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name  peertube-plugin-livechat
 popd
 
 #=================================================
@@ -222,7 +223,7 @@ popd
 ynh_script_progression --message="Changing PeerTube admin password..."
 
 pushd "$final_path"
-	echo $admin_pass | ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_npm run reset-password -- -u root
+	#echo $admin_pass | ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_npm run reset-password -- -u root
 popd
 
 #=================================================
@@ -256,7 +257,7 @@ yunohost service add $app --description="$app daemon for Peertube" --log="/var/l
 ynh_script_progression --message="Starting a systemd service..."
 
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on localhost"
+#ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on localhost"
 
 #=================================================
 # SETUP SSOWAT

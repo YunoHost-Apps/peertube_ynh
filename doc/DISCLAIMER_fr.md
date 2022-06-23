@@ -28,4 +28,5 @@ En regardant une vidéo, vous aidez l'hébergeur à la diffuser en devenant vous
 #### PLUGINS
 
 * L'authentification LDAP est prise en charge, les instructions de configuration sont envoyées à l'adresse email indiquée au moment de l'installation
-* le plugin PeerTube livechat est installé ainsi que Prosody. pour l'activer, sélectionner «Prosody server controlled by Peertube» dans le paramétre chat mode du plugin dans la page d'administration de PeerTube.
+* Le plugin PeerTube livechat est installé ainsi que Prosody. pour l'activer, sélectionner «Prosody server controlled by Peertube» dans le paramétre chat mode du plugin dans la page d'administration de PeerTube.
+* Pendant l'installation, à cause de Prosody, Metronome est désactivé.

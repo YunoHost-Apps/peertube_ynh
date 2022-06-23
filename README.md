@@ -61,6 +61,7 @@ By watching a video, you help the hosting provider to broadcast it by becoming a
 ### PLUGINS
 * LDAP auth is supported, LDAP configuration will be sent to the email address given at the time of the installation.
 * PeerTube plugin livechat is installed with Prosody. To enable, just select «Prosody server controlled by Peertube» as chat mode in the plugin configutation of the PeerTube admin page
+* During install, because of Prosody, Metronome is disabled
 
 ## Documentation and resources
 

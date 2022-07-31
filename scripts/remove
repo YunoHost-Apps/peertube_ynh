@@ -26,10 +26,11 @@ db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$(ynh_app_setting_get --app=$app --key=db_user)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 admin=$(ynh_app_setting_get --app=$app --key=admin)
-admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
 redis_db=$(ynh_app_setting_get --app=$app --key=redis_db)
+
+admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 
 #=================================================
 # STANDARD REMOVE

@@ -30,10 +30,11 @@ domain=$YNH_APP_ARG_DOMAIN
 path_url="/"
 is_public=$YNH_APP_ARG_IS_PUBLIC
 admin=$YNH_APP_ARG_ADMIN
-admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
-admin_pass=$(ynh_string_random --length=24)
 
 app=$YNH_APP_INSTANCE_NAME
+
+admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
+admin_pass=$(ynh_string_random --length=24)
 
 # Define app's data directory
 datadir="/home/yunohost.app/${app}/storage"
@@ -82,10 +83,10 @@ ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
 #=================================================
 ynh_script_progression --message="Installing dependencies..."
 
-ynh_install_apps --apps="$ynh_app_dependencies"
-ynh_install_app_dependencies $pkg_dependencies
-ynh_install_nodejs --nodejs_version=$nodejs_version
-ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
+ynh_exec_warn_less ynh_install_apps --apps="$app_dependencies"
+ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
+ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
+ynh_exec_warn_less ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
 #=================================================
 # CREATE DEDICATED USER
@@ -196,7 +197,7 @@ ynh_script_progression --message="Starting a systemd service..."
 mkdir -p "/var/log/$app"
 chown -R $app:$app "/var/log/$app"
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on localhost"
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="HTTP server listening on localhost" --timeout=300 --length=200
 
 #=================================================
 # INSTALL LDAP PLUGIN
@@ -231,7 +232,7 @@ popd
 ynh_script_progression --message="Stopping a systemd service..."
 
 # Stop a systemd service
-ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
+ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
 
 #=================================================
 # GENERIC FINALIZATION
@@ -256,7 +257,7 @@ yunohost service add $app --description="$app daemon for Peertube" --log="/var/l
 ynh_script_progression --message="Starting a systemd service..."
 
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on localhost"
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="HTTP server listening on localhost"
 
 #=================================================
 # SETUP SSOWAT

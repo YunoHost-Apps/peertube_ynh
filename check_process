@@ -14,37 +14,37 @@
 		# 3.2.1~ynh1
 		# upgrade=1	from_commit=f4b43fd85ad3a169d27c53865a13548e44f17ebf
 		# 3.2.1~ynh3
-		upgrade=1	from_commit=7a621c48f6bdd10334f2d0c06f787fe468788f62
+		#upgrade=1	from_commit=7a621c48f6bdd10334f2d0c06f787fe468788f62
 		# 3.2.1~ynh4
 		upgrade=1	from_commit=08bf3fce3ad99e27e7f7d251838a9f9c63243e44
 		# 3.3.0~ynh1
-		upgrade=1	from_commit=c43548f6e0a0e5d172360945f6941255537ec18c
+		#upgrade=1	from_commit=c43548f6e0a0e5d172360945f6941255537ec18c
 		# 3.3.0~ynh2
-		upgrade=1	from_commit=6010986d58ef0caa8428e3d6e3ff3fd512401a53
+		#upgrade=1	from_commit=6010986d58ef0caa8428e3d6e3ff3fd512401a53
 		# 3.3.0~ynh2
-		upgrade=1	from_commit=f3bb02002c8fa28748744302475139b6fcf7c651
+		#upgrade=1	from_commit=f3bb02002c8fa28748744302475139b6fcf7c651
 		# 3.3.0~ynh3
-		upgrade=1	from_commit=ed59a268e93910f8b35b0f87399f91b8cad9ede0
+		#upgrade=1	from_commit=ed59a268e93910f8b35b0f87399f91b8cad9ede0
 		# 3.3.0~ynh4
-		upgrade=1	from_commit=509ba9051facf65329dde20919a3254dcaf3f910
+		#upgrade=1	from_commit=509ba9051facf65329dde20919a3254dcaf3f910
 		# 3.4.0~ynh1
-		upgrade=1	from_commit=83a06ca4c96ccd941b49647b3698db2c6b771b79
+		#upgrade=1	from_commit=83a06ca4c96ccd941b49647b3698db2c6b771b79
 		# 3.4.1~ynh1
-		upgrade=1	from_commit=96f010a9f72fed48660b3f962124b553397b283b
+		#upgrade=1	from_commit=96f010a9f72fed48660b3f962124b553397b283b
 		# 3.4.1~ynh2
-		upgrade=1	from_commit=0b6823def8230b3af7f9b484c526a49c3a640c4d
+		#upgrade=1	from_commit=0b6823def8230b3af7f9b484c526a49c3a640c4d
 		# 3.4.1~ynh3
 		upgrade=1	from_commit=0f77bb6e7441698b762bde38698c510dc0a4438e
 		# 4.0.0~ynh1
-		upgrade=1	from_commit=602bf56af8582a38c7ee055f60e782e2da0efddc
+		#upgrade=1	from_commit=602bf56af8582a38c7ee055f60e782e2da0efddc
 		# 4.0.0~ynh1
-		upgrade=1	from_commit=7c2bb0bb6a91b6b957b734f684aa3d64da892f4c
+		#upgrade=1	from_commit=7c2bb0bb6a91b6b957b734f684aa3d64da892f4c
 		# 4.0.0~ynh1
-		upgrade=1	from_commit=9bdfda10d83519064adeb275f6aed1660bf24b88
+		#upgrade=1	from_commit=9bdfda10d83519064adeb275f6aed1660bf24b88
 		# 4.0.0~ynh2
-		upgrade=1	from_commit=16bc11e945c2b1a962a5deace7c0f27b8d5a5112
+		#upgrade=1	from_commit=16bc11e945c2b1a962a5deace7c0f27b8d5a5112
 		# 4.0.0~ynh2
-		upgrade=1	from_commit=6995b27972e27c6cf8ee3e1f23a2de5cc8c8e8ee
+		#upgrade=1	from_commit=6995b27972e27c6cf8ee3e1f23a2de5cc8c8e8ee
 		# 4.1.0~ynh1
 		upgrade=1	from_commit=d5aa8c2194297b332d26e68b5e9e8ada17377742
 		# 4.1.1~ynh1

@@ -20,6 +20,7 @@ Federated (ActivityPub) video streaming platform using P2P (BitTorrent) directly
 
 **Shipped version:** 4.2.2~ynh2
 
+
 **Demo:** http://peertube.cpy.re
 
 ## Screenshots

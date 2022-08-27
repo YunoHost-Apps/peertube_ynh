@@ -272,7 +272,7 @@ ynh_script_progression --message="Starting a systemd service..."
 mkdir -p "/var/log/$app"
 chown -R $app:$app "/var/log/$app"
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="HTTP server listening on localhost" --timeout=300 --length=200
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="HTTP server listening on localhost" --timeout=5400 --length=200
 
 #=================================================
 # INSTALL LDAP PLUGIN

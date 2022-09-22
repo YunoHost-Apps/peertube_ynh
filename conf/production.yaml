@@ -25,6 +25,10 @@ rates_limit:
     # 3 attempts in 5 min
     window: 5 minutes
     max: 3
+  receive_client_log:
+    # 10 attempts in 10 min
+    window: 10 minutes
+    max: 10
 
 # Proxies to trust to get real client IP
 # If you run PeerTube just behind a local proxy (nginx), keep 'loopback'
@@ -91,11 +95,13 @@ defaults:
     licence: null
 
   p2p:
-    # Enable P2P by default
+    # Enable P2P by default in PeerTube client
     # Can be enabled/disabled by anonymous users and logged in users
     webapp:
       enabled: true
 
+    # Enable P2P by default in PeerTube embed
+    # Can be enabled/disabled by URL option
     embed:
       enabled: true
 
@@ -135,7 +141,7 @@ object_storage:
   region: 'us-east-1'
 
   # Set this ACL on each uploaded object
-  upload_acl: 'public'
+  upload_acl: 'public-read'
 
   credentials:
     # You can also use AWS_ACCESS_KEY_ID env variable
@@ -164,13 +170,37 @@ object_storage:
 
 log:
   level: 'info' # 'debug' | 'info' | 'warn' | 'error'
+
   rotation:
     enabled : true # Enabled by default, if disabled make sure that 'storage.logs' is pointing to a folder handled by logrotate
     max_file_size: 12MB
     max_files: 20
+
   anonymize_ip: false
+
   log_ping_requests: true
+  log_tracker_unknown_infohash: true
+
   prettify_sql: false
+
+  # Accept warn/error logs coming from the client
+  accept_client_log: true
+
+# Highly experimental support of Open Telemetry
+open_telemetry:
+  metrics:
+    enabled: false
+
+    # Create a prometheus exporter server on this port so prometheus server can scrape PeerTube metrics
+    prometheus_exporter:
+      port: 9091
+
+  tracing:
+    enabled: false
+
+    # Send traces to a Jaeger compatible endpoint
+    jaeger_exporter:
+      endpoint: ''
 
 trending:
   videos:
@@ -225,7 +255,7 @@ security:
     enabled: true
 
 tracker:
-  # If you disable the tracker, you disable the P2P aspect of PeerTube
+  # If you disable the tracker, you disable the P2P on your PeerTube instance
   enabled: true
   # Only handle requests on your videos
   # If you set this to false it means you have a public tracker
@@ -292,15 +322,25 @@ webadmin:
       # Set this to false if you don't want to allow config edition in the web interface by instance admins
       allowed: true
 
+# XML, Atom or JSON feeds
+feeds:
+  videos:
+    # Default number of videos displayed in feeds
+    count: 20
+
+  comments:
+    # Default number of comments displayed in feeds
+    count: 20
+
 ###############################################################################
 #
-# From this point, all the following keys can be overridden by the web interface
+# From this point, almost all following keys can be overridden by the web interface
 # (local-production.json file). If you need to change some values, prefer to
 # use the web interface because the configuration will be automatically
 # reloaded without any need to restart PeerTube
 #
-# /!\ If you already have a local-production.json file, the modification of the
-# following keys will have no effect /!\
+# /!\ If you already have a local-production.json file, modification of some of
+# the following keys will have no effect /!\
 #
 ###############################################################################
 
@@ -373,11 +413,14 @@ transcoding:
     1440p: false
     2160p: false
 
+  # Transcode and keep original resolution, even if it's above your maximum enabled resolution
+  always_transcode_original_resolution: true
+
   # Generate videos in a WebTorrent format (what we do since the first PeerTube release)
   # If you also enabled the hls format, it will multiply videos storage by 2
   # If disabled, breaks federation with PeerTube instances < 2.1
   webtorrent:
-    enabled: true
+    enabled: false
 
   # /!\ Requires ffmpeg >= 4.1
   # Generate HLS playlists and fragmented MP4 files. Better playback than with WebTorrent:
@@ -386,7 +429,7 @@ transcoding:
   #     * More stable playback (less bugs/infinite loading)
   # If you also enabled the webtorrent format, it will multiply videos storage by 2
   hls:
-    enabled: false
+    enabled: true
 
 live:
   enabled: true
@@ -466,6 +509,9 @@ live:
       1440p: false
       2160p: false
 
+    # Also transcode original resolution, even if it's above your maximum enabled resolution
+    always_transcode_original_resolution: true
+
 video_studio:
   # Enable video edition by users (cut, add intro/outro, add watermark etc)
   # If enabled, users can create transcoding tasks as they wish
@@ -476,6 +522,9 @@ import:
   videos:
     # Amount of import jobs to execute in parallel
     concurrency: 1
+
+    # Set a custom video import timeout to not block import queue
+    timeout: '2 hours'
 
     # Classic HTTP or all sites supported by youtube-dl https://rg3.github.io/youtube-dl/supportedsites.html
     http:
@@ -489,9 +538,10 @@ import:
         # Examples:
         #   * https://api.github.com/repos/ytdl-org/youtube-dl/releases
         #   * https://api.github.com/repos/yt-dlp/yt-dlp/releases
+        #   * https://yt-dl.org/downloads/latest/youtube-dl
         url: 'https://api.github.com/repos/yt-dlp/yt-dlp/releases'
 
-        # youtube-dl binary name
+        # Release binary name: 'yt-dlp' or 'youtube-dl'
         name: 'yt-dlp'
 
         # Path to the python binary to execute for youtube-dl or yt-dlp
@@ -505,6 +555,17 @@ import:
       # We recommend to only enable magnet URI/torrent import if you trust your users
       # See https://docs.joinpeertube.org/maintain-configuration?id=security for more information
       enabled: false
+
+  # Add ability for your users to synchronize their channels with external channels, playlists, etc.
+  video_channel_synchronization:
+    enabled: false
+
+    max_per_user: 10
+
+    check_interval: 1 hour
+
+    # Number of latest published videos to check and to potentially import when syncing a channel
+    videos_limit_per_synchronization: 10
 
 auto_blacklist:
   # New videos automatically blacklisted so moderators can review before publishing

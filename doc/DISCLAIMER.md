@@ -27,6 +27,8 @@ By watching a video, you help the hosting provider to broadcast it by becoming a
 * This app is **multi-instance** (you can have more then one PeerTube instance running on a YunoHost server)
 * **If you are hosted on OVH virtual machine or experiencing `gyp ERR! configure error`, please switch to [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix)**
 * HTTP auth is not supported
+* Do not modify the `/var/www/<app>/conf/production.yaml` file, because it will be overridden in the next upgrade. Please instead either change them though the web interface or create a `/var/www/<app>/conf/local.yaml` file, assign it the same owner, group and rights than for `conf/production.yaml` and fill there your specific settings.
+    * Note: when the same option have different values in `production.yaml` and `local.yaml` files, only the value in `local.yaml` is taken into account.
 
 ### PLUGINS
 * LDAP auth is supported, LDAP configuration will be sent to the email address given at the time of the installation.

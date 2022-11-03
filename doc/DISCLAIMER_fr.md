@@ -24,6 +24,9 @@ En regardant une vidéo, vous aidez l'hébergeur à la diffuser en devenant vous
 
 * Cette application est **multi-instance** (vous pouvez avoir plus d'une instance PeerTube en cours d'exécution sur un serveur YunoHost)
 * **Si vous êtes hébergé sur une machine virtuelle OVH ou rencontrez `gyp ERR! configure error`, veuillez passer à [ovh_fix](https://github.com/YunoHost-Apps/peertube_ynh/tree/ovh_fix)**
+* L'authentification HTTP n'est pas supportée
+* Ne modifiez pas le fichier `/var/www/<app>/conf/production.yaml`, car il sera remplacé à la prochaine mise à jour. À la place, veuillez modifier la configuration via l'interface web ou créer et remplir le fichier `/var/www/<app>/conf/local.yaml`, assignez-lui les mêmes propriétaire, groupe et droits que pour `conf/production.yaml` et y remplir vos options spécifiques.
+    * Note: si la même option contient différentes valeurs dans les fichiers `conf/production.yaml` et `conf/local.yaml`, seule la valeur dans `conf/local.yaml` sera prise en compte.
 
 #### PLUGINS
 

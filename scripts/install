@@ -35,7 +35,7 @@ app=$YNH_APP_INSTANCE_NAME
 
 admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 admin_pass=$(ynh_string_random --length=24)
-secrets_peertube=$(openssl rand -hex 32)
+secrets_peertube=$(ynh_string_random --length=24)
 
 # Define app's data directory
 datadir="/home/yunohost.app/${app}/storage"

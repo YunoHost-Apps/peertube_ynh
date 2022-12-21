@@ -211,7 +211,7 @@ chown -R $app:www-data "$datadir"
 #=================================================
 
 if [ -z "$secrets_peertube" ]; then
-	ynh_script_progression --message="Generating and storing PeerTube secrets..."
+	ynh_print_info --message="Generating and storing PeerTube secrets..."
 	secrets_peertube=$(ynh_string_random --length=24)
 	ynh_app_setting_set --app=$app --key=secrets_peertube --value=$secrets_peertube
 fi

@@ -30,6 +30,7 @@ db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
 datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 redis_db=$(ynh_app_setting_get --app=$app --key=redis_db)
+secrets_peertube=$(ynh_app_setting_get --app=$app --key=secrets_peertube)
 
 #=================================================
 # CHECK VERSION
@@ -206,6 +207,16 @@ chmod -R o-rwx "$datadir"
 chown -R $app:www-data "$datadir"
 
 #=================================================
+# Generate secrets if they don't exist
+#=================================================
+
+if [ -z "$secrets_peertube" ]; then
+	ynh_print_info --message="Generating and storing PeerTube secrets..."
+	secrets_peertube=$(ynh_string_random --length=24)
+	ynh_app_setting_set --app=$app --key=secrets_peertube --value=$secrets_peertube
+fi
+
+#=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
 ynh_script_progression --message="Building Yarn dependencies..."
@@ -284,6 +295,7 @@ if ynh_compare_current_package_version --comparison lt --version 4.2.0~ynh1; the
 		ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-4.2.js
 	popd
 fi
+
 
 #=================================================
 # STOP SYSTEMD SERVICE

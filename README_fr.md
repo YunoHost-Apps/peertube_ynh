@@ -24,7 +24,7 @@ Plateforme de streaming vidéo fédérée (ActivityPub) utilisant P2P (BitTorren
 
 ## Captures d'écran
 
-![Capture d'écran de PeerTube](./doc/screenshots/screenshot1.png)
+![Capture d'écran de PeerTube](./doc/screenshots/screenshot1.jpg)
 
 ## Avertissements / informations importantes
 

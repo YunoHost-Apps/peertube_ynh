@@ -24,7 +24,7 @@ Federated (ActivityPub) video streaming platform using P2P (BitTorrent) directly
 
 ## Screenshots
 
-![Screenshot of PeerTube](./doc/screenshots/screenshot1.png)
+![Screenshot of PeerTube](./doc/screenshots/screenshot1.jpg)
 
 ## Disclaimers / important information
 

@@ -5,15 +5,15 @@ It shall NOT be edited by hand.
 
 # PeerTube pour YunoHost
 
-[![Niveau d'intégration](https://dash.yunohost.org/integration/peertube.svg)](https://dash.yunohost.org/appci/app/peertube) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/peertube.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/peertube.maintain.svg)  
+[![Niveau d’intégration](https://dash.yunohost.org/integration/peertube.svg)](https://dash.yunohost.org/appci/app/peertube) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/peertube.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/peertube.maintain.svg)  
 [![Installer PeerTube avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=peertube)
 
 *[Read this readme in english.](./README.md)*
 
-> *Ce package vous permet d'installer PeerTube rapidement et simplement sur un serveur YunoHost.
-Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l'installer et en profiter.*
+> *Ce package vous permet d’installer PeerTube rapidement et simplement sur un serveur YunoHost.
+Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l’installer et en profiter.*
 
-## Vue d'ensemble
+## Vue d’ensemble
 
 Plateforme de streaming vidéo fédérée (ActivityPub) utilisant P2P (BitTorrent) directement dans le navigateur Web, en utilisant <a href="https://github.com/feross/webtorrent"> WebTorrent </a>
 
@@ -22,9 +22,9 @@ Plateforme de streaming vidéo fédérée (ActivityPub) utilisant P2P (BitTorren
 
 **Démo :** http://peertube.cpy.re
 
-## Captures d'écran
+## Captures d’écran
 
-![Capture d'écran de PeerTube](./doc/screenshots/screenshot1.jpg)
+![Capture d’écran de PeerTube](./doc/screenshots/screenshot1.jpg)
 
 ## Avertissements / informations importantes
 
@@ -66,9 +66,9 @@ En regardant une vidéo, vous aidez l'hébergeur à la diffuser en devenant vous
 
 ## Documentations et ressources
 
-* Site officiel de l'app : <https://joinpeertube.org/fr>
-* Documentation officielle de l'admin : <https://docs.joinpeertube.org>
-* Dépôt de code officiel de l'app : <https://github.com/Chocobozzz/PeerTube>
+* Site officiel de l’app : <https://joinpeertube.org/fr>
+* Documentation officielle de l’admin : <https://docs.joinpeertube.org>
+* Dépôt de code officiel de l’app : <https://github.com/Chocobozzz/PeerTube>
 * Documentation YunoHost pour cette app : <https://yunohost.org/app_peertube>
 * Signaler un bug : <https://github.com/YunoHost-Apps/peertube_ynh/issues>
 
@@ -84,4 +84,4 @@ ou
 sudo yunohost app upgrade peertube -u https://github.com/YunoHost-Apps/peertube_ynh/tree/testing --debug
 ```
 
-**Plus d'infos sur le packaging d'applications :** <https://yunohost.org/packaging_apps>
+**Plus d’infos sur le packaging d’applications :** <https://yunohost.org/packaging_apps>

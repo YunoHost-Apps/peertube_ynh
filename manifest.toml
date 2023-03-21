@@ -62,7 +62,7 @@ ram.runtime = "50M"
     api.protected = true
 
      [resources.apt]
-     packages = "ffmpeg postgresql postgresql-contrib openssl g++ mailutils apt-transport-https prosody"
+     packages = "ffmpeg postgresql postgresql-contrib openssl g++ mailutils apt-transport-https"
 
         [[resources.apt.extras]]
         repo = "deb https://dl.yarnpkg.com/debian/ stable main"

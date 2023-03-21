@@ -7,52 +7,19 @@
 #=================================================
 
 source _common.sh
-source ynh_redis
-source ynh_apps
 source /usr/share/yunohost/helpers
 
 #=================================================
 # LOAD SETTINGS
 #=================================================
-#REMOVEME? ynh_script_progression --message="Loading installation settings..."
 
-#REMOVEME? app=$YNH_APP_INSTANCE_NAME
-
-#REMOVEME? domain=$(ynh_app_setting_get --app=$app --key=domain)
-#REMOVEME? path=$(ynh_app_setting_get --app=$app --key=path)
-#REMOVEME? admin=$(ynh_app_setting_get --app=$app --key=admin)
-#REMOVEME? #REMOVEME? install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
-#REMOVEME? port=$(ynh_app_setting_get --app=$app --key=port)
-#REMOVEME? rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
-#REMOVEME? db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-#REMOVEME? db_user=$(ynh_app_setting_get --app=$app --key=db_user)
-#REMOVEME? db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
-#REMOVEME? data_dir=$(ynh_app_setting_get --app=$app --key=data_dir)
 admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
-#REMOVEME? redis_db=$(ynh_app_setting_get --app=$app --key=redis_db)
-#REMOVEME? secrets_peertube=$(ynh_app_setting_get --app=$app --key=secrets_peertube)
 
 #=================================================
 # CHECK VERSION
 #=================================================
-ynh_script_progression --message="Checking version..."
 
 upgrade_type=$(ynh_check_app_version_changed)
-
-#=================================================
-# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-#=================================================
-#REMOVEME? ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
-
-# Backup the current version of the app
-#REMOVEME? ynh_backup_before_upgrade
-#REMOVEME? ynh_clean_setup () {
-	ynh_clean_check_starting
-	# Restore it if the upgrade fails
-#REMOVEME? 	ynh_restore_upgradebackup
-}
-# Exit if an error occurs during the execution of the script
-#REMOVEME? ynh_abort_if_errors
 
 #=================================================
 # STANDARD UPGRADE STEPS
@@ -71,41 +38,10 @@ ynh_script_progression --message="Ensuring downward compatibility..."
 ynh_app_setting_delete --app=$app --key=admin_pass
 ynh_app_setting_delete --app=$app --key=admin_mail
 
-# If db_name doesn't exist, create it
-if [ -z "$db_name" ]; then
-	db_name="peertube_${app}"
-#REMOVEME? 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-fi
-
-# If db_user doesn't exist, create it
-if [ -z "$db_user" ]; then
-	db_user=$app
-#REMOVEME? 	ynh_app_setting_set --app=$app --key=db_user --value=$db_user
-fi
-
-# If db_pwd doesn't exist, create it
-if [ -z "$db_pwd" ]; then
-#REMOVEME? 	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
-#REMOVEME? 	ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
-fi
-
 # If redis_db doesn't exist, create it
 if [ -z "$redis_db" ]; then
 	redis_db=$(ynh_redis_get_free_db)
 	ynh_app_setting_set --app="$app" --key=redis_db --value="$redis_db"
-fi
-
-if [ -z "$data_dir" ];
-then
-	data_dir="/home/yunohost.app/${app}/storage"
-#REMOVEME? 	ynh_app_setting_set --app=$app --key=data_dir --value=$data_dir
-fi
-
-# Close a port
-if yunohost firewall list | grep -q "\- $port$"
-then
-	ynh_script_progression --message="Closing port $port"
-	ynh_exec_warn_less yunohost firewall disallow TCP $port
 fi
 
 # Add PostgreSQL extension for v1.0.0-beta.10.pre.1
@@ -118,45 +54,14 @@ ynh_secure_remove --file="/etc/apt/sources.list.d/yarn.list"
 # Remove not needed checksum
 ynh_delete_file_checksum --file="../conf/msg_install"
 
-if [ -z "$rtmp_port" ];
-then
-	rtmp_port=1935
-	ynh_port_available --port=$rtmp_port || ynh_die --message="Port $rtmp_port is needs to be available for this app"
-#REMOVEME? 	ynh_app_setting_set --app=$app --key=rtmp_port --value=$rtmp_port
-
-	# Open the port
-	ynh_script_progression --message="Configuring firewall..."
-	ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
-fi
-
-# Cleaning legacy permissions
-#REMOVEME? if ynh_legacy_permissions_exists; then
-#REMOVEME? 	ynh_legacy_permissions_delete_all
-
-	ynh_app_setting_delete --app=$app --key=is_public
-fi
-
-# Create a permission if needed
-#REMOVEME? if ! ynh_permission_exists --permission="api"; then
-#REMOVEME? 	ynh_permission_create --permission="api" --url="/api" --allowed="visitors" --auth_header="false" --show_tile="false" --protected="true"
-fi
-
 # Remove hook
 ynh_secure_remove --file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
 yunohost tools regen-conf nginx
 
 # Remove old log file
-#REMOVEME? ynh_secure_remove --file="$data_dir/logs"
+ynh_secure_remove --file="$data_dir/logs"
 mkdir -p "/var/log/$app"
 chown -R $app:$app "/var/log/$app"
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-#REMOVEME? ynh_script_progression --message="Making sure dedicated system user exists..."
-
-# Create a dedicated user (if not existing)
-#REMOVEME? ynh_system_user_create --username=$app --home_dir="$install_dir"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -171,19 +76,16 @@ then
 		--keep="config/production.yaml config/local-production.json config/local.yaml"
 fi
 
-chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
 
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-#REMOVEME? ynh_script_progression --message="Upgrading dependencies..."
+ynh_script_progression --message="Upgrading dependencies..."
 
 ynh_exec_warn_less ynh_install_apps --apps="$app_dependencies"
-#REMOVEME? ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
-#REMOVEME? ynh_exec_warn_less ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -192,19 +94,6 @@ ynh_script_progression --message="Upgrading NGINX web server configuration..."
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
-
-#=================================================
-# SPECIFIC UPGRADE
-#=================================================
-# CREATE DATA DIRECTORY
-#=================================================
-ynh_script_progression --message="Creating a data directory..."
-
-mkdir -p $data_dir
-
-chmod 750 "$data_dir"
-chmod -R o-rwx "$data_dir"
-chown -R $app:www-data "$data_dir"
 
 #=================================================
 # Generate secrets if they don't exist
@@ -219,7 +108,7 @@ fi
 #=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
-#REMOVEME? ynh_script_progression --message="Building Yarn dependencies..."
+ynh_script_progression --message="Building Yarn dependencies..."
 
 pushd "$install_dir"
 	ynh_use_nodejs
@@ -296,7 +185,6 @@ if ynh_compare_current_package_version --comparison lt --version 4.2.0~ynh1; the
 	popd
 fi
 
-
 #=================================================
 # STOP SYSTEMD SERVICE
 #=================================================
@@ -320,7 +208,7 @@ ynh_use_logrotate --non-append
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description="$app daemon for Peertube" --log="/var/log/$app/$app.log" --needs_exposed_ports $rtmp_port
+yunohost service add $app --description="$app daemon for Peertube" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -328,13 +216,6 @@ yunohost service add $app --description="$app daemon for Peertube" --log="/var/l
 ynh_script_progression --message="Starting a systemd service..."
 
 ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="HTTP server listening on localhost"
-
-#=================================================
-# RELOAD NGINX
-#=================================================
-#REMOVEME? ynh_script_progression --message="Reloading NGINX web server..."
-
-#REMOVEME? ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT

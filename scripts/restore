@@ -8,52 +8,7 @@
 
 # Keep this path for calling _common.sh inside the execution's context of backup and restore scripts
 source ../settings/scripts/_common.sh
-source ../settings/scripts/ynh_apps
 source /usr/share/yunohost/helpers
-
-#=================================================
-# MANAGE SCRIPT FAILURE
-#=================================================
-
-#REMOVEME? ynh_clean_setup () {
-	ynh_clean_check_starting
-}
-# Exit if an error occurs during the execution of the script
-#REMOVEME? ynh_abort_if_errors
-
-#=================================================
-# LOAD SETTINGS
-#=================================================
-#REMOVEME? ynh_script_progression --message="Loading installation settings..."
-
-#REMOVEME? app=$YNH_APP_INSTANCE_NAME
-
-#REMOVEME? domain=$(ynh_app_setting_get --app=$app --key=domain)
-#REMOVEME? path=$(ynh_app_setting_get --app=$app --key=path)
-#REMOVEME? #REMOVEME? install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
-#REMOVEME? port=$(ynh_app_setting_get --app=$app --key=port)
-#REMOVEME? rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
-#REMOVEME? db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-#REMOVEME? db_user=$(ynh_app_setting_get --app=$app --key=db_user)
-#REMOVEME? data_dir=$(ynh_app_setting_get --app=$app --key=data_dir)
-
-#=================================================
-# CHECK IF THE APP CAN BE RESTORED
-#=================================================
-#REMOVEME? ynh_script_progression --message="Validating restoration parameters..."
-
-#REMOVEME? test ! -d $install_dir \
-	|| ynh_die --message="There is already a directory: $install_dir "
-
-#=================================================
-# STANDARD RESTORATION STEPS
-#=================================================
-# RECREATE THE DEDICATED USER
-#=================================================
-#REMOVEME? ynh_script_progression --message="Recreating the dedicated system user..."
-
-# Create the dedicated user (if not existing)
-#REMOVEME? ynh_system_user_create --username=$app --home_dir="$install_dir"
 
 #=================================================
 # RESTORE THE APP MAIN DIR
@@ -62,7 +17,6 @@ ynh_script_progression --message="Restoring the app main directory..."
 
 ynh_restore_file --origin_path="$install_dir"
 
-chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
 
@@ -73,10 +27,6 @@ ynh_script_progression --message="Restoring the data directory..."
 
 ynh_restore_file --origin_path="$data_dir" --not_mandatory
 
-mkdir -p $data_dir
-
-chmod 750 "$data_dir"
-chmod -R o-rwx "$data_dir"
 chown -R $app:www-data "$data_dir"
 
 #=================================================
@@ -84,12 +34,11 @@ chown -R $app:www-data "$data_dir"
 #=================================================
 # REINSTALL DEPENDENCIES
 #=================================================
-#REMOVEME? ynh_script_progression --message="Reinstalling dependencies..."
+ynh_script_progression --message="Reinstalling dependencies..."
 
 ynh_exec_warn_less ynh_install_apps --apps="$app_dependencies"
-#REMOVEME? ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
+
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
-#REMOVEME? ynh_exec_warn_less ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
 #=================================================
 # RESTORE THE NGINX CONFIGURATION
@@ -101,11 +50,8 @@ ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 # RESTORE THE POSTGRESQL DATABASE
 #=================================================
-#REMOVEME? ynh_script_progression --message="Restoring the PostgreSQL database..."
+ynh_script_progression --message="Restoring the PostgreSQL database..."
 
-#REMOVEME? ynh_psql_test_if_first_run
-#REMOVEME? db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
-#REMOVEME? ynh_psql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
 ynh_psql_execute_file_as_root --file="./db.sql" --database=$db_name
 
 #=================================================
@@ -138,7 +84,7 @@ ynh_restore_file --origin_path="/etc/logrotate.d/$app"
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description="$app daemon for Peertube" --log="/var/log/$app/$app.log" --needs_exposed_ports $rtmp_port
+yunohost service add $app --description="$app daemon for Peertube" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
 
 #=================================================
 # START SYSTEMD SERVICE

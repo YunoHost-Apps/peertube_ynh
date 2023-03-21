@@ -7,28 +7,11 @@
 #=================================================
 
 source _common.sh
-source ynh_redis
-source ynh_send_readme_to_admin__2
-source ynh_apps
 source /usr/share/yunohost/helpers
 
 #=================================================
 # LOAD SETTINGS
 #=================================================
-#REMOVEME? ynh_script_progression --message="Loading installation settings..."
-
-#REMOVEME? app=$YNH_APP_INSTANCE_NAME
-
-#REMOVEME? domain=$(ynh_app_setting_get --app=$app --key=domain)
-#REMOVEME? port=$(ynh_app_setting_get --app=$app --key=port)
-#REMOVEME? rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
-#REMOVEME? db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-#REMOVEME? db_user=$(ynh_app_setting_get --app=$app --key=db_user)
-#REMOVEME? #REMOVEME? install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
-#REMOVEME? admin=$(ynh_app_setting_get --app=$app --key=admin)
-#REMOVEME? data_dir=$(ynh_app_setting_get --app=$app --key=data_dir)
-#REMOVEME? path=$(ynh_app_setting_get --app=$app --key=path)
-#REMOVEME? redis_db=$(ynh_app_setting_get --app=$app --key=redis_db)
 
 admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 
@@ -62,38 +45,11 @@ ynh_script_progression --message="Removing logrotate configuration..."
 ynh_remove_logrotate
 
 #=================================================
-# REMOVE THE POSTGRESQL DATABASE
-#=================================================
-#REMOVEME? ynh_script_progression --message="Removing the PostgreSQL database..."
-
-# Remove a database if it exists, along with the associated user
-#REMOVEME? ynh_psql_remove_db --db_user=$db_user --db_name=$db_name
-
-#=================================================
 # REMOVE THE REDIS DATABASE
 #=================================================
 ynh_script_progression --message="Removing the redis database..."
 
 ynh_redis_remove_db "$redis_db"
-
-#=================================================
-# REMOVE APP MAIN DIR
-#=================================================
-#REMOVEME? ynh_script_progression --message="Removing app main directory..."
-
-# Remove the app directory securely
-#REMOVEME? ynh_secure_remove --file="$install_dir"
-
-#=================================================
-# REMOVE DATA DIR
-#=================================================
-
-# Remove the data directory if --purge option is used
-if [ "${YNH_APP_PURGE:-0}" -eq 1 ]
-then
-	ynh_script_progression --message="Removing app data directory..."
-#REMOVEME? 	ynh_secure_remove --file="$data_dir"
-fi
 
 #=================================================
 # REMOVE NGINX CONFIGURATION
@@ -106,22 +62,11 @@ ynh_remove_nginx_config
 #=================================================
 # REMOVE DEPENDENCIES
 #=================================================
-#REMOVEME? ynh_script_progression --message="Removing dependencies..."
+ynh_script_progression --message="Removing dependencies..."
 
 # Remove metapackage and its dependencies
 ynh_remove_nodejs
-#REMOVEME? ynh_remove_app_dependencies
 ynh_remove_apps
-
-#=================================================
-# CLOSE A PORT
-#=================================================
-
-if yunohost firewall list | grep -q "\- $rtmp_port$"
-then
-	ynh_script_progression --message="Closing port $rtmp_port..."
-	ynh_exec_warn_less yunohost firewall disallow TCP $rtmp_port
-fi
 
 #=================================================
 # SPECIFIC REMOVE
@@ -132,23 +77,6 @@ ynh_script_progression --message="Removing various files..."
 
 # Remove the log files
 ynh_secure_remove --file="/var/log/$app"
-
-#=================================================
-# GENERIC FINALIZATION
-#=================================================
-# REMOVE DEDICATED USER
-#=================================================
-#REMOVEME? ynh_script_progression --message="Removing the dedicated system user..."
-
-# Delete a system user
-#REMOVEME? ynh_system_user_delete --username=$app
-
-#=================================================
-# SEND A README FOR THE ADMIN
-#=================================================
-ynh_script_progression --message="Sending a readme for the admin..."
-
-ynh_send_readme_to_admin --app_message="../conf/msg_remove" --recipients=$admin_mail --type='remove'
 
 #=================================================
 # END OF SCRIPT

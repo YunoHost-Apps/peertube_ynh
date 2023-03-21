@@ -7,31 +7,11 @@
 #=================================================
 
 source _common.sh
-source ynh_redis
-source ynh_send_readme_to_admin__2
-source ynh_apps
 source /usr/share/yunohost/helpers
-
-#=================================================
-# MANAGE SCRIPT FAILURE
-#=================================================
-
-#REMOVEME? ynh_clean_setup () {
-	ynh_clean_check_starting
-}
-# Exit if an error occurs during the execution of the script
-#REMOVEME? ynh_abort_if_errors
 
 #=================================================
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
-
-#REMOVEME? domain=$YNH_APP_ARG_DOMAIN
-path="/"
-#REMOVEME? is_public=$YNH_APP_ARG_IS_PUBLIC
-#REMOVEME? admin=$YNH_APP_ARG_ADMIN
-
-#REMOVEME? app=$YNH_APP_INSTANCE_NAME
 
 admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 admin_pass=$(ynh_string_random --length=24)
@@ -41,44 +21,11 @@ secrets_peertube=$(ynh_string_random --length=24)
 #REMOVEME? data_dir="/home/yunohost.app/${app}/storage"
 
 #=================================================
-# CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
-#=================================================
-#REMOVEME? ynh_script_progression --message="Validating installation parameters..."
-
-#REMOVEME? install_dir=/var/www/$app
-#REMOVEME? test ! -e "$install_dir" || ynh_die --message="This path already contains a folder"
-
-# Register (book) web path
-#REMOVEME? ynh_webpath_register --app=$app --domain=$domain --path=$path
-
-#=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-#REMOVEME? ynh_script_progression --message="Storing installation settings..."
+ynh_script_progression --message="Storing installation settings..."
 
-#REMOVEME? ynh_app_setting_set --app=$app --key=domain --value=$domain
-#REMOVEME? ynh_app_setting_set --app=$app --key=admin --value=$admin
 ynh_app_setting_set --app=$app --key=secrets_peertube --value=$secrets_peertube
-
-#=================================================
-# STANDARD MODIFICATIONS
-#=================================================
-# FIND AND OPEN A PORT
-#=================================================
-#REMOVEME? ynh_script_progression --message="Finding an available port..."
-
-# Find an available port
-#REMOVEME? port=$(ynh_find_port --port=8095)
-#REMOVEME? ynh_app_setting_set --app=$app --key=port --value=$port
-
-# PeerTube Live port
-rtmp_port=1935
-ynh_port_available --port=$rtmp_port || ynh_die --message="Port $rtmp_port is needs to be available for this app"
-#REMOVEME? ynh_app_setting_set --app=$app --key=rtmp_port --value=$rtmp_port
-
-# Open the port
-ynh_script_progression --message="Configuring firewall..."
-ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
 
 #=================================================
 # INSTALL DEPENDENCIES
@@ -86,30 +33,13 @@ ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
 #REMOVEME? ynh_script_progression --message="Installing dependencies..."
 
 ynh_exec_warn_less ynh_install_apps --apps="$app_dependencies"
-#REMOVEME? ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
+
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
-#REMOVEME? ynh_exec_warn_less ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-#REMOVEME? ynh_script_progression --message="Configuring system user..."
-
-# Create a system user
-#REMOVEME? ynh_system_user_create --username=$app --home_dir="$install_dir"
 
 #=================================================
 # CREATE A POSTGRESQL DATABASE
 #=================================================
-#REMOVEME? ynh_script_progression --message="Creating a PostgreSQL database..."
-
-#REMOVEME? db_name="peertube_${app}"
-#REMOVEME? db_user=$(ynh_sanitize_dbid --db_name=$app)
-#REMOVEME? ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-#REMOVEME? ynh_app_setting_set --app=$app --key=db_user --value=$db_user
-#REMOVEME? ynh_psql_test_if_first_run
-#REMOVEME? ynh_psql_setup_db --db_user=$db_user --db_name=$db_name
-#REMOVEME? db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
+ynh_script_progression --message="Creating a PostgreSQL database..."
 
 ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --database=$db_name
 ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name
@@ -126,11 +56,9 @@ ynh_app_setting_set --app="$app" --key=redis_db --value="$redis_db"
 #=================================================
 ynh_script_progression --message="Setting up source files..."
 
-#REMOVEME? ynh_app_setting_set --app=$app --key=install_dir --value=$install_dir
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir"
 
-chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
 
@@ -143,24 +71,9 @@ ynh_script_progression --message="Configuring NGINX web server..."
 ynh_add_nginx_config
 
 #=================================================
-# SPECIFIC SETUP
-#=================================================
-# CREATE DATA DIRECTORY
-#=================================================
-ynh_script_progression --message="Creating a data directory..."
-
-#REMOVEME? ynh_app_setting_set --app=$app --key=data_dir --value=$data_dir
-
-mkdir -p $data_dir
-
-chmod 750 "$data_dir"
-chmod -R o-rwx "$data_dir"
-chown -R $app:www-data "$data_dir"
-
-#=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
-#REMOVEME? ynh_script_progression --message="Building Yarn dependencies..."
+ynh_script_progression --message="Building Yarn dependencies..."
 
 pushd "$install_dir"
 	ynh_use_nodejs
@@ -251,7 +164,7 @@ ynh_use_logrotate
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description="$app daemon for Peertube" --log="/var/log/$app/$app.log" --needs_exposed_ports $rtmp_port
+yunohost service add $app --description="$app daemon for Peertube" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -260,35 +173,6 @@ ynh_script_progression --message="Starting a systemd service..."
 
 # Start a systemd service
 ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="HTTP server listening on localhost"
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-#REMOVEME? ynh_script_progression --message="Configuring permissions..."
-
-# Make app public if necessary
-#REMOVEME? if [ $is_public -eq 1 ]
-then
-	# Everyone can access the app.
-	# The "main" permission is automatically created before the install script.
-#REMOVEME? 	ynh_permission_update --permission="main" --add="visitors"
-fi
-
-#REMOVEME? ynh_permission_create --permission="api" --url="/api" --allowed="visitors" --auth_header="false" --show_tile="false" --protected="true"
-
-#=================================================
-# RELOAD NGINX
-#=================================================
-#REMOVEME? ynh_script_progression --message="Reloading NGINX web server..."
-
-#REMOVEME? ynh_systemd_action --service_name=nginx --action=reload
-
-#=================================================
-# SEND A README FOR THE ADMIN
-#=================================================
-ynh_script_progression --message="Sending a readme for the admin..."
-
-ynh_send_readme_to_admin --app_message="../conf/msg_install" --recipients=$admin_mail --type='install'
 
 #=================================================
 # END OF SCRIPT

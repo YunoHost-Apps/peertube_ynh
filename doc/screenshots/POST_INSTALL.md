@@ -5,7 +5,7 @@ Please open your __APP__ domain: https://__DOMAIN____PATH__
 The admin username is: root
 The admin password is: __ADMIN_PASS__
 
-To make PeerTube Live available, you also need to make the TCP port __RTMP_PORT__ available from internet (For example, opening the port on your ISP box if it's not automatically done).
+To make PeerTube Live available, you also need to make the TCP port __PORT_RTMP__ available from internet (For example, opening the port on your ISP box if it's not automatically done).
 
 To enable LDAP authentication open https://__DOMAIN____PATH__admin/plugins/show/peertube-plugin-auth-ldap
 Complete with the following informations :
@@ -13,5 +13,3 @@ Complete with the following informations :
 - Insecure TLS : checked
 - Search base : ou=users,dc=yunohost,dc=org
 All YunoHost users will be allowed to login as peertube user.
-
-If you are facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh

@@ -113,20 +113,20 @@ defaults:
 
 # From the project root directory
 storage:
-  tmp: '__DATADIR__/tmp/' # Use to download data (imports etc), store uploaded files before processing...
-  bin: '__DATADIR__/bin/'
-  avatars: '__DATADIR__/avatars/'
-  videos: '__DATADIR__/videos/'
-  streaming_playlists: '__DATADIR__/streaming-playlists/'
-  redundancy: '__DATADIR__/redundancy/'
+  tmp: '__DATA_DIR__/tmp/' # Use to download data (imports etc), store uploaded files before processing...
+  bin: '__DATA_DIR__/bin/'
+  avatars: '__DATA_DIR__/avatars/'
+  videos: '__DATA_DIR__/videos/'
+  streaming_playlists: '__DATA_DIR__/streaming-playlists/'
+  redundancy: '__DATA_DIR__/redundancy/'
   logs: '/var/log/__APP__/'
-  previews: '__DATADIR__/previews/'
-  thumbnails: '__DATADIR__/thumbnails/'
-  torrents: '__DATADIR__/torrents/'
-  captions: '__DATADIR__/captions/'
-  cache: '__DATADIR__/cache/'
-  plugins: '__DATADIR__/plugins/'
-  well_known: '__DATADIR__/well-known/'
+  previews: '__DATA_DIR__/previews/'
+  thumbnails: '__DATA_DIR__/thumbnails/'
+  torrents: '__DATA_DIR__/torrents/'
+  captions: '__DATA_DIR__/captions/'
+  cache: '__DATA_DIR__/cache/'
+  plugins: '__DATA_DIR__/plugins/'
+  well_known: '__DATA_DIR__/well-known/'
   # Overridable client files in client/dist/assets/images:
   # - logo.svg
   # - favicon.png
@@ -137,7 +137,7 @@ storage:
   # Could contain for example assets/images/favicon.png
   # If the file exists, peertube will serve it
   # If not, peertube will fallback to the default file
-  client_overrides: '__DATADIR__/client-overrides/'
+  client_overrides: '__DATA_DIR__/client-overrides/'
 
 static_files:
   # Require and check user authentication when accessing private files (internal/private video files)

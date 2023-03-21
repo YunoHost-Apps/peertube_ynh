@@ -1,15 +1,15 @@
 __APP__ was successfully removed :)
 
-The domain https://__DOMAIN____PATH_URL__ is free for other apps to be installed on it.
+The domain https://__DOMAIN____PATH__ is free for other apps to be installed on it.
 
 You should close the PeerTube Live TCP port __RTMP_PORT__ available from internet (For example, closing the port on your ISP box if it's not automatically done).
 
 But a futher action is required from your side to completely remove the __APP__ data folder. If you have backup and plan to restore this app in the future DON'T RUN THIS COMMAND. 
-And if you are going to migrate to othe server you will have to move __DATADIR__ to your new server.
+And if you are going to migrate to othe server you will have to move __DATA_DIR__ to your new server.
 
 
 You need to run this command to remove the data (warning all your videos will be removed):
 
-rm -R __DATADIR__ -f
+rm -R __DATA_DIR__ -f
 
 If you facing any problem or want to improve this app, please open a new issue here: https://github.com/YunoHost-Apps/peertube_ynh

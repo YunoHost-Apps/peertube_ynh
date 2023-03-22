@@ -61,13 +61,13 @@ ram.runtime = "50M"
     api.show_tile = false
     api.protected = true
 
-     [resources.apt]
-     packages = "ffmpeg postgresql postgresql-contrib openssl g++ mailutils apt-transport-https"
+    [resources.apt]
+    packages = "ffmpeg postgresql postgresql-contrib openssl g++ mailutils apt-transport-https"
 
-        [[resources.apt.extras]]
-        repo = "deb https://dl.yarnpkg.com/debian/ stable main"
-        key = "https://dl.yarnpkg.com/debian/pubkey.gpg"
-        packages = "yarn"
+    # (this part is optional and corresponds to the legacy ynh_install_extra_app_dependencies helper)
+    extras.yarn.repo = "deb https://dl.yarnpkg.com/debian/ stable main"
+    extras.yarn.key = "https://dl.yarnpkg.com/debian/pubkey.gpg"
+    extras.yarn.packages = "yarn"
 
     [resources.database]
     type = "postgresql"

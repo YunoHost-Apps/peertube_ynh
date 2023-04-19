@@ -33,8 +33,6 @@ ynh_app_setting_set --app=$app --key=secrets_peertube --value=$secrets_peertube
 #=================================================
 ynh_script_progression --message="Installing dependencies..."
 
-ynh_exec_warn_less ynh_install_apps --apps="$app_dependencies"
-
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
 
 #=================================================

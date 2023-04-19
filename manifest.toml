@@ -17,7 +17,7 @@ admindoc = "https://docs.joinpeertube.org"
 code = "https://github.com/Chocobozzz/PeerTube"
 
 [integration]
-yunohost = ">= 11.1.15"
+yunohost = ">= 11.1.17"
 architectures = "all"
 multi_instance = false
 ldap = false
@@ -52,6 +52,7 @@ ram.runtime = "50M"
     [resources.install_dir]
 
     [resources.data_dir]
+    subdirs = "storage"
 
     [resources.permissions]
     main.url = "/"
@@ -62,7 +63,7 @@ ram.runtime = "50M"
     api.protected = true
 
     [resources.apt]
-    packages = "ffmpeg postgresql postgresql-contrib openssl g++ mailutils apt-transport-https"
+    packages = "prosody ffmpeg postgresql postgresql-contrib openssl g++ mailutils apt-transport-https"
 
     extras.yarn.repo = "deb https://dl.yarnpkg.com/debian/ stable main"
     extras.yarn.key = "https://dl.yarnpkg.com/debian/pubkey.gpg"

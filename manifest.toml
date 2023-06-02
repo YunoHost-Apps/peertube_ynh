@@ -17,7 +17,7 @@ admindoc = "https://docs.joinpeertube.org"
 code = "https://github.com/Chocobozzz/PeerTube"
 
 [integration]
-yunohost = ">= 11.1.17"
+yunohost = ">= 11.1.19"
 architectures = "all"
 multi_instance = false
 ldap = false
@@ -52,7 +52,7 @@ ram.runtime = "50M"
     [resources.install_dir]
 
     [resources.data_dir]
-    subdirs = "storage"
+    subdirs = ["storage"]
 
     [resources.permissions]
     main.url = "/"

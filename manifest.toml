@@ -45,6 +45,7 @@ ram.runtime = "50M"
         autoupdate.strategy = "latest_github_tag"
 
     [resources.ports]
+    main.default = 8095
     rtmp.default = 1935
     rtmp.exposed = "TCP"
 

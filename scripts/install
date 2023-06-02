@@ -18,9 +18,6 @@ admin_pass=$(ynh_string_random --length=24)
 secrets_peertube=$(ynh_string_random --length=24)
 db_name="peertube_$app"
 
-# Define app's data directory
-#REMOVEME? data_dir="/home/yunohost.app/${app}/storage"
-
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================

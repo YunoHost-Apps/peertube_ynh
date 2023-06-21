@@ -20,7 +20,7 @@ code = "https://github.com/Chocobozzz/PeerTube"
 yunohost = ">= 11.1.21"
 architectures = "all"
 multi_instance = false
-ldap = false
+ldap = true
 sso = false
 disk = "50M"
 ram.build = "50M"

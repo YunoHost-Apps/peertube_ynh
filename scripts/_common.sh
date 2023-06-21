@@ -14,8 +14,6 @@ nodejs_version=18
 # EXPERIMENTAL HELPERS
 #=================================================
 
-#!/bin/bash
-
 # Install others YunoHost apps
 #
 # usage: ynh_install_apps --apps="appfoo?domain=domain.foo&path=/foo appbar?domain=domain.bar&path=/bar&admin=USER&language=fr&is_public=1&pass?word=pass&port=666"

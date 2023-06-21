@@ -19,7 +19,7 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 Plateforme de streaming vidéo fédérée (ActivityPub) utilisant P2P (BitTorrent) directement dans le navigateur Web, en utilisant <a href="https://github.com/feross/webtorrent"> WebTorrent </a>
 
 
-**Version incluse :** 5.1.0~ynh1
+**Version incluse :** 5.2.0~ynh1
 
 **Démo :** http://peertube.cpy.re
 
@@ -28,18 +28,6 @@ Plateforme de streaming vidéo fédérée (ActivityPub) utilisant P2P (BitTorren
 ![Capture d’écran de PeerTube](./doc/screenshots/screenshot1.jpg)
 
 ## Avertissements / informations importantes
-
-### Pourquoi PeerTube?
-
-Nous ne pouvons pas créer d'alternatives de streaming vidéo FOSS à YouTube, Dailymotion, Vimeo... avec un logiciel centralisé. Une organisation seule ne peut pas avoir assez d'argent pour payer la bande passante et le stockage vidéo de son serveur.
-Nous avons donc besoin d'un réseau décentralisé de serveurs « semant » des vidéos (comme [Hubzilla YunoHost](https://github.com/YunoHost-Apps/hubzilla_ynh), [Friendica YunoHost](https://github.com/YunoHost-Apps/friendica_ynh), [Mastodon YunoHost](https://github.com/YunoHost-Apps/mastodon_ynh)), [Diaspora](https://github.com/diaspora/diaspora) ([Diaspora YunoHost](https://github.com/YunoHost-Apps/diaspora_ynh)),[Funkwhale](https://funkwhale.audio) ([Funkwhale YunoHost](https://github.com/YunoHost-Apps/funkwhale_ynh)).
-Mais ce n'est pas suffisant car une vidéo pourrait devenir célèbre et surcharger le serveur. C'est la raison pour laquelle nous devons utiliser un protocole P2P pour limiter la charge du serveur. Grâce à [WebTorrent](https://github.com/feross/webtorrent), nous pouvons faire du P2P (donc BitTorrent) dans le navigateur Web, dès aujourd'hui.
-
-### Pourquoi est-ce cool ?
-
-Les serveurs sont gérés indépendamment par différentes personnes et organisations. Ils peuvent appliquer des politiques de modération extrêmement différentes, afin que vous puissiez en trouver ou en créer une qui correspond parfaitement à vos goûts.
-
-En regardant une vidéo, vous aidez l'hébergeur à la diffuser en devenant vous-même un diffuseur de la vidéo. Chaque instance n'a pas besoin de beaucoup d'argent pour diffuser les vidéos de ses utilisateurs.
 
 ### Points importants à lire avant l'installation
 * Nécessite un **domaine dédié** comme **peertube.domain.tld**.

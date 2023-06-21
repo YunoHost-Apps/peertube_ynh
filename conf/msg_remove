@@ -2,7 +2,7 @@ __APP__ was successfully removed :)
 
 The domain https://__DOMAIN____PATH__ is free for other apps to be installed on it.
 
-You should close the PeerTube Live TCP port __RTMP_PORT__ available from internet (For example, closing the port on your ISP box if it's not automatically done).
+You should close the PeerTube Live TCP port __PORT_RTMP__ available from internet (For example, closing the port on your ISP box if it's not automatically done).
 
 But a futher action is required from your side to completely remove the __APP__ data folder. If you have backup and plan to restore this app in the future DON'T RUN THIS COMMAND. 
 And if you are going to migrate to othe server you will have to move __DATA_DIR__ to your new server.

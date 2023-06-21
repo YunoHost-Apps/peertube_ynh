@@ -18,6 +18,8 @@ admin_pass=$(ynh_string_random --length=24)
 secrets_peertube=$(ynh_string_random --length=24)
 db_name="peertube_${app}"
 db_user=$(ynh_sanitize_dbid --db_name=$app)
+ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+ynh_app_setting_set --app=$app --key=db_user --value=$db_user
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST

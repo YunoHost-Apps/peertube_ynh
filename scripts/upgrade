@@ -150,6 +150,9 @@ ynh_secure_remove --file="$datadir/logs"
 mkdir -p "/var/log/$app"
 chown -R $app:$app "/var/log/$app"
 
+# Remove Prosody
+ynh_remove_apps
+
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
@@ -180,7 +183,6 @@ chown -R $app:www-data "$final_path"
 #=================================================
 ynh_script_progression --message="Upgrading dependencies..."
 
-ynh_exec_warn_less ynh_install_apps --apps="$app_dependencies"
 ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
 ynh_exec_warn_less ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"

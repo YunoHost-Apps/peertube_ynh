@@ -61,7 +61,7 @@ ynh_abort_if_errors
 #=================================================
 ynh_script_progression --message="Stopping a systemd service..."
 
-ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
+ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --line_match="Stopped"
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -260,7 +260,7 @@ ynh_script_progression --message="Starting a systemd service..."
 mkdir -p "/var/log/$app"
 chown -R $app:$app "/var/log/$app"
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="HTTP server listening on localhost" --timeout=5400 --length=200
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Started"
 
 #=================================================
 # INSTALL LDAP PLUGIN
@@ -305,7 +305,7 @@ fi
 ynh_script_progression --message="Stopping a systemd service..."
 
 # Stop a systemd service
-ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
+ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --line_match="Stopped"
 
 #=================================================
 # GENERIC FINALIZATION
@@ -329,7 +329,7 @@ yunohost service add $app --description="$app daemon for Peertube" --log="/var/l
 #=================================================
 ynh_script_progression --message="Starting a systemd service..."
 
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log" --line_match="HTTP server listening on localhost"
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Started"
 
 #=================================================
 # RELOAD NGINX

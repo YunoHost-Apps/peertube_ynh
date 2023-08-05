@@ -55,6 +55,8 @@
 		upgrade=1	from_commit=5a488aebc53dafa5c431580ca4437eed0ad7da1e
 		# 4.2.2~ynh1
 		upgrade=1	from_commit=9bf92ff65db0dcb188834738f180dbfa34ebef09
+		# 5.2.0~ynh1
+		upgrade=1	from_commit=fbf90aa8845edfb8bc1f75e335ea706203fe77e7
 		backup_restore=1
 		multi_instance=0
 		port_already_use=0

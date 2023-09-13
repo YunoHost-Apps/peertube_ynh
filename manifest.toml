@@ -5,7 +5,7 @@ name = "PeerTube"
 description.en = "Federated video streaming platform using P2P directly in the web browser"
 description.fr = "Plateforme fédéralisé de diffusion vidéo par P2P directement dans le navigateur"
 
-version = "5.2.0~ynh1"
+version = "5.2.1~ynh1"
 
 maintainers = ["yalh76"]
 
@@ -39,8 +39,8 @@ ram.runtime = "50M"
 
 [resources]
         [resources.sources.main]
-        url = "https://github.com/Chocobozzz/PeerTube/releases/download/v5.2.0/peertube-v5.2.0.tar.xz"
-        sha256 = "42ed1f54cc2da810ceacc5c463c33c99d38d353ba6c055a2322be62d98131b88"
+        url = "https://github.com/Chocobozzz/PeerTube/releases/download/v5.2.1/peertube-v5.2.1.tar.xz"
+        sha256 = "27d577ab63d29be865934088d1831373a71433c78443a4441fb3ac416995817c"
         autoupdate.strategy = "latest_github_tag"
 
     [resources.ports]

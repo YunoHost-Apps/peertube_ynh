@@ -30,6 +30,13 @@ ynh_restore_file --origin_path="$data_dir" --not_mandatory
 chown -R $app:www-data "$data_dir"
 
 #=================================================
+# RESTORE THE POSTGRESQL DATABASE
+#=================================================
+ynh_script_progression --message="Restoring the PostgreSQL database..."
+
+ynh_psql_connect_as --user=$db_user --password=$db_pwd --database=$db_name < ./db.sql
+
+#=================================================
 # SPECIFIC RESTORATION
 #=================================================
 # REINSTALL DEPENDENCIES
@@ -39,18 +46,6 @@ ynh_script_progression --message="Reinstalling dependencies..."
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
 
 ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
-
-#=================================================
-# RESTORE THE POSTGRESQL DATABASE
-#=================================================
-ynh_script_progression --message="Restoring the PostgreSQL database..."
-
-ynh_psql_execute_file_as_root --file="./db.sql" --database=$db_name
-
-#=================================================
-# RESTORE SYSTEMD
-#=================================================
-ynh_script_progression --message="Restoring the systemd configuration..."
 
 ynh_restore_file --origin_path="/etc/systemd/system/$app.service"
 systemctl enable $app.service --quiet

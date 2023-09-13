@@ -46,13 +46,13 @@
 		# 4.0.0~ynh2
 		#upgrade=1	from_commit=6995b27972e27c6cf8ee3e1f23a2de5cc8c8e8ee
 		# 4.1.0~ynh1
-		upgrade=1	from_commit=d5aa8c2194297b332d26e68b5e9e8ada17377742
+		#upgrade=1	from_commit=d5aa8c2194297b332d26e68b5e9e8ada17377742
 		# 4.1.1~ynh1
-		upgrade=1	from_commit=24c8333d70312e9dcf8d278e64787ca561a10b2e
+		#upgrade=1	from_commit=24c8333d70312e9dcf8d278e64787ca561a10b2e
 		# 4.2.0~ynh1
-		upgrade=1	from_commit=ddb937ecab9454e8dd0b07627a02bad27c9f6556
+		#upgrade=1	from_commit=ddb937ecab9454e8dd0b07627a02bad27c9f6556
 		# 4.2.1~ynh1
-		upgrade=1	from_commit=5a488aebc53dafa5c431580ca4437eed0ad7da1e
+		#upgrade=1	from_commit=5a488aebc53dafa5c431580ca4437eed0ad7da1e
 		# 4.2.2~ynh1
 		upgrade=1	from_commit=9bf92ff65db0dcb188834738f180dbfa34ebef09
 		# 5.2.0~ynh1

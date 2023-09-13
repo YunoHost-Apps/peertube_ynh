@@ -4,11 +4,11 @@ After=network.target postgresql.service redis-server.service
 
 [Service]
 Type=simple
+User=__APP__
+Group=__APP__
 Environment=NODE_ENV=production
 Environment=NODE_CONFIG_DIR=__INSTALL_DIR__/config
 Environment="__YNH_NODE_LOAD_PATH__"
-User=__APP__
-Group=__APP__
 ExecStart=__YNH_NODE__ __INSTALL_DIR__/dist/server
 WorkingDirectory=__INSTALL_DIR__/
 StandardOutput=syslog

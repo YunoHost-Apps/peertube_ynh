@@ -163,6 +163,7 @@ ynh_script_progression --message="Building Yarn dependencies..."
 
 pushd "$final_path"
 	ynh_use_nodejs
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH $ynh_npm install -g npm
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --production --pure-lockfile
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn cache clean
 popd

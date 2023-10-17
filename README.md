@@ -57,7 +57,6 @@ Federated (ActivityPub) video streaming platform using P2P (BitTorrent) directly
 * Official app website: <https://joinpeertube.org/fr>
 * Official admin documentation: <https://docs.joinpeertube.org>
 * Upstream app code repository: <https://github.com/Chocobozzz/PeerTube>
-* YunoHost documentation for this app: <https://yunohost.org/app_peertube>
 * Report a bug: <https://github.com/YunoHost-Apps/peertube_ynh/issues>
 
 ## Developer info

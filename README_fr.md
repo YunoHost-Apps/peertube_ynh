@@ -19,7 +19,7 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 Plateforme de streaming vidéo fédérée (ActivityPub) utilisant P2P (BitTorrent) directement dans le navigateur Web, en utilisant <a href="https://github.com/feross/webtorrent"> WebTorrent </a>
 
 
-**Version incluse :** 5.2.1~ynh2
+**Version incluse :** 5.2.1~ynh1
 
 **Démo :** http://peertube.cpy.re
 
@@ -32,6 +32,7 @@ Plateforme de streaming vidéo fédérée (ActivityPub) utilisant P2P (BitTorren
 * Site officiel de l’app : <https://joinpeertube.org/fr>
 * Documentation officielle de l’admin : <https://docs.joinpeertube.org>
 * Dépôt de code officiel de l’app : <https://github.com/Chocobozzz/PeerTube>
+* YunoHost Store: <https://apps.yunohost.org/app/peertube>
 * Signaler un bug : <https://github.com/YunoHost-Apps/peertube_ynh/issues>
 
 ## Informations pour les développeurs

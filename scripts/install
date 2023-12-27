@@ -164,9 +164,9 @@ ynh_script_progression --message="Building Yarn dependencies..."
 pushd "$final_path"
 	ynh_use_nodejs
 	npm install -g npm
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production yarn config set network-timeout 300000
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production yarn install --production --pure-lockfile
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production yarn cache clean
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn config set network-timeout 300000
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --production --pure-lockfile
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn cache clean
 popd
 
 #=================================================

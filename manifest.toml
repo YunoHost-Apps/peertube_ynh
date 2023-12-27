@@ -52,6 +52,7 @@ ram.runtime = "50M"
     rtmp.exposed = "TCP"
 
     [resources.system_user]
+    allow_email = true
 
     [resources.install_dir]
 

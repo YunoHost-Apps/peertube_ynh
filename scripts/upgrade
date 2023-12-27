@@ -14,21 +14,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
-
-#=================================================
-# CHECK VERSION
-#=================================================
-
 upgrade_type=$(ynh_check_app_version_changed)
-
-#=================================================
-# STANDARD UPGRADE STEPS
-#=================================================
-# STOP SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Stopping a systemd service..."
-
-ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --line_match="Stopped"
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -39,9 +25,15 @@ ynh_app_setting_delete --app=$app --key=admin_pass
 ynh_app_setting_delete --app=$app --key=admin_mail
 
 # If redis_db doesn't exist, create it
-if [ -z "$redis_db" ]; then
+if [ -z "${redis_db:-}" ]; then
 	redis_db=$(ynh_redis_get_free_db)
 	ynh_app_setting_set --app="$app" --key=redis_db --value="$redis_db"
+fi
+
+if [ -z "${secrets_peertube:-}" ]; then
+	ynh_print_info --message="Generating and storing PeerTube secrets..."
+	secrets_peertube=$(ynh_string_random --length=24)
+	ynh_app_setting_set --app=$app --key=secrets_peertube --value=$secrets_peertube
 fi
 
 # Add PostgreSQL extension for v1.0.0-beta.10.pre.1
@@ -51,17 +43,22 @@ ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --datab
 # Remove repository
 ynh_secure_remove --file="/etc/apt/sources.list.d/yarn.list"
 
-# Remove not needed checksum
-ynh_delete_file_checksum --file="../conf/msg_install"
-
 # Remove hook
-ynh_secure_remove --file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
-yunohost tools regen-conf nginx
+if [[ -e "/usr/share/yunohost/hooks/conf_regen/15-nginx_$app" ]]
+then
+    ynh_secure_remove --file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
+    yunohost tools regen-conf nginx
+fi
 
 # Remove old log file
 ynh_secure_remove --file="$data_dir/logs"
-mkdir -p "/var/log/$app"
-chown -R $app:$app "/var/log/$app"
+
+#=================================================
+# STOP SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Stopping a systemd service..."
+
+ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --line_match="Stopped"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -86,6 +83,8 @@ ynh_script_progression --message="Upgrading dependencies..."
 
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
 
+ynh_script_progression --message="Upgrading system configurations..."
+
 # Create a dedicated NGINX config
 ynh_add_nginx_config
 
@@ -101,16 +100,6 @@ ynh_use_logrotate --non-append
 yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
 
 #=================================================
-# Generate secrets if they don't exist
-#=================================================
-
-if [ -z "$secrets_peertube" ]; then
-	ynh_print_info --message="Generating and storing PeerTube secrets..."
-	secrets_peertube=$(ynh_string_random --length=24)
-	ynh_app_setting_set --app=$app --key=secrets_peertube --value=$secrets_peertube
-fi
-
-#=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
 ynh_script_progression --message="Building Yarn dependencies..."
@@ -124,7 +113,7 @@ popd
 #=================================================
 # UPDATE A CONFIG FILE
 #=================================================
-ynh_script_progression --message="Updating a config file..."
+ynh_script_progression --message="Updating configuration file..."
 
 ynh_add_config --template="production.yaml" --destination="$install_dir/config/production.yaml"
 chmod 400 "$install_dir/config/production.yaml"
@@ -140,8 +129,7 @@ ynh_script_progression --message="Installing $app plugin..."
 
 pushd "$install_dir"
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name  peertube-plugin-livechat
-
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name peertube-plugin-livechat
 popd
 
 #=================================================
@@ -165,7 +153,7 @@ fi
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Starting a systemd service..."
+ynh_script_progression --message="Starting systemd service..."
 
 ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on localhost"
 

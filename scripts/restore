@@ -45,6 +45,8 @@ ynh_script_progression --message="Reinstalling dependencies..."
 
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
 
+ynh_script_progression --message="Reinstalling system configurations..."
+
 ynh_restore_file --origin_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 ynh_restore_file --origin_path="/etc/systemd/system/$app.service"

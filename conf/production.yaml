@@ -70,8 +70,8 @@ smtp:
   sendmail: null
   hostname: 'localhost'
   port: 25 # If you use StartTLS: 587
-  username: null
-  password: null
+  username: __APP__
+  password: __MAIL_PWD__
   tls: false # If you use StartTLS: false
   disable_starttls: true
   ca_file: null # Used for self signed certificates

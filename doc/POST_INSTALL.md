@@ -9,4 +9,4 @@ To enable LDAP authentication, you should open [https://__DOMAIN____PATH__admin/
 - Insecure TLS: `checked`
 - Search base: `ou=users,dc=yunohost,dc=org`
 
-All YunoHost users will be allowed to login as peertube user.
+All YunoHost users will be allowed to login as PeerTube user.

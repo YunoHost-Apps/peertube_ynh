@@ -67,7 +67,7 @@ ram.runtime = "50M"
     api.protected = true
 
     [resources.apt]
-    packages = "prosody, ffmpeg, postgresql, postgresql-contrib, openssl, g++, mailutils, apt-transport-https"
+    packages = "ffmpeg, postgresql, postgresql-contrib, openssl, g++, mailutils, apt-transport-https"
 
     extras.yarn.repo = "deb https://dl.yarnpkg.com/debian/ stable main"
     extras.yarn.key = "https://dl.yarnpkg.com/debian/pubkey.gpg"

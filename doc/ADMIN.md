@@ -1,1 +1,1 @@
-* Do not modify the `/var/www/<app>/conf/production.yaml` file, because it will be overridden in the next upgrade. Please instead either change them though the web interface, which stores specific local settings in a separate configuration file.
+* Do not modify the `__INSTALL_DIR__/conf/production.yaml` file, because it will be overridden in the next upgrade. Please instead either change them though the web interface, which stores specific local settings in a separate configuration file.

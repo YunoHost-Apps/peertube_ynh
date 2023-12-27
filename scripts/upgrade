@@ -7,61 +7,14 @@
 #=================================================
 
 source _common.sh
-source ynh_redis
-source ynh_apps
 source /usr/share/yunohost/helpers
 
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Loading installation settings..."
 
-app=$YNH_APP_INSTANCE_NAME
-
-domain=$(ynh_app_setting_get --app=$app --key=domain)
-path_url=$(ynh_app_setting_get --app=$app --key=path)
-admin=$(ynh_app_setting_get --app=$app --key=admin)
-final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-port=$(ynh_app_setting_get --app=$app --key=port)
-rtmp_port=$(ynh_app_setting_get --app=$app --key=rtmp_port)
-db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_user=$(ynh_app_setting_get --app=$app --key=db_user)
-db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
-datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
-redis_db=$(ynh_app_setting_get --app=$app --key=redis_db)
-secrets_peertube=$(ynh_app_setting_get --app=$app --key=secrets_peertube)
-
-#=================================================
-# CHECK VERSION
-#=================================================
-ynh_script_progression --message="Checking version..."
-
 upgrade_type=$(ynh_check_app_version_changed)
-
-#=================================================
-# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-#=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
-
-# Backup the current version of the app
-ynh_backup_before_upgrade
-ynh_clean_setup () {
-	ynh_clean_check_starting
-	# Restore it if the upgrade fails
-	ynh_restore_upgradebackup
-}
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
-
-#=================================================
-# STANDARD UPGRADE STEPS
-#=================================================
-# STOP SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Stopping a systemd service..."
-
-ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --line_match="Stopped"
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -71,95 +24,50 @@ ynh_script_progression --message="Ensuring downward compatibility..."
 ynh_app_setting_delete --app=$app --key=admin_pass
 ynh_app_setting_delete --app=$app --key=admin_mail
 
-# If db_name doesn't exist, create it
-if [ -z "$db_name" ]; then
-	db_name="peertube_${app}"
-	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-fi
-
-# If db_user doesn't exist, create it
-if [ -z "$db_user" ]; then
-	db_user=$app
-	ynh_app_setting_set --app=$app --key=db_user --value=$db_user
-fi
-
-# If db_pwd doesn't exist, create it
-if [ -z "$db_pwd" ]; then
-	db_pwd=$(ynh_app_setting_get --app=$app --key=psqlpwd)
-	ynh_app_setting_set --app=$app --key=db_pwd --value=$db_pwd
-fi
-
 # If redis_db doesn't exist, create it
-if [ -z "$redis_db" ]; then
+if [ -z "${redis_db:-}" ]; then
 	redis_db=$(ynh_redis_get_free_db)
 	ynh_app_setting_set --app="$app" --key=redis_db --value="$redis_db"
 fi
 
-if [ -z "$datadir" ];
-then
-	datadir="/home/yunohost.app/${app}/storage"
-	ynh_app_setting_set --app=$app --key=datadir --value=$datadir
-fi
-
-# Close a port
-if yunohost firewall list | grep -q "\- $port$"
-then
-	ynh_script_progression --message="Closing port $port"
-	ynh_exec_warn_less yunohost firewall disallow TCP $port
+if [ -z "${secrets_peertube:-}" ]; then
+	ynh_print_info --message="Generating and storing PeerTube secrets..."
+	secrets_peertube=$(ynh_string_random --length=24)
+	ynh_app_setting_set --app=$app --key=secrets_peertube --value=$secrets_peertube
 fi
 
 # Add PostgreSQL extension for v1.0.0-beta.10.pre.1
-ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --database=$db_name
-ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name
+ynh_exec_warn_less ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --database=$db_name
+ynh_exec_warn_less ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name
 
 # Remove repository
 ynh_secure_remove --file="/etc/apt/sources.list.d/yarn.list"
 
-# Remove not needed checksum
-ynh_delete_file_checksum --file="../conf/msg_install"
-
-if [ -z "$rtmp_port" ];
-then
-	rtmp_port=1935
-	ynh_port_available --port=$rtmp_port || ynh_die --message="Port $rtmp_port is needs to be available for this app"
-	ynh_app_setting_set --app=$app --key=rtmp_port --value=$rtmp_port
-
-	# Open the port
-	ynh_script_progression --message="Configuring firewall..."
-	ynh_exec_warn_less yunohost firewall allow TCP $rtmp_port
-fi
-
-# Cleaning legacy permissions
-if ynh_legacy_permissions_exists; then
-	ynh_legacy_permissions_delete_all
-
-	ynh_app_setting_delete --app=$app --key=is_public
-fi
-
-# Create a permission if needed
-if ! ynh_permission_exists --permission="api"; then
-	ynh_permission_create --permission="api" --url="/api" --allowed="visitors" --auth_header="false" --show_tile="false" --protected="true"
-fi
-
 # Remove hook
-ynh_secure_remove --file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
-yunohost tools regen-conf nginx
+if [[ -e "/usr/share/yunohost/hooks/conf_regen/15-nginx_$app" ]]
+then
+    ynh_secure_remove --file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
+    yunohost tools regen-conf nginx
+fi
 
 # Remove old log file
-ynh_secure_remove --file="$datadir/logs"
-mkdir -p "/var/log/$app"
-chown -R $app:$app "/var/log/$app"
-
-# Remove Prosody
-ynh_remove_apps
+ynh_secure_remove --file="$data_dir/logs"
 
 #=================================================
-# CREATE DEDICATED USER
+# STOP SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..."
+ynh_script_progression --message="Stopping a systemd service..."
 
-# Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app --home_dir="$final_path"
+ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --line_match="Stopped"
+
+# In the past, the db was called peertube_peertube >_>
+if [[ "${db_name:-}" == "peertube_peertube" ]]
+then
+	ynh_print_info --message="Renaming database..."
+    ynh_psql_execute_as_root --sql="ALTER DATABASE $db_name RENAME TO $app;"
+    db_name="$app"
+	ynh_app_setting_set --app="$app" --key=db_name --value="$db_name"
+fi
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -170,61 +78,44 @@ then
 	ynh_script_progression --message="Upgrading source files..."
 
 	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --full_replace=1 --dest_dir="$final_path" \
+	ynh_setup_source --full_replace=1 --dest_dir="$install_dir" \
 		--keep="config/production.yaml config/local-production.json config/local.yaml"
 fi
 
-chmod 750 "$final_path"
-chmod -R o-rwx "$final_path"
-chown -R $app:www-data "$final_path"
+chmod -R o-rwx "$install_dir"
+chown -R $app:www-data "$install_dir"
 
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
 ynh_script_progression --message="Upgrading dependencies..."
 
-ynh_exec_warn_less ynh_install_app_dependencies $pkg_dependencies
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
-ynh_exec_warn_less ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Upgrading NGINX web server configuration..."
+ynh_script_progression --message="Upgrading system configurations..."
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
 
-#=================================================
-# SPECIFIC UPGRADE
-#=================================================
-# CREATE DATA DIRECTORY
-#=================================================
-ynh_script_progression --message="Creating a data directory..."
+# Create a dedicated systemd config
+ynh_add_systemd_config
 
-mkdir -p $datadir
+mkdir -p "/var/log/$app"
+chown -R $app:$app "/var/log/$app"
 
-chmod 750 "$datadir"
-chmod -R o-rwx "$datadir"
-chown -R $app:www-data "$datadir"
+# Use logrotate to manage app-specific logfile(s)
+ynh_use_logrotate --non-append
 
-#=================================================
-# Generate secrets if they don't exist
-#=================================================
-
-if [ -z "$secrets_peertube" ]; then
-	ynh_print_info --message="Generating and storing PeerTube secrets..."
-	secrets_peertube=$(ynh_string_random --length=24)
-	ynh_app_setting_set --app=$app --key=secrets_peertube --value=$secrets_peertube
-fi
+yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
 
 #=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
 ynh_script_progression --message="Building Yarn dependencies..."
 
-pushd "$final_path"
+pushd "$install_dir"
 	ynh_use_nodejs
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn config set network-timeout 300000
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --production --pure-lockfile
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn cache clean
 popd
@@ -232,52 +123,23 @@ popd
 #=================================================
 # UPDATE A CONFIG FILE
 #=================================================
-ynh_script_progression --message="Updating a config file..."
+ynh_script_progression --message="Updating configuration file..."
 
-ynh_add_config --template="../conf/production.yaml" --destination="$final_path/config/production.yaml"
+ynh_add_config --template="production.yaml" --destination="$install_dir/config/production.yaml"
+chmod 400 "$install_dir/config/production.yaml"
+chown $app:$app "$install_dir/config/production.yaml"
 
-chmod 400 "$final_path/config/production.yaml"
-chown $app:$app "$final_path/config/production.yaml"
-
-ynh_backup_if_checksum_is_different --file="$final_path/config/local-production.json"
-
-chmod 600 "$final_path/config/local-production.json"
-chown $app:$app "$final_path/config/local-production.json"
-
-#=================================================
-# SETUP SYSTEMD
-#=================================================
-ynh_script_progression --message="Upgrading systemd configuration..."
-
-# Create a dedicated systemd config
-ynh_add_systemd_config
-
-#=================================================
-# START SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Starting a systemd service..."
-
-mkdir -p "/var/log/$app"
-chown -R $app:$app "/var/log/$app"
-# Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Started"
+chmod 600 "$install_dir/config/local-production.json"
+chown $app:$app "$install_dir/config/local-production.json"
 
 #=================================================
 # INSTALL LDAP PLUGIN
 #=================================================
-ynh_script_progression --message="Installing LDAP plugin..."
+ynh_script_progression --message="Installing $app plugin..."
 
-pushd "$final_path"
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
-popd
-
-#=================================================
-# INSTALL PEERTUBE LIVECHAT PLUGIN
-#=================================================
-ynh_script_progression --message="Installing PeerTube livechat plugin..."
-
-pushd "$final_path"
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name  peertube-plugin-livechat
+pushd "$install_dir"
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name peertube-plugin-livechat
 popd
 
 #=================================================
@@ -286,57 +148,24 @@ popd
 
 if ynh_compare_current_package_version --comparison lt --version 4.0.0~ynh1; then
 	ynh_script_progression --message="Running Peertube 4.0.0 migration script..."
-	pushd "$final_path"
-		ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-4.0.js
+	pushd "$install_dir"
+		ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-4.0.js
 	popd
 fi
 
 if ynh_compare_current_package_version --comparison lt --version 4.2.0~ynh1; then
 	ynh_script_progression --message="Running Peertube 4.2.0 migration script..."
-	pushd "$final_path"
-		ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$final_path/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-4.2.js
+	pushd "$install_dir"
+		ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-4.2.js
 	popd
 fi
-
-
-#=================================================
-# STOP SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Stopping a systemd service..."
-
-# Stop a systemd service
-ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --line_match="Stopped"
-
-#=================================================
-# GENERIC FINALIZATION
-#=================================================
-# SETUP LOGROTATE
-#=================================================
-ynh_script_progression --message="Upgrading logrotate configuration..."
-
-# Use logrotate to manage app-specific logfile(s)
-ynh_use_logrotate --non-append
-
-#=================================================
-# INTEGRATE SERVICE IN YUNOHOST
-#=================================================
-ynh_script_progression --message="Integrating service in YunoHost..."
-
-yunohost service add $app --description="$app daemon for Peertube" --log="/var/log/$app/$app.log" --needs_exposed_ports $rtmp_port
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Starting a systemd service..."
+ynh_script_progression --message="Starting systemd service..."
 
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Started"
-
-#=================================================
-# RELOAD NGINX
-#=================================================
-ynh_script_progression --message="Reloading NGINX web server..."
-
-ynh_systemd_action --service_name=nginx --action=reload
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on 127.0.0.1"
 
 #=================================================
 # END OF SCRIPT

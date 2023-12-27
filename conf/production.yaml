@@ -1,5 +1,5 @@
 listen:
-  hostname: 'localhost'
+  hostname: '127.0.0.1'
   port: __PORT__
 
 # Correspond to your reverse proxy server_name/listen configuration (i.e., your public PeerTube instance URL)
@@ -71,7 +71,7 @@ database:
   hostname: 'localhost'
   port: 5432
   ssl: false
-  suffix: '___APP__'
+  suffix: '__DB_SUFFIX__'
   username: '__DB_USER__'
   password: '__DB_PWD__'
   pool:
@@ -94,8 +94,8 @@ smtp:
   sendmail: null
   hostname: 'localhost'
   port: 25 # If you use StartTLS: 587
-  username: null
-  password: null
+  username: __APP__
+  password: __MAIL_PWD__
   tls: false # If you use StartTLS: false
   disable_starttls: true
   ca_file: null # Used for self signed certificates
@@ -137,22 +137,22 @@ defaults:
 
 # From the project root directory
 storage:
-  tmp: '__DATADIR__/tmp/' # Use to download data (imports etc), store uploaded files before processing...
-  tmp_persistent: '__DATADIR__/tmp-persistent/' # As tmp but the directory is not cleaned up between PeerTube restarts
-  bin: '__DATADIR__/bin/'
-  avatars: '__DATADIR__/avatars/'
-  web_videos: '__DATADIR__/videos/'
-  streaming_playlists: '__DATADIR__/streaming-playlists/'
-  redundancy: '__DATADIR__/redundancy/'
+  tmp: '__DATA_DIR__/storage/tmp/' # Use to download data (imports etc), store uploaded files before processing...
+  tmp_persistent: '__DATA_DIR__//storage/tmp-persistent/' # As tmp but the directory is not cleaned up between PeerTube restarts  
+  bin: '__DATA_DIR__/storage/bin/'
+  avatars: '__DATA_DIR__/storage/avatars/'
+  web_videos: '__DATA_DIR__/storage/videos/'
+  streaming_playlists: '__DATA_DIR__/storage/streaming-playlists/'
+  redundancy: '__DATA_DIR__/storage/redundancy/'
   logs: '/var/log/__APP__/'
-  previews: '__DATADIR__/previews/'
-  thumbnails: '__DATADIR__/thumbnails/'
-  storyboards: '__DATADIR__/storyboards/'
-  torrents: '__DATADIR__/torrents/'
-  captions: '__DATADIR__/captions/'
-  cache: '__DATADIR__/cache/'
-  plugins: '__DATADIR__/plugins/'
-  well_known: '__DATADIR__/well-known/'
+  previews: '__DATA_DIR__/storage/previews/'
+  thumbnails: '__DATA_DIR__/storage/thumbnails/'
+  storyboards: '__DATA_DIR__/storage/storyboards/'
+  torrents: '__DATA_DIR__/storage/torrents/'
+  captions: '__DATA_DIR__/storage/captions/'
+  cache: '__DATA_DIR__/storage/cache/'
+  plugins: '__DATA_DIR__/storage/plugins/'
+  well_known: '__DATA_DIR__/storage/well-known/'
   # Overridable client files in client/dist/assets/images:
   # - logo.svg
   # - favicon.png
@@ -163,7 +163,7 @@ storage:
   # Could contain for example assets/images/favicon.png
   # If the file exists, peertube will serve it
   # If not, peertube will fallback to the default file
-  client_overrides: '__DATADIR__/client-overrides/'
+  client_overrides: '__DATA_DIR__/storage/client-overrides/'
 
 static_files:
   # Require and check user authentication when accessing private files (internal/private video files)

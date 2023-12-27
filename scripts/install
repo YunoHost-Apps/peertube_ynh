@@ -97,7 +97,8 @@ ynh_add_config --template="production.yaml" --destination="$install_dir/config/p
 chmod 400 "$install_dir/config/production.yaml"
 chown $app:$app "$install_dir/config/production.yaml"
 
-ynh_add_config --template="local-production.json" --destination="$install_dir/config/local-production.json"
+# Initialize local setting conf file
+echo '{}' > "$install_dir/config/local-production.json"
 chmod 600 "$install_dir/config/local-production.json"
 chown $app:$app "$install_dir/config/local-production.json"
 

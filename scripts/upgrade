@@ -130,7 +130,6 @@ ynh_add_config --template="../conf/production.yaml" --destination="$install_dir/
 chmod 400 "$install_dir/config/production.yaml"
 chown $app:$app "$install_dir/config/production.yaml"
 
-ynh_backup_if_checksum_is_different --file="$install_dir/config/local-production.json"
 chmod 600 "$install_dir/config/local-production.json"
 chown $app:$app "$install_dir/config/local-production.json"
 

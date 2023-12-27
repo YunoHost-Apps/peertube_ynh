@@ -98,7 +98,7 @@ chown -R $app:$app "/var/log/$app"
 # Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
 
-yunohost service add $app --description="$app daemon for Peertube" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
+yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
 
 #=================================================
 # Generate secrets if they don't exist
@@ -127,12 +127,10 @@ popd
 ynh_script_progression --message="Updating a config file..."
 
 ynh_add_config --template="../conf/production.yaml" --destination="$install_dir/config/production.yaml"
-
 chmod 400 "$install_dir/config/production.yaml"
 chown $app:$app "$install_dir/config/production.yaml"
 
 ynh_backup_if_checksum_is_different --file="$install_dir/config/local-production.json"
-
 chmod 600 "$install_dir/config/local-production.json"
 chown $app:$app "$install_dir/config/local-production.json"
 

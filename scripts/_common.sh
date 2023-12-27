@@ -4,10 +4,9 @@
 # COMMON VARIABLES
 #=================================================
 
-# dependencies used by the app
-pkg_dependencies="ffmpeg postgresql postgresql-contrib openssl g++ mailutils apt-transport-https"
-
 nodejs_version=20
+# Obtain the (empty string), __2, __3, cf the DB suffix in production.yaml...
+db_suffix="$(echo $app | sed 's/peertube//g')"
 
 #=================================================
 # PERSONAL HELPERS
@@ -16,6 +15,45 @@ nodejs_version=20
 #=================================================
 # EXPERIMENTAL HELPERS
 #=================================================
+
+# get the first available redis database
+#
+# usage: ynh_redis_get_free_db
+# | returns: the database number to use
+ynh_redis_get_free_db() {
+	local result max db
+	result=$(redis-cli INFO keyspace)
+
+	# get the num
+	max=$(cat /etc/redis/redis.conf | grep ^databases | grep -Eow "[0-9]+")
+
+	db=0
+	# default Debian setting is 15 databases
+	for i in $(seq 0 "$max")
+	do
+	 	if ! echo "$result" | grep -q "db$i"
+	 	then
+			db=$i
+	 		break 1
+ 		fi
+ 		db=-1
+	done
+
+	test "$db" -eq -1 && ynh_die --message="No available Redis databases..."
+
+	echo "$db"
+}
+
+# Create a master password and set up global settings
+# Please always call this script in install and restore scripts
+#
+# usage: ynh_redis_remove_db database
+# | arg: database - the database to erase
+ynh_redis_remove_db() {
+	local db=$1
+	redis-cli -n "$db" flushall
+}
+
 
 #=================================================
 # FUTURE OFFICIAL HELPERS

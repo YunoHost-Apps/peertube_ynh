@@ -1,0 +1,1 @@
+* Ne modifiez pas les paramètres dans le fichier `__INSTALL_DIR__/conf/production.yaml`, car il sera remplacé lors de la prochaine mise à niveau. Veuillez plutôt modifier la configuration via l'interface Web, qui stocke les paramètres locaux spécifiques dans un fichier de configuration distinct.

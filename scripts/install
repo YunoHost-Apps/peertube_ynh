@@ -201,6 +201,8 @@ mkdir -p "/var/log/$app"
 chown -R $app:$app "/var/log/$app"
 # Start a systemd service
 ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="Started"
+# wait for service to initialize DB (helps on slow hardware)
+sleep 1m
 
 #=================================================
 # INSTALL LDAP PLUGIN

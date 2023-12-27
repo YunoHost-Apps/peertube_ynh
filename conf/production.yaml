@@ -142,7 +142,7 @@ storage:
   tmp_persistent: '__DATADIR__/tmp-persistent/' # As tmp but the directory is not cleaned up between PeerTube restarts
   bin: '__DATADIR__/bin/'
   avatars: '__DATADIR__/avatars/'
-  videos: '__DATADIR__/videos/'
+  web_videos: '__DATADIR__/videos/'
   streaming_playlists: '__DATADIR__/streaming-playlists/'
   redundancy: '__DATADIR__/redundancy/'
   logs: '/var/log/__APP__/'

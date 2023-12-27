@@ -37,8 +37,8 @@ if [ -z "${secrets_peertube:-}" ]; then
 fi
 
 # Add PostgreSQL extension for v1.0.0-beta.10.pre.1
-ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --database=$db_name
-ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name
+ynh_exec_warn_less ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --database=$db_name
+ynh_exec_warn_less ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name
 
 # Remove repository
 ynh_secure_remove --file="/etc/apt/sources.list.d/yarn.list"

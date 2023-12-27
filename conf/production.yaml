@@ -13,7 +13,6 @@ secrets:
   # Generate one using `openssl rand -hex 32`
   peertube: '__SECRETS_PEERTUBE__'
 
-
 rates_limit:
   api:
     # 50 attempts in 10 seconds

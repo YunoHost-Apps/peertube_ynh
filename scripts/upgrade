@@ -63,9 +63,6 @@ ynh_secure_remove --file="$data_dir/logs"
 mkdir -p "/var/log/$app"
 chown -R $app:$app "/var/log/$app"
 
-# Remove Prosody
-ynh_remove_apps
-
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================

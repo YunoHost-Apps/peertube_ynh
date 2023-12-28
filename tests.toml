@@ -12,4 +12,4 @@ test_format = 1.0
     # Commits to test upgrade from
     # -------------------------------
 
-    test_upgrade_from.f085f884c4b6cad5dee153dd5a5ac25ea1ef78fb.name = "Upgrade from 5.2.1"
+    test_upgrade_from.8a8d9be.name = "5.2.1"

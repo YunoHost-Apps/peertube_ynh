@@ -212,7 +212,7 @@ object_storage:
 
   # Same settings but for web videos
   web_videos:
-    bucket_name: 'web-videos'
+    bucket_name: 'videos'
     prefix: ''
     base_url: ''
 

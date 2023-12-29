@@ -138,10 +138,10 @@ defaults:
 # From the project root directory
 storage:
   tmp: '__DATA_DIR__/storage/tmp/' # Use to download data (imports etc), store uploaded files before processing...
-  tmp_persistent: '__DATA_DIR__//storage/tmp-persistent/' # As tmp but the directory is not cleaned up between PeerTube restarts  
+  tmp_persistent: '__DATA_DIR__/storage/tmp-persistent/' # As tmp but the directory is not cleaned up between PeerTube restarts  
   bin: '__DATA_DIR__/storage/bin/'
   avatars: '__DATA_DIR__/storage/avatars/'
-  web_videos: '__DATA_DIR__/storage/videos/'
+  web_videos: '__DATA_DIR__/storage/web_videos/'
   streaming_playlists: '__DATA_DIR__/storage/streaming-playlists/'
   redundancy: '__DATA_DIR__/storage/redundancy/'
   logs: '/var/log/__APP__/'

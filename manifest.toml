@@ -58,6 +58,7 @@ ram.runtime = "1G"
 
     [resources.data_dir]
     subdirs = ["storage"]
+    group = "www-data:rx"
 
     [resources.permissions]
     main.url = "/"

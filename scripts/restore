@@ -37,13 +37,16 @@ ynh_script_progression --message="Restoring the PostgreSQL database..."
 ynh_psql_connect_as --user=$db_user --password=$db_pwd --database=$db_name < ./db.sql
 
 #=================================================
-# SPECIFIC RESTORATION
-#=================================================
 # REINSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Reinstalling dependencies..."
+ynh_script_progression --message="Reinstalling dependencies..." --weight=5
 
 ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
+
+#=================================================
+# RESTORE SYSTEM CONFIGURATIONS
+#=================================================
+ynh_script_progression --message="Restoring system configurations related to $app..." --weight=10
 
 ynh_script_progression --message="Reinstalling system configurations..."
 

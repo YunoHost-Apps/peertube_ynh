@@ -3,7 +3,13 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
-# Remove the service from the list of services known by YunoHost (added from `yunohost service add`)
+#=================================================
+# REMOVE SYSTEM CONFIGURATIONS
+#=================================================
+# REMOVE SYSTEMD SERVICE 
+#=================================================
+ynh_script_progression --message="Removing system configurations related to $app..." --weight=1
+
 if ynh_exec_warn_less yunohost service status $app >/dev/null
 then
 	ynh_script_progression --message="Removing $app service integration..."

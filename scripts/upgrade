@@ -53,6 +53,11 @@ fi
 # Remove old log file
 ynh_secure_remove --file="$data_dir/logs"
 
+# directory on filesystem must be renamed from videos/ to web-videos/ to represent the value of storage.web_videos
+if [ -d "$data_dir/storage/videos" ]; then
+    mv $data_dir/storage/videos $data_dir/storage/web-videos
+fi
+
 #=================================================
 # STOP SYSTEMD SERVICE
 #=================================================

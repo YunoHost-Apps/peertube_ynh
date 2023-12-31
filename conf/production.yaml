@@ -141,7 +141,7 @@ storage:
   tmp_persistent: '__DATA_DIR__/storage/tmp-persistent/' # As tmp but the directory is not cleaned up between PeerTube restarts  
   bin: '__DATA_DIR__/storage/bin/'
   avatars: '__DATA_DIR__/storage/avatars/'
-  web_videos: '__DATA_DIR__/storage/videos/'
+  web_videos: '__DATA_DIR__/storage/web-videos/'
   streaming_playlists: '__DATA_DIR__/storage/streaming-playlists/'
   redundancy: '__DATA_DIR__/storage/redundancy/'
   logs: '/var/log/__APP__/'
@@ -212,7 +212,7 @@ object_storage:
 
   # Same settings but for web videos
   web_videos:
-    bucket_name: 'videos'
+    bucket_name: 'web-videos'
     prefix: ''
     base_url: ''
 

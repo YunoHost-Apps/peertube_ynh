@@ -22,7 +22,7 @@ Restart=always
 # Details for these options: https://www.freedesktop.org/software/systemd/man/systemd.exec.html
 NoNewPrivileges=yes
 PrivateTmp=yes
-#PrivateDevices=yes
+#PrivateDevices=yes # Won't work on Raspberry Pi as documented here https://docs.joinpeertube.org/maintain/configuration#systemd-unit-with-reduced-privileges
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
 RestrictNamespaces=yes
 RestrictRealtime=yes

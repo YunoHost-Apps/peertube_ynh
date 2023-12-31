@@ -15,11 +15,15 @@ source /usr/share/yunohost/helpers
 
 admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 admin_pass=$(ynh_string_random --length=24)
-ynh_app_setting_set --app=$app --key=admin_pass --value=$admin_pass
 secrets_peertube=$(ynh_string_random --length=24)
-ynh_app_setting_set --app=$app --key=secrets_peertube --value=$secrets_peertube
-
 redis_db=$(ynh_redis_get_free_db)
+
+#=================================================
+# STORE SETTINGS FROM MANIFEST
+#=================================================
+
+ynh_app_setting_set --app=$app --key=admin_pass --value=$admin_pass
+ynh_app_setting_set --app=$app --key=secrets_peertube --value=$secrets_peertube
 ynh_app_setting_set --app="$app" --key=redis_db --value="$redis_db"
 
 #=================================================

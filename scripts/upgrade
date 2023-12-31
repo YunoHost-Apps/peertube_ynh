@@ -89,6 +89,7 @@ fi
 
 chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
+chown -R $app:www-data "$data_dir"
 
 #=================================================
 # UPGRADE DEPENDENCIES

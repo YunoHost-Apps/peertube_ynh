@@ -63,7 +63,7 @@ fi
 #=================================================
 ynh_script_progression --message="Stopping a systemd service..."
 
-ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd" --line_match="Stopped"
+ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
 
 # In the past, the db was called peertube_peertube >_>
 if [[ "${db_name:-}" == "peertube_peertube" ]]

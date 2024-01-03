@@ -1,0 +1,79 @@
+packaging_format = 2
+
+id = "peertube"
+name = "PeerTube"
+description.en = "Federated video streaming platform using P2P directly in the web browser"
+description.fr = "Plateforme fédéralisé de diffusion vidéo par P2P directement dans le navigateur"
+
+version = "6.0.2~ynh2"
+
+maintainers = ["yalh76"]
+
+[upstream]
+license = "AGPL-3.0-only"
+website = "https://joinpeertube.org/fr"
+demo = "http://peertube.cpy.re"
+admindoc = "https://docs.joinpeertube.org"
+code = "https://github.com/Chocobozzz/PeerTube"
+
+[integration]
+yunohost = ">= 11.2"
+architectures = "all"
+multi_instance = false
+
+ldap = true
+
+sso = false
+
+disk = "50M"
+ram.build = "1G"
+ram.runtime = "1G"
+
+[install]
+    [install.domain]
+    type = "domain"
+
+    [install.init_main_permission]
+    type = "group"
+    default = "visitors"
+
+    [install.admin]
+    type = "user"
+
+[resources]
+        [resources.sources.main]
+        url = "https://github.com/Chocobozzz/PeerTube/releases/download/v6.0.2/peertube-v6.0.2.tar.xz"
+        sha256 = "9313591f911f3951ec15a9d1102b8aa4158d4cf5af74e9f0e71c0ee4e4dca2a2"
+        autoupdate.strategy = "latest_github_tag"
+
+    [resources.ports]
+    main.default = 8095
+    rtmp.default = 1935
+    rtmp.exposed = "TCP"
+
+    [resources.system_user]
+    allow_email = true
+
+    [resources.install_dir]
+
+    [resources.data_dir]
+    subdirs = ["storage"]
+    group = "www-data:rx"
+
+    [resources.permissions]
+    main.url = "/"
+    api.url = "/api"
+    api.allowed = "visitors"
+    api.auth_header = false
+    api.show_tile = false
+    api.protected = true
+
+    [resources.apt]
+    packages = "ffmpeg, postgresql, postgresql-contrib"
+
+    extras.yarn.repo = "deb https://dl.yarnpkg.com/debian/ stable main"
+    extras.yarn.key = "https://dl.yarnpkg.com/debian/pubkey.gpg"
+    extras.yarn.packages = "yarn"
+
+    [resources.database]
+    type = "postgresql"

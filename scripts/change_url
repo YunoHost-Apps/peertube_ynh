@@ -38,6 +38,7 @@ ynh_replace_string --match_string="hostname: '$old_domain'" --replace_string="ho
 ynh_script_progression --message="updating host..."
 
 pushd "$install_dir"
+	ynh_use_nodejs
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_npm run update-host
 popd
 

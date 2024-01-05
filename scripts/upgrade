@@ -21,9 +21,6 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 ynh_script_progression --message="Ensuring downward compatibility..."
 
-ynh_app_setting_delete --app=$app --key=admin_pass
-ynh_app_setting_delete --app=$app --key=admin_mail
-
 # If redis_db doesn't exist, create it
 if [ -z "${redis_db:-}" ]; then
 	redis_db=$(ynh_redis_get_free_db)

@@ -5,8 +5,6 @@ test_format = 1.0
     # ------------
     # Tests to run
     # ------------
-    
-    exclude = ["change_url"]
 
     # -------------------------------
     # Commits to test upgrade from

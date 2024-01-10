@@ -1,0 +1,58 @@
+#!/bin/bash
+
+#=================================================
+# GENERIC STARTING
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source _common.sh
+source /usr/share/yunohost/helpers
+
+#=================================================
+# STANDARD MODIFICATIONS
+#=================================================
+# STOP SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Stopping a systemd service..." --weight=1
+
+ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
+
+#=================================================
+# MODIFY URL IN NGINX CONF
+#=================================================
+ynh_script_progression --message="Updating NGINX web server configuration..." --weight=1
+
+ynh_change_url_nginx_config
+
+#=================================================
+# ADD A CONFIGURATION
+#=================================================
+ynh_script_progression --message="Adding peertube configuration file..."
+
+ynh_replace_string --match_string="hostname: '$old_domain'" --replace_string="hostname: '$new_domain'" --target_file="$install_dir/config/production.yaml"
+
+#=================================================
+# SPECIFIC MODIFICATIONS
+#=================================================
+ynh_script_progression --message="updating host..."
+
+pushd "$install_dir"
+	ynh_use_nodejs
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_npm run update-host
+popd
+
+#=================================================
+# GENERIC FINALISATION
+#=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Starting a systemd service..." --weight=1
+
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on 127.0.0.1"
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_script_progression --message="Change of URL completed for $app" --last

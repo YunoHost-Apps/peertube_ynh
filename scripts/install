@@ -59,7 +59,7 @@ ynh_script_progression --message="Building Yarn dependencies..."
 
 pushd "$install_dir"
 	ynh_use_nodejs
-	ynh_exec_warn_less corepack enable
+	ynh_exec_warn_less env $ynh_node_load_PATH corepack enable
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn config set network-timeout 300000
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --production --pure-lockfile
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn cache clean

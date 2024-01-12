@@ -59,7 +59,6 @@ ynh_script_progression --message="Building Yarn dependencies..."
 
 pushd "$install_dir"
 	ynh_use_nodejs
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH $ynh_npm install npm@latest
 	ynh_exec_warn_less corepack enable
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn config set network-timeout 300000
 	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH yarn install --production --pure-lockfile
@@ -114,9 +113,9 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --l
 ynh_script_progression --message="Installing $app plugin and password..."
 
 pushd "$install_dir"
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name peertube-plugin-livechat
-	echo "$admin_pass" | ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_npm run reset-password -- -u root
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production corepack npm@latest run plugin:install -- --npm-name peertube-plugin-auth-ldap
+	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production corepack npm@latest run plugin:install -- --npm-name peertube-plugin-livechat
+	echo "$admin_pass" | ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production corepack npm@latest run reset-password -- -u root
 popd
 
 #=================================================

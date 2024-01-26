@@ -1,6 +1,6 @@
 - __APP__ est désormais accessible sur [https://__DOMAIN____PATH__](https://__DOMAIN____PATH__)
 - Le nom d'utilisateur administrateur est : root
-- Le mot de passe administrateur est : __PASSWORD__
+- Le mot de passe administrateur est : __ADMIN_PASS__
 
 Pour rendre PeerTube Live disponible, vous devez également rendre le port TCP __PORT_RTMP__ disponible depuis internet (par exemple, ouvrir le port sur votre box FAI si ce n'est pas fait automatiquement).
 

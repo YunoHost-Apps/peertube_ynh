@@ -40,9 +40,6 @@ ram.runtime = "1G"
     [install.admin]
     type = "user"
 
-    [install.password]
-    type = "password"
-
 [resources]
         [resources.sources.main]
         url = "https://github.com/Chocobozzz/PeerTube/releases/download/v6.0.2/peertube-v6.0.2.tar.xz"

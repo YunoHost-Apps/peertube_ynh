@@ -1,6 +1,6 @@
 - __APP__ can now be accessed at [https://__DOMAIN____PATH__](https://__DOMAIN____PATH__)
 - The admin username is: root
-- The admin password is: __PASSWORD__
+- The admin password is: __ADMIN_PASS__
 
 To make PeerTube Live available, you also need to make the TCP port __PORT_RTMP__ available from internet (For example, opening the port on your ISP box if it's not automatically done).
 

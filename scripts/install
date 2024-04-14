@@ -36,7 +36,7 @@ ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
 #=================================================
 # CREATE A POSTGRESQL DATABASE
 #=================================================
-ynh_script_progression --message="Initializing postgresql modules..."
+ynh_script_progression --message="Initializing PostgreSQL modules..."
 
 ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --database=$db_name
 ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name

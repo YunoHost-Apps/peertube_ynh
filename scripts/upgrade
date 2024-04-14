@@ -107,6 +107,7 @@ ynh_add_nginx_config
 ynh_add_systemd_config
 
 mkdir -p "/var/log/$app"
+touch "/var/log/$app/peertube.log"
 chown -R $app:$app "/var/log/$app"
 
 # Use logrotate to manage app-specific logfile(s)

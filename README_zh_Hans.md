@@ -3,7 +3,7 @@
 请勿手动编辑。
 -->
 
-# YunoHost 的 PeerTube
+# YunoHost 上的 PeerTube
 
 [![集成程度](https://dash.yunohost.org/integration/peertube.svg)](https://dash.yunohost.org/appci/app/peertube) ![工作状态](https://ci-apps.yunohost.org/ci/badges/peertube.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/peertube.maintain.svg)
 

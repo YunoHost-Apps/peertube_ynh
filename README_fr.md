@@ -19,7 +19,7 @@ Il NE doit PAS être modifié à la main.
 PeerTube est un logiciel décentralisé et fédéré d’hébergement de vidéos. Pour publier des vidéos, l’utilisateur doit s’inscrire chez un hébergeur (nommé instance). Chaque hébergeur possède ses conditions d’utilisation (espace de stockage par utilisateur, règles de modération, thématiques, etc.). Grâce à WebTorrent, si plusieurs personnes consultent une même vidéo, des fragments de celle-ci sont échangés entre les personnes afin de ne pas surcharger l’instance. Décentralisé : Chaque instance peut suivre une ou plusieurs autres instances PeerTube afin de permettre à ses utilisateurs de visionner les vidéos de celles-ci. Fédéré : Via le protocole ActivityPub, Peertube peut interagir avec d’autres logiciels qui font partie du Fediverse, comme Mastodon par exemple.
 
 
-**Version incluse :** 6.1.0~ynh1
+**Version incluse :** 6.1.0~ynh2
 
 **Démo :** <http://peertube.cpy.re>
 

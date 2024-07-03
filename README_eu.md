@@ -5,7 +5,7 @@ EZ editatu eskuz.
 
 # PeerTube YunoHost-erako
 
-[![Integrazio maila](https://dash.yunohost.org/integration/peertube.svg)](https://dash.yunohost.org/appci/app/peertube) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/peertube.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/peertube.maintain.svg)
+[![Integrazio maila](https://dash.yunohost.org/integration/peertube.svg)](https://ci-apps.yunohost.org/ci/apps/peertube/) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/peertube.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/peertube.maintain.svg)
 
 [![Instalatu PeerTube YunoHost-ekin](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=peertube)
 

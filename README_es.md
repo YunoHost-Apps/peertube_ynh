@@ -5,7 +5,7 @@ No se debe editar a mano.
 
 # PeerTube para Yunohost
 
-[![Nivel de integración](https://dash.yunohost.org/integration/peertube.svg)](https://dash.yunohost.org/appci/app/peertube) ![Estado funcional](https://ci-apps.yunohost.org/ci/badges/peertube.status.svg) ![Estado En Mantención](https://ci-apps.yunohost.org/ci/badges/peertube.maintain.svg)
+[![Nivel de integración](https://dash.yunohost.org/integration/peertube.svg)](https://ci-apps.yunohost.org/ci/apps/peertube/) ![Estado funcional](https://ci-apps.yunohost.org/ci/badges/peertube.status.svg) ![Estado En Mantención](https://ci-apps.yunohost.org/ci/badges/peertube.maintain.svg)
 
 [![Instalar PeerTube con Yunhost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=peertube)
 

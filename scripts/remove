@@ -30,9 +30,6 @@ ynh_remove_nginx_config
 # Remove metapackage and its dependencies
 ynh_remove_nodejs
 
-# Remove the log files
-ynh_secure_remove --file="/var/log/$app"
-
 #=================================================
 # END OF SCRIPT
 #=================================================

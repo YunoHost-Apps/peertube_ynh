@@ -5,9 +5,9 @@ name = "PeerTube"
 description.en = "Federated video streaming platform using P2P directly in the web browser"
 description.fr = "Plateforme fédéralisé de diffusion vidéo par P2P directement dans le navigateur"
 
-version = "6.2.0~ynh1"
+version = "6.2.1~ynh1"
 
-maintainers = ["yalh76"]
+maintainers = [ ]
 
 [upstream]
 license = "AGPL-3.0-only"
@@ -17,7 +17,7 @@ admindoc = "https://docs.joinpeertube.org"
 code = "https://github.com/Chocobozzz/PeerTube"
 
 [integration]
-yunohost = ">= 11.2.12"
+yunohost = ">= 11.2.21"
 architectures = "all"
 multi_instance = false
 
@@ -42,8 +42,8 @@ ram.runtime = "1G"
 
 [resources]
         [resources.sources.main]
-        url = "https://github.com/Chocobozzz/PeerTube/releases/download/v6.2.0/peertube-v6.2.0.tar.xz"
-        sha256 = "2d737bca3919a98bd82143130d57c8306c2933c82f11d14c3c43909ad48be95f"
+        url = "https://github.com/Chocobozzz/PeerTube/releases/download/v6.2.1/peertube-v6.2.1.tar.xz"
+        sha256 = "7ac1843b3d10d94f447bc4af818be60cb9a0a200b17ac9e777ccfd11a13721cc"
         autoupdate.strategy = "latest_github_release"
         autoupdate.asset = "^peertube-v.*\\.tar\\.xz$"
 
@@ -70,7 +70,7 @@ ram.runtime = "1G"
     api.protected = true
 
     [resources.apt]
-    packages = "ffmpeg, postgresql, postgresql-contrib, redis-server"
+    packages = "ffmpeg, postgresql, postgresql-contrib"
 
     extras.yarn.repo = "deb https://dl.yarnpkg.com/debian/ stable main"
     extras.yarn.key = "https://dl.yarnpkg.com/debian/pubkey.gpg"

@@ -1,11 +1,5 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
@@ -14,41 +8,42 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
-upgrade_type=$(ynh_check_app_version_changed)
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_script_progression --message="Ensuring downward compatibility..."
+ynh_script_progression "Ensuring downward compatibility..."
 
 # If redis_db doesn't exist, create it
+# FIXMEhelpers2.1: maybe replace with: ynh_app_setting_set_default --key=redis_db --value=$(ynh_redis_get_free_db)
 if [ -z "${redis_db:-}" ]; then
 	redis_db=$(ynh_redis_get_free_db)
-	ynh_app_setting_set --app="$app" --key=redis_db --value="$redis_db"
+	ynh_app_setting_set --key=redis_db --value="$redis_db"
 fi
 
 if [ -z "${secrets_peertube:-}" ]; then
-	ynh_print_info --message="Generating and storing PeerTube secrets..."
+	ynh_print_info "Generating and storing PeerTube secrets..."
 	secrets_peertube=$(ynh_string_random --length=24)
-	ynh_app_setting_set --app=$app --key=secrets_peertube --value=$secrets_peertube
+	ynh_app_setting_set --key=secrets_peertube --value=$secrets_peertube
 fi
 
 # Add PostgreSQL extension for v1.0.0-beta.10.pre.1
-ynh_exec_warn_less ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS unaccent;" --database=$db_name
-ynh_exec_warn_less ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --database=$db_name
+ynh_hide_warnings ynh_psql_db_shell <<< "CREATE EXTENSION IF NOT EXISTS unaccent;"
+
+ynh_hide_warnings ynh_psql_db_shell <<< "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 
 # Remove repository
-ynh_secure_remove --file="/etc/apt/sources.list.d/yarn.list"
+ynh_safe_rm "/etc/apt/sources.list.d/yarn.list"
 
 # Remove hook
 if [[ -e "/usr/share/yunohost/hooks/conf_regen/15-nginx_$app" ]]
 then
-    ynh_secure_remove --file="/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
+    ynh_safe_rm "/usr/share/yunohost/hooks/conf_regen/15-nginx_$app"
     yunohost tools regen-conf nginx
 fi
 
 # Remove old log file
-ynh_secure_remove --file="$data_dir/logs"
+ynh_safe_rm "$data_dir/logs"
 
 # directory on filesystem must be renamed from videos/ to web-videos/ to represent the value of storage.web_videos
 if [ -d "$data_dir/storage/videos" ]; then
@@ -58,131 +53,132 @@ fi
 #=================================================
 # STOP SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Stopping a systemd service..."
+ynh_script_progression "Stopping $app's systemd service..."
 
-ynh_systemd_action --service_name=$app --action="stop" --log_path="systemd"
+ynh_systemctl --service=$app --action="stop" --log_path="systemd"
 
 # In the past, the db was called peertube_peertube >_>
 if [[ "${db_name:-}" == "peertube_peertube" ]]
 then
-	ynh_print_info --message="Renaming database..."
-    ynh_psql_execute_as_root --sql="ALTER DATABASE $db_name RENAME TO $app;"
+	ynh_print_info "Renaming database..."
+    ynh_psql_db_shell <<< "ALTER DATABASE $db_name RENAME TO $app;"
     db_name="$app"
-	ynh_app_setting_set --app="$app" --key=db_name --value="$db_name"
+	ynh_app_setting_set --key=db_name --value="$db_name"
 fi
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
-if [ "$upgrade_type" == "UPGRADE_APP" ]
+# FIXME: this is still supported but the recommendation is now to *always* re-setup the app sources wether or not the upstream sources changed
+if ynh_app_upstream_version_changed
 then
-	ynh_script_progression --message="Upgrading source files..."
+	ynh_script_progression "Upgrading source files..."
 
 	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --full_replace=1 --dest_dir="$install_dir" \
+	ynh_setup_source --full_replace --dest_dir="$install_dir" \
 		--keep="config/production.yaml config/local-production.json config/local.yaml"
 fi
 
-chmod -R o-rwx "$install_dir"
-chown -R $app:www-data "$install_dir"
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod -R o-rwx "$install_dir"
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:www-data "$install_dir"
 chown -R $app:www-data "$data_dir"
 
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Upgrading dependencies..."
+ynh_script_progression "Upgrading dependencies..."
 
-ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
+ynh_nodejs_install
 
 #=================================================
 # REAPPLY SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression --message="Upgrading system configurations related to $app..." --weight=1
+ynh_script_progression "Upgrading system configurations related to $app..."
 
 # Create a dedicated NGINX config
-ynh_add_nginx_config
+ynh_config_add_nginx
 
 # Create a dedicated systemd config
-ynh_add_systemd_config
+ynh_config_add_systemd
 
 mkdir -p "/var/log/$app"
 touch "/var/log/$app/peertube.log"
-chown -R $app:$app "/var/log/$app"
+#REMOVEME? Assuming ynh_config_add_logrotate is called, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:$app "/var/log/$app"
 
 # Use logrotate to manage app-specific logfile(s)
-ynh_use_logrotate --non-append
+ynh_config_add_logrotate
 
 yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
 
 #=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Building Yarn dependencies..."
+ynh_script_progression "Building Yarn dependencies..."
 
 pushd "$install_dir"
-	ynh_use_nodejs
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH COREPACK_ENABLE_DOWNLOAD_PROMPT=0 yarn config set network-timeout 300000
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH COREPACK_ENABLE_DOWNLOAD_PROMPT=0 yarn install --production --pure-lockfile
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH COREPACK_ENABLE_DOWNLOAD_PROMPT=0 yarn cache clean
+
+	ynh_hide_warnings ynh_exec_as_app node_load_PATH  yarn config set network-timeout 300000
+	ynh_hide_warnings ynh_exec_as_app node_load_PATH  yarn install --production --pure-lockfile
+	ynh_hide_warnings ynh_exec_as_app node_load_PATH  yarn cache clean
 popd
 
 #=================================================
 # UPDATE A CONFIG FILE
 #=================================================
-ynh_script_progression --message="Updating configuration file..."
+ynh_script_progression "Updating configuration file..."
 
-ynh_add_config --template="production.yaml" --destination="$install_dir/config/production.yaml"
-chmod 400 "$install_dir/config/production.yaml"
-chown $app:$app "$install_dir/config/production.yaml"
+ynh_config_add --template="production.yaml" --destination="$install_dir/config/production.yaml"
+#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 400 "$install_dir/config/production.yaml"
+#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown $app:$app "$install_dir/config/production.yaml"
 
-chmod 600 "$install_dir/config/local-production.json"
-chown $app:$app "$install_dir/config/local-production.json"
+#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 600 "$install_dir/config/local-production.json"
+#REMOVEME? Assuming the file is setup using ynh_config_add, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown $app:$app "$install_dir/config/local-production.json"
 
 #=================================================
 # INSTALL LDAP PLUGIN
 #=================================================
-ynh_script_progression --message="Installing $app plugin..."
+ynh_script_progression "Installing $app plugin..."
 
 pushd "$install_dir"
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
-	ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_npm run plugin:install -- --npm-name peertube-plugin-livechat
+	ynh_hide_warnings ynh_exec_as_app node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
+	ynh_hide_warnings ynh_exec_as_app node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production npm run plugin:install -- --npm-name peertube-plugin-livechat
 popd
 
 #=================================================
 # PEERTUBE UPGRADE MIGRATION SCRIPT
 #=================================================
 
-if ynh_compare_current_package_version --comparison lt --version 4.0.0~ynh1; then
-	ynh_script_progression --message="Running Peertube 4.0.0 migration script..."
+if ynh_app_upgrading_from_version_before 4.0.0~ynh1; then
+	ynh_script_progression "Running Peertube 4.0.0 migration script..."
 	pushd "$install_dir"
-		ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-4.0.js
+		ynh_hide_warnings ynh_exec_as_app node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production node dist/scripts/migrations/peertube-4.0.js
 	popd
 fi
 
-if ynh_compare_current_package_version --comparison lt --version 4.2.0~ynh1; then
-	ynh_script_progression --message="Running Peertube 4.2.0 migration script..."
+if ynh_app_upgrading_from_version_before 4.2.0~ynh1; then
+	ynh_script_progression "Running Peertube 4.2.0 migration script..."
 	pushd "$install_dir"
-		ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-4.2.js
+		ynh_hide_warnings ynh_exec_as_app node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production node dist/scripts/migrations/peertube-4.2.js
 	popd
 fi
 
-if ynh_compare_current_package_version --comparison lt --version 5.0.0~ynh1; then
-	ynh_script_progression --message="Running Peertube 5.0.0 migration script..."
+if ynh_app_upgrading_from_version_before 5.0.0~ynh1; then
+	ynh_script_progression "Running Peertube 5.0.0 migration script..."
 	pushd "$install_dir"
-		ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-5.0.js
+		ynh_hide_warnings ynh_exec_as_app node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production node dist/scripts/migrations/peertube-5.0.js
 	popd
 fi
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Starting systemd service..."
+ynh_script_progression "Starting systemd service..."
 
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on 127.0.0.1"
+ynh_systemctl --service=$app --action="start" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Upgrade of $app completed"
+ynh_script_progression "Upgrade of $app completed"

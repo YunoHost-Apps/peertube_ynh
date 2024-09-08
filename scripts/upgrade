@@ -83,16 +83,13 @@ ynh_nodejs_install
 #=================================================
 ynh_script_progression "Upgrading system configurations related to $app..."
 
-# Create a dedicated NGINX config
 ynh_config_add_nginx
 
-# Create a dedicated systemd config
 ynh_config_add_systemd
 
 mkdir -p "/var/log/$app"
 touch "/var/log/$app/peertube.log"
 
-# Use logrotate to manage app-specific logfile(s)
 ynh_config_add_logrotate
 
 yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
@@ -103,7 +100,6 @@ yunohost service add $app --description="Federated video streaming platform" --l
 ynh_script_progression "Building Yarn dependencies..."
 
 pushd "$install_dir"
-
 	ynh_hide_warnings ynh_exec_as_app yarn config set network-timeout 300000
 	ynh_hide_warnings ynh_exec_as_app yarn install --production --pure-lockfile
 	ynh_hide_warnings ynh_exec_as_app yarn cache clean

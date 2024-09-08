@@ -48,7 +48,7 @@ systemctl enable $app.service --quiet
 
 mkdir -p "/var/log/$app"
 touch "/var/log/$app/peertube.log"
-#REMOVEME? Assuming ynh_config_add_logrotate is called, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R $app:$app "/var/log/$app"
+#chown -R $app:$app "/var/log/$app"
 ynh_restore "/etc/logrotate.d/$app"
 
 yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp

@@ -41,7 +41,6 @@ ynh_psql_db_shell <<< "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 #=================================================
 ynh_script_progression "Setting up source files..."
 
-# Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir"
 
 #=================================================
@@ -50,7 +49,6 @@ ynh_setup_source --dest_dir="$install_dir"
 ynh_script_progression "Building Yarn dependencies..."
 
 pushd "$install_dir"
-
 	ynh_hide_warnings ynh_exec_as_app yarn config set network-timeout 300000
 	ynh_hide_warnings ynh_exec_as_app yarn install --production --pure-lockfile
 	ynh_hide_warnings ynh_exec_as_app yarn cache clean
@@ -61,16 +59,13 @@ popd
 #=================================================
 ynh_script_progression "Adding system configurations..."
 
-# Create a dedicated NGINX config
 ynh_config_add_nginx
 
-# Create a dedicated systemd config
 ynh_config_add_systemd
 
 mkdir -p "/var/log/$app"
 touch "/var/log/$app/peertube.log"
 
-# Use logrotate to manage application logfile(s)
 ynh_config_add_logrotate
 
 yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
@@ -82,7 +77,6 @@ ynh_script_progression "Adding peertube configuration file..."
 
 ynh_config_add --template="production.yaml" --destination="$install_dir/config/production.yaml"
 
-# Initialize local setting conf file
 echo '{}' > "$install_dir/config/local-production.json"
 
 #=================================================
@@ -90,7 +84,6 @@ echo '{}' > "$install_dir/config/local-production.json"
 #=================================================
 ynh_script_progression "Starting $app's systemd service..."
 
-# Start a systemd service
 ynh_systemctl --service=$app --action="start" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
 
 #=================================================

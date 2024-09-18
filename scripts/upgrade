@@ -1,8 +1,6 @@
 #!/bin/bash
 
 #=================================================
-# GENERIC START
-#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
@@ -94,7 +92,7 @@ ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
 #=================================================
 # REAPPLY SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression --message="Upgrading system configurations related to $app..." --weight=1
+ynh_script_progression --message="Upgrading system configurations related to $app..."
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config

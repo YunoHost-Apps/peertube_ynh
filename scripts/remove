@@ -8,9 +8,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 ynh_script_progression "Removing system configurations related to $app..."
 
-if ynh_hide_warnings yunohost service status $app >/dev/null
-then
-	ynh_script_progression "Removing $app service integration..."
+if ynh_hide_warnings yunohost service status $app >/dev/null; then
 	yunohost service remove $app
 fi
 

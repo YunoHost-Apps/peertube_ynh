@@ -74,15 +74,11 @@ fi
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
+ynh_script_progression --message="Upgrading source files..."
 
-if [ "$upgrade_type" == "UPGRADE_APP" ]
-then
-	ynh_script_progression --message="Upgrading source files..."
-
-	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --full_replace=1 --dest_dir="$install_dir" \
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source --full_replace=1 --dest_dir="$install_dir" \
 		--keep="config/production.yaml config/local-production.json config/local.yaml"
-fi
 
 chmod -R o-rwx "$install_dir"
 chown -R $app:www-data "$install_dir"
@@ -174,6 +170,12 @@ if ynh_compare_current_package_version --comparison lt --version 5.0.0~ynh1; the
 	popd
 fi
 
+if ynh_compare_current_package_version --comparison lt --version 6.3.0~ynh1; then
+	ynh_script_progression --message="Running Peertube 6.3.0 migration script..."
+	pushd "$install_dir"
+		ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-6.3.js
+	popd
+fi
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================

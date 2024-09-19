@@ -19,7 +19,7 @@ No se debe editar a mano.
 PeerTube is a decentralized and federated video hosting software. To publish videos, the user must register with a host (called an instance). Each host has its own conditions of use (storage space per user, moderation rules, themes, etc.). Thanks to WebTorrent, if several people view the same video, fragments of it are exchanged between people so as not to overload the instance. Decentralized: Each instance can follow one or more other PeerTube instances in order to allow its users to view their videos. Federated: Via the ActivityPub protocol, Peertube can interact with other software that is part of the Fediverse, such as Mastodon for example.
 
 
-**Versión actual:** 6.2.1~ynh1
+**Versión actual:** 6.3.0~ynh1
 
 **Demo:** <http://peertube.cpy.re>
 
@@ -37,7 +37,7 @@ PeerTube is a decentralized and federated video hosting software. To publish vid
 
 ## Información para desarrolladores
 
-Por favor enviar sus correcciones a la [`branch testing`](https://github.com/YunoHost-Apps/peertube_ynh/tree/testing
+Por favor enviar sus correcciones a la [rama `testing`](https://github.com/YunoHost-Apps/peertube_ynh/tree/testing).
 
 Para probar la rama `testing`, sigue asÍ:
 

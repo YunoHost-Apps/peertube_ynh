@@ -42,8 +42,8 @@ ram.runtime = "1G"
 
 [resources]
         [resources.sources.main]
-        url = "https://github.com/Chocobozzz/PeerTube/releases/download/v6.3.0/peertube-v6.3.0.tar.xz"
-        sha256 = "286f7712392a981b336630feb4f398b75de7d1db285e5f2d9fa5c38d85e052f4"
+        url = "https://github.com/Chocobozzz/PeerTube/releases/download/v6.3.1/peertube-v6.3.1.tar.xz"
+        sha256 = "654036b4cefd773ee40d01a7b2b65e95d892297958b3e1719d9e31dd09149853"
         autoupdate.strategy = "latest_github_release"
         autoupdate.asset = "^peertube-v.*\\.tar\\.xz$"
 

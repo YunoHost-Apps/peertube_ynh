@@ -46,7 +46,6 @@ ynh_psql_execute_as_root --sql="CREATE EXTENSION IF NOT EXISTS pg_trgm;" --datab
 #=================================================
 ynh_script_progression --message="Setting up source files..."
 
-# Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir"
 
 chmod -R o-rwx "$install_dir"
@@ -69,17 +68,14 @@ popd
 #=================================================
 ynh_script_progression --message="Adding system configurations..."
 
-# Create a dedicated NGINX config
 ynh_add_nginx_config
 
-# Create a dedicated systemd config
 ynh_add_systemd_config
 
 mkdir -p "/var/log/$app"
 touch "/var/log/$app/peertube.log"
 chown -R $app:$app "/var/log/$app"
 
-# Use logrotate to manage application logfile(s)
 ynh_use_logrotate
 
 yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp

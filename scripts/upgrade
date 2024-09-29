@@ -70,7 +70,7 @@ fi
 #=================================================
 ynh_script_progression --message="Upgrading source files..."
 
-ynh_setup_source --full_replace=1 --dest_dir="$install_dir" \
+ynh_setup_source --dest_dir="$install_dir" --full_replace=1 \
 		--keep="config/production.yaml config/local-production.json config/local.yaml"
 
 chmod -R o-rwx "$install_dir"

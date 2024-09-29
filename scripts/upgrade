@@ -25,7 +25,6 @@ fi
 
 # Add PostgreSQL extension for v1.0.0-beta.10.pre.1
 ynh_hide_warnings ynh_psql_db_shell <<< "CREATE EXTENSION IF NOT EXISTS unaccent;"
-
 ynh_hide_warnings ynh_psql_db_shell <<< "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 
 # Remove repository
@@ -67,7 +66,7 @@ fi
 #=================================================
 ynh_script_progression "Upgrading source files..."
 
-ynh_setup_source --full_replace --dest_dir="$install_dir" --keep="config/production.yaml config/local-production.json config/local.yaml"
+ynh_setup_source --dest_dir="$install_dir" --full_replace --keep="config/production.yaml config/local-production.json config/local.yaml"
 
 chown -R $app:www-data "$data_dir"
 
@@ -155,7 +154,7 @@ if ynh_app_upgrading_from_version_before 5.0.0~ynh1; then
 fi
 
 if ynh_compare_current_package_version --comparison lt --version 6.3.0~ynh1; then
-	ynh_script_progression --message="Running Peertube 6.3.0 migration script..."
+	ynh_script_progression -"Running Peertube 6.3.0 migration script..."
 	pushd "$install_dir"
 		ynh_exec_warn_less ynh_exec_as_app $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-6.3.js
 	popd

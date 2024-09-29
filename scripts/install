@@ -33,7 +33,6 @@ ynh_nodejs_install
 ynh_script_progression "Initializing PostgreSQL modules..."
 
 ynh_psql_db_shell <<< "CREATE EXTENSION IF NOT EXISTS unaccent;"
-
 ynh_psql_db_shell <<< "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 
 #=================================================
@@ -46,7 +45,7 @@ ynh_setup_source --dest_dir="$install_dir"
 #=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
-ynh_script_progression "Building Yarn dependencies..."
+ynh_script_progression "Building $app..."
 
 pushd "$install_dir"
 	ynh_hide_warnings ynh_exec_as_app yarn config set network-timeout 300000

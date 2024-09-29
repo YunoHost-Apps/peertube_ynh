@@ -16,12 +16,7 @@ ynh_script_progression "Ensuring downward compatibility..."
 
 # If redis_db doesn't exist, create it
 ynh_app_setting_set_default --key=redis_db --value=$(ynh_redis_get_free_db)
-
-if [ -z "${secrets_peertube:-}" ]; then
-	ynh_print_info "Generating and storing PeerTube secrets..."
-	secrets_peertube=$(ynh_string_random --length=24)
-	ynh_app_setting_set --key=secrets_peertube --value=$secrets_peertube
-fi
+ynh_app_setting_set_default --key=secrets_peertube --value=$(ynh_string_random --length=24)
 
 # Add PostgreSQL extension for v1.0.0-beta.10.pre.1
 ynh_hide_warnings ynh_psql_db_shell <<< "CREATE EXTENSION IF NOT EXISTS unaccent;"

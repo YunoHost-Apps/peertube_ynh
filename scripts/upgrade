@@ -123,6 +123,13 @@ pushd "$install_dir"
 popd
 
 #=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression "Starting systemd service..."
+
+ynh_systemctl --service=$app --action="start" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
+
+#=================================================
 # PEERTUBE UPGRADE MIGRATION SCRIPT
 #=================================================
 
@@ -150,16 +157,9 @@ fi
 if ynh_compare_current_package_version --comparison lt --version 6.3.0~ynh1; then
 	ynh_script_progression --message="Running Peertube 6.3.0 migration script..."
 	pushd "$install_dir"
-		ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-6.3.js
+		ynh_exec_warn_less ynh_exec_as_app $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-6.3.js
 	popd
 fi
-
-#=================================================
-# START SYSTEMD SERVICE
-#=================================================
-ynh_script_progression "Starting systemd service..."
-
-ynh_systemctl --service=$app --action="start" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
 
 #=================================================
 # END OF SCRIPT

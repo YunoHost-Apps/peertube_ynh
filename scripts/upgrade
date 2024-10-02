@@ -1,9 +1,5 @@
 #!/bin/bash
 
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
@@ -74,8 +70,7 @@ fi
 #=================================================
 ynh_script_progression --message="Upgrading source files..."
 
-# Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source --full_replace=1 --dest_dir="$install_dir" \
+ynh_setup_source --dest_dir="$install_dir" --full_replace=1 \
 		--keep="config/production.yaml config/local-production.json config/local.yaml"
 
 chmod -R o-rwx "$install_dir"
@@ -144,6 +139,13 @@ pushd "$install_dir"
 popd
 
 #=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Starting systemd service..."
+
+ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on 127.0.0.1"
+
+#=================================================
 # PEERTUBE UPGRADE MIGRATION SCRIPT
 #=================================================
 
@@ -174,12 +176,6 @@ if ynh_compare_current_package_version --comparison lt --version 6.3.0~ynh1; the
 		ynh_exec_warn_less ynh_exec_as $app env $ynh_node_load_PATH NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production $ynh_node dist/scripts/migrations/peertube-6.3.js
 	popd
 fi
-#=================================================
-# START SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Starting systemd service..."
-
-ynh_systemd_action --service_name=$app --action="start" --log_path="systemd" --line_match="HTTP server listening on 127.0.0.1"
 
 #=================================================
 # END OF SCRIPT

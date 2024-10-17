@@ -89,17 +89,14 @@ ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
 #=================================================
 ynh_script_progression --message="Upgrading system configurations related to $app..." --weight=1
 
-# Create a dedicated NGINX config
 ynh_add_nginx_config
 
-# Create a dedicated systemd config
 ynh_add_systemd_config
 
 mkdir -p "/var/log/$app"
 touch "/var/log/$app/peertube.log"
 chown -R $app:$app "/var/log/$app"
 
-# Use logrotate to manage app-specific logfile(s)
 ynh_use_logrotate --non-append
 
 yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp

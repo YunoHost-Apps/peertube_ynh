@@ -72,7 +72,7 @@ ram.runtime = "1G"
     api.protected = true
 
     [resources.apt]
-    packages = "ffmpeg, postgresql, postgresql-contrib"
+    packages = "ffmpeg, postgresql, postgresql-contrib, redis-server"
 
     extras.yarn.repo = "deb https://dl.yarnpkg.com/debian/ stable main"
     extras.yarn.key = "https://dl.yarnpkg.com/debian/pubkey.gpg"

@@ -6,28 +6,20 @@ source /usr/share/yunohost/helpers
 #=================================================
 # REMOVE SYSTEM CONFIGURATIONS
 #=================================================
-# REMOVE SYSTEMD SERVICE 
-#=================================================
 ynh_script_progression --message="Removing system configurations related to $app..." --weight=1
 
-if ynh_exec_warn_less yunohost service status $app >/dev/null
-then
-	ynh_script_progression --message="Removing $app service integration..."
+if ynh_exec_warn_less yunohost service status $app >/dev/null; then
 	yunohost service remove $app
 fi
 
-# Remove the dedicated systemd config
 ynh_remove_systemd_config
 
-# Remove the app-specific logrotate config
 ynh_remove_logrotate
 
 ynh_redis_remove_db "$redis_db"
 
-# Remove the dedicated NGINX config
 ynh_remove_nginx_config
 
-# Remove metapackage and its dependencies
 ynh_remove_nodejs
 
 #=================================================

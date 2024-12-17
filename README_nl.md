@@ -5,7 +5,9 @@ Hij mag NIET handmatig aangepast worden.
 
 # PeerTube voor Yunohost
 
-[![Integratieniveau](https://dash.yunohost.org/integration/peertube.svg)](https://ci-apps.yunohost.org/ci/apps/peertube/) ![Mate van functioneren](https://ci-apps.yunohost.org/ci/badges/peertube.status.svg) ![Onderhoudsstatus](https://ci-apps.yunohost.org/ci/badges/peertube.maintain.svg)
+[![Integratieniveau](https://apps.yunohost.org/badge/integration/peertube)](https://ci-apps.yunohost.org/ci/apps/peertube/)
+![Mate van functioneren](https://apps.yunohost.org/badge/state/peertube)
+![Onderhoudsstatus](https://apps.yunohost.org/badge/maintained/peertube)
 
 [![PeerTube met Yunohost installeren](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=peertube)
 
@@ -19,7 +21,7 @@ Hij mag NIET handmatig aangepast worden.
 PeerTube is a decentralized and federated video hosting software. To publish videos, the user must register with a host (called an instance). Each host has its own conditions of use (storage space per user, moderation rules, themes, etc.). Thanks to WebTorrent, if several people view the same video, fragments of it are exchanged between people so as not to overload the instance. Decentralized: Each instance can follow one or more other PeerTube instances in order to allow its users to view their videos. Federated: Via the ActivityPub protocol, Peertube can interact with other software that is part of the Fediverse, such as Mastodon for example.
 
 
-**Geleverde versie:** 6.3.2~ynh1
+**Geleverde versie:** 7.0.0~ynh1
 
 **Demo:** <http://peertube.cpy.re>
 

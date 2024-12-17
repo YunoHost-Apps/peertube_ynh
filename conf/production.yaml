@@ -143,6 +143,7 @@ storage:
   avatars: '__DATA_DIR__/storage/avatars/'
   web_videos: '__DATA_DIR__/storage/web-videos/'
   streaming_playlists: '__DATA_DIR__/storage/streaming-playlists/'
+  original_video_files: '__DATA_DIR__/storage/original-video-files/'
   redundancy: '__DATA_DIR__/storage/redundancy/'
   logs: '/var/log/__APP__/'
   previews: '__DATA_DIR__/storage/previews/'

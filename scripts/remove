@@ -6,24 +6,24 @@ source /usr/share/yunohost/helpers
 #=================================================
 # REMOVE SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression --message="Removing system configurations related to $app..." --weight=1
+ynh_script_progression "Removing system configurations related to $app..."
 
-if ynh_exec_warn_less yunohost service status $app >/dev/null; then
+if ynh_hide_warnings yunohost service status $app >/dev/null; then
 	yunohost service remove $app
 fi
 
-ynh_remove_systemd_config
+ynh_config_remove_systemd
 
-ynh_remove_logrotate
+ynh_config_remove_logrotate
 
 ynh_redis_remove_db "$redis_db"
 
-ynh_remove_nginx_config
+ynh_config_remove_nginx
 
-ynh_remove_nodejs
+ynh_nodejs_remove
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Removal of $app completed"
+ynh_script_progression "Removal of $app completed"

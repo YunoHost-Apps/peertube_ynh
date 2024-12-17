@@ -5,7 +5,7 @@ name = "PeerTube"
 description.en = "Federated video streaming platform using P2P directly in the web browser"
 description.fr = "Plateforme fédéralisé de diffusion vidéo par P2P directement dans le navigateur"
 
-version = "6.3.3~ynh1"
+version = "7.0.0~ynh1"
 
 maintainers = [ ]
 
@@ -17,9 +17,11 @@ admindoc = "https://docs.joinpeertube.org"
 code = "https://github.com/Chocobozzz/PeerTube"
 
 [integration]
-yunohost = ">= 11.2.21"
+yunohost = ">= 12.0.8"
+helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
+
 ldap = true
 sso = false
 
@@ -40,8 +42,8 @@ ram.runtime = "1G"
 
 [resources]
         [resources.sources.main]
-        url = "https://github.com/Chocobozzz/PeerTube/releases/download/v6.3.3/peertube-v6.3.3.tar.xz"
-        sha256 = "4e2883b1ebbb81dda3d56a8ca0905ea9959a31a5021ba0220ed6c9ce6ee321dd"
+        url = "https://github.com/Chocobozzz/PeerTube/releases/download/v7.0.0/peertube-v7.0.0.tar.xz"
+        sha256 = "7f5413c8571427d3ca1755aa9109c93aa5b8af7b835d16968dffe02cd3e6172c"
         autoupdate.strategy = "latest_github_release"
         autoupdate.asset = "^peertube-v.*\\.tar\\.xz$"
 
@@ -54,6 +56,7 @@ ram.runtime = "1G"
     allow_email = true
 
     [resources.install_dir]
+    group = "www-data:r-x"
 
     [resources.data_dir]
     subdirs = ["storage"]

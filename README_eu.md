@@ -5,7 +5,9 @@ EZ editatu eskuz.
 
 # PeerTube YunoHost-erako
 
-[![Integrazio maila](https://dash.yunohost.org/integration/peertube.svg)](https://ci-apps.yunohost.org/ci/apps/peertube/) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/peertube.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/peertube.maintain.svg)
+[![Integrazio maila](https://apps.yunohost.org/badge/integration/peertube)](https://ci-apps.yunohost.org/ci/apps/peertube/)
+![Funtzionamendu egoera](https://apps.yunohost.org/badge/state/peertube)
+![Mantentze egoera](https://apps.yunohost.org/badge/maintained/peertube)
 
 [![Instalatu PeerTube YunoHost-ekin](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=peertube)
 
@@ -19,7 +21,7 @@ EZ editatu eskuz.
 PeerTube is a decentralized and federated video hosting software. To publish videos, the user must register with a host (called an instance). Each host has its own conditions of use (storage space per user, moderation rules, themes, etc.). Thanks to WebTorrent, if several people view the same video, fragments of it are exchanged between people so as not to overload the instance. Decentralized: Each instance can follow one or more other PeerTube instances in order to allow its users to view their videos. Federated: Via the ActivityPub protocol, Peertube can interact with other software that is part of the Fediverse, such as Mastodon for example.
 
 
-**Paketatutako bertsioa:** 6.3.3~ynh1
+**Paketatutako bertsioa:** 7.0.0~ynh1
 
 **Demoa:** <http://peertube.cpy.re>
 

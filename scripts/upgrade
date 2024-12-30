@@ -1,13 +1,18 @@
 #!/bin/bash
 
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
 source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# LOAD SETTINGS
+# STOP SYSTEMD SERVICE
 #=================================================
+ynh_script_progression "Stopping $app's systemd service..."
 
-admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
+ynh_systemctl --service="$app" --action="stop" --log_path="systemd"
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -40,13 +45,6 @@ if [ -d "$data_dir/storage/videos" ]; then
     mv $data_dir/storage/videos $data_dir/storage/web-videos
 fi
 
-#=================================================
-# STOP SYSTEMD SERVICE
-#=================================================
-ynh_script_progression "Stopping $app's systemd service..."
-
-ynh_systemctl --service=$app --action="stop" --log_path="systemd"
-
 # In the past, the db was called peertube_peertube >_>
 if [[ "${db_name:-}" == "peertube_peertube" ]]
 then
@@ -61,16 +59,18 @@ fi
 #=================================================
 ynh_script_progression "Upgrading source files..."
 
+# Download, check integrity, uncompress and patch the source from manifest.toml
 ynh_setup_source --dest_dir="$install_dir" --full_replace --keep="config/production.yaml config/local-production.json config/local.yaml"
 
 chown -R $app:www-data "$data_dir"
 
 #=================================================
-# UPGRADE DEPENDENCIES
+# UPDATE A CONFIG FILE
 #=================================================
-ynh_script_progression "Upgrading dependencies..."
+ynh_script_progression "Updating $app's configuration files..."
 
-ynh_nodejs_install
+admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
+ynh_config_add --template="production.yaml" --destination="$install_dir/config/production.yaml"
 
 #=================================================
 # REAPPLY SYSTEM CONFIGURATIONS
@@ -89,6 +89,13 @@ ynh_config_add_logrotate
 yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
 
 #=================================================
+# UPGRADE DEPENDENCIES
+#=================================================
+ynh_script_progression "Upgrading dependencies..."
+
+ynh_nodejs_install
+
+#=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
 ynh_script_progression "Building Yarn dependencies..."
@@ -98,13 +105,6 @@ pushd "$install_dir"
 	ynh_hide_warnings ynh_exec_as_app yarn install --production --pure-lockfile
 	ynh_hide_warnings ynh_exec_as_app yarn cache clean
 popd
-
-#=================================================
-# UPDATE A CONFIG FILE
-#=================================================
-ynh_script_progression "Updating configuration file..."
-
-ynh_config_add --template="production.yaml" --destination="$install_dir/config/production.yaml"
 
 #=================================================
 # INSTALL LDAP PLUGIN
@@ -119,9 +119,9 @@ popd
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression "Starting systemd service..."
+ynh_script_progression "Starting $app's systemd service..."
 
-ynh_systemctl --service=$app --action="start" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
+ynh_systemctl --service="$app" --action="start" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
 
 #=================================================
 # PEERTUBE UPGRADE MIGRATION SCRIPT

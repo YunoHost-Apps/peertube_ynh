@@ -31,9 +31,9 @@ rates_limit:
     window: 5 minutes
     max: 3
   receive_client_log:
-    # 10 attempts in 10 min
-    window: 10 minutes
-    max: 10
+    # 1 attempt every 2 seconds
+    window: 1 minute
+    max: 30
   plugins:
     # 500 attempts in 10 seconds (we also serve plugin static files)
     window: 10 seconds
@@ -54,6 +54,11 @@ rates_limit:
     # 500 attempts in 10 seconds (to not break crawlers)
     window: 10 seconds
     max: 500
+  download_generate_video: # A light FFmpeg process is used to generate videos (to merge audio and video streams for example)
+    # 5 attempts in 5 seconds
+    window: 5 seconds
+    max: 5
+
 
 oauth2:
   token_lifetime:
@@ -85,6 +90,13 @@ redis:
   port: 6379
   auth: null
   db: __REDIS_DB__
+  sentinel:
+    enabled: false
+    enable_tls: false
+    master_name: ''
+    sentinels:
+      - hostname: ''
+        port: 26379
 
 # SMTP server to send emails
 smtp:
@@ -99,7 +111,7 @@ smtp:
   tls: false # If you use StartTLS: false
   disable_starttls: true
   ca_file: null # Used for self signed certificates
-  from_address: 'webmaster@__DOMAIN__'
+  from_address: '__APP__@__DOMAIN__'
 
 email:
   body:
@@ -114,7 +126,8 @@ defaults:
   publish:
     download_enabled: true
 
-    comments_enabled: true
+    # enabled = 1, disabled = 2, requires_approval = 3
+    comments_policy: 1
 
     # public = 1, unlisted = 2, private = 3, internal = 4
     privacy: 1
@@ -174,15 +187,18 @@ object_storage:
   enabled: false
 
   # Without protocol, will default to HTTPS
+  # Your S3 provider must support virtual hosting of buckets as PeerTube doesn't support path style requests
   endpoint: '' # 's3.amazonaws.com' or 's3.fr-par.scw.cloud' for example
 
   region: 'us-east-1'
 
   upload_acl:
     # Set this ACL on each uploaded object of public/unlisted videos
+    # Use null if your S3 provider does not support object ACL
     public: 'public-read'
     # Set this ACL on each uploaded object of private/internal videos
     # PeerTube can proxify requests to private objects so your users can access them
+    # Use null if your S3 provider does not support object ACL
     private: 'private'
 
   proxy:
@@ -201,6 +217,11 @@ object_storage:
   # Maximum amount to upload in one request to object storage
   max_upload_part: 2GB
 
+  # Maximum number of attempts to make a request to object storage
+  # Some object storage providers (for instance Backblaze) expects the client to retry upload upon 5xx errors
+  # If you're using such a provider then you can increase this value
+  max_request_attempts: 3
+
   streaming_playlists:
     bucket_name: 'streaming-playlists'
 
@@ -211,9 +232,25 @@ object_storage:
     # Useful when you want to use a CDN/external proxy
     base_url: '' # Example: 'https://mirror.example.com'
 
-  # Same settings but for web videos
+    # PeerTube makes many small requests to the object storage provider to upload/delete/update live chunks
+    # which can be a problem depending on your object storage provider
+    # You can also choose to disable this feature to reduce live streams latency
+    # Live stream replays are not affected by this setting, so they are uploaded in object storage as regular VOD videos
+    store_live_streams: true
+
   web_videos:
     bucket_name: 'web-videos'
+    prefix: ''
+    base_url: ''
+
+  user_exports:
+    bucket_name: 'user-exports'
+    prefix: ''
+    base_url: ''
+
+  # Same settings but for original video files
+  original_video_files:
+    bucket_name: 'original-video-files'
     prefix: ''
     base_url: ''
 
@@ -221,7 +258,7 @@ log:
   level: 'info' # 'debug' | 'info' | 'warn' | 'error'
 
   rotation:
-    enabled : true # Enabled by default, if disabled make sure that 'storage.logs' is pointing to a folder handled by logrotate
+    enabled: true # Enabled by default, if disabled make sure that 'storage.logs' is pointing to a folder handled by logrotate
     max_file_size: 12MB
     max_files: 20
 
@@ -244,9 +281,12 @@ open_telemetry:
   metrics:
     enabled: false
 
+    # How often viewers send playback stats to server
+    playback_stats_interval: '15 seconds'
+
     http_request_duration:
       # You can disable HTTP request duration metric that can have a high tag cardinality
-      enabled: true
+      enabled: false
 
     # Create a prometheus exporter server on this port so prometheus server can scrape PeerTube metrics
     prometheus_exporter:
@@ -350,7 +390,27 @@ views:
     # PeerTube buffers local video views before updating and federating the video
     local_buffer_update_interval: '30 minutes'
 
-    ip_view_expiration: '1 hour'
+    # How long does it take to count again a view from the same user
+    view_expiration: '1 hour'
+
+    # Minimum amount of time the viewer has to watch the video before PeerTube adds a view
+    count_view_after: '10 seconds'
+
+    # Player can send a session id string to track the user
+    # Since this can be spoofed by users to create fake views, you have the option to disable this feature
+    # If disabled, PeerTube will use the IP address to track the same user (default behavior before PeerTube 6.1)
+    trust_viewer_session_id: true
+
+    # How often the web browser sends "is watching" information to the server
+    # Increase the value or set null to disable it if you plan to have many viewers
+    watching_interval:
+      # Non logged-in viewers
+      anonymous: '5 seconds'
+
+      # Logged-in users of your instance
+      # Unlike anonymous viewers, this endpoint is also used to store the "last watched video timecode" for your users
+      # Increasing this value reduces the accuracy of the video resume
+      users: '5 seconds'
 
 # Used to get country location of views of local videos
 geo_ip:
@@ -359,15 +419,25 @@ geo_ip:
   country:
     database_url: 'https://dbip.mirror.framasoft.org/files/dbip-country-lite-latest.mmdb'
 
+  city:
+    database_url: 'https://dbip.mirror.framasoft.org/files/dbip-city-lite-latest.mmdb'
+
 plugins:
   # The website PeerTube will ask for available PeerTube plugins and themes
   # This is an unmoderated plugin index, so only install plugins/themes you trust
   index:
     enabled: true
-    check_latest_versions_interval: '12 hours' # How often you want to check new plugins/themes versions
+    check_latest_versions_interval: '4 hours' # How often you want to check new plugins/themes versions
     url: 'https://packages.joinpeertube.org'
 
 federation:
+  # Enable ActivityPub endpoints (inbox/outbox)
+  enabled: true
+
+  # Prevent SSRF requests (requests to your internal network for example) by checking the request IP address
+  # More information about SSRF: https://portswigger.net/web-security/ssrf
+  prevent_ssrf: true
+
   # Some federated software such as Mastodon may require an HTTP signature to access content
   sign_federated_fetches: true
 
@@ -415,6 +485,39 @@ thumbnails:
     # Minimum value is 2
     frames_to_analyze: 50
 
+  # Only two sizes are currently supported for now (not less, not more)
+  # 1 size for the thumbnail (displayed in video miniatures)
+  # 1 size for the preview (displayed in the video player)
+  sizes:
+    -
+      width: 280
+      height: 157
+
+    -
+      width: 850
+      height: 480
+
+stats:
+  # Display registration requests stats (average response time, total requests...)
+  registration_requests:
+    enabled: true
+
+  # Display abuses stats (average response time, total abuses...)
+  abuses:
+    enabled: true
+
+  total_moderators:
+    enabled: true
+
+  total_admins:
+    enabled: true
+
+webrtc:
+  # 1 or 2 STUN servers are sufficient
+  stun_servers:
+    - 'stun:stunserver2024.stunprotocol.org'
+    - 'stun:stun.framasoft.org'
+
 ###############################################################################
 #
 # From this point, almost all following keys can be overridden by the web interface
@@ -448,7 +551,9 @@ contact_form:
 signup:
   enabled: false
 
-  limit: 10 # When the limit is reached, registrations are disabled. -1 == unlimited
+  # When the total number of users in your instance reaches this limit, registrations are disabled.
+  # -1 == unlimited
+  limit: 10
 
   minimum_age: 16 # Used to configure the signup form
 
@@ -466,11 +571,14 @@ user:
     videos:
       # Enable or disable video history by default for new users.
       enabled: true
-  # Default value of maximum video bytes the user can upload (does not take into account transcoded files)
+
+  # Default value of maximum video bytes the user can upload
+  # Does not take into account transcoded files or account export archives (that can include user uploaded files)
   # Byte format is supported ("1GB" etc)
   # -1 == unlimited
   video_quota: -1
   video_quota_daily: -1
+
   default_channel_name: 'Main $1 channel' # The placeholder $1 is used to represent the user's username
 
 video_channels:
@@ -481,6 +589,11 @@ video_channels:
 # Please, do not disable transcoding since many uploaded videos will not work
 transcoding:
   enabled: true
+
+  original_file:
+    # If false the uploaded file is deleted after transcoding
+    # If yes it is not deleted but moved in a dedicated folder or object storage
+    keep: false
 
   # Allow your users to upload .mkv, .mov, .avi, .wmv, .flv, .f4v, .3g2, .3gp, .mts, m2ts, .mxf, .nut videos
   allow_additional_extensions: true
@@ -505,7 +618,7 @@ transcoding:
   profile: 'default'
 
   resolutions: # Only created if the original video has a higher resolution, uses more storage!
-    0p: false # audio-only (creates mp4 without video stream, always created when enabled)
+    0p: false # audio-only (creates mp4 without video stream)
     144p: false
     240p: false
     360p: false
@@ -517,6 +630,11 @@ transcoding:
 
   # Transcode and keep original resolution, even if it's above your maximum enabled resolution
   always_transcode_original_resolution: true
+
+  fps:
+    # Cap transcoded video FPS
+    # Max resolution file still keeps the original FPS
+    max: 60
 
   # Generate videos in a web compatible format
   # If you also enabled the hls format, it will multiply videos storage by 2
@@ -532,6 +650,12 @@ transcoding:
   # If you also enabled the web videos format, it will multiply videos storage by 2
   hls:
     enabled: true
+
+    # Store the audio stream in a separate file from the video
+    # This option adds the ability for the HLS player to propose the "Audio only" quality to users
+    # It also saves disk space by not duplicating the audio stream in each resolution file
+    # /!\ If enabled, remote PeerTube instances < 6.3.0 won't be able to play these videos
+    split_audio_and_video: false
 
 live:
   enabled: true
@@ -610,6 +734,7 @@ live:
     profile: 'default'
 
     resolutions:
+      0p: false # Audio only
       144p: false
       240p: false
       360p: false
@@ -622,6 +747,11 @@ live:
     # Also transcode original resolution, even if it's above your maximum enabled resolution
     always_transcode_original_resolution: true
 
+    fps:
+      # Cap transcoded live FPS
+      # Max resolution stream still keeps the original FPS
+      max: 60
+
 video_studio:
   # Enable video edition by users (cut, add intro/outro, add watermark etc)
   # If enabled, users can create transcoding tasks as they wish
@@ -630,6 +760,34 @@ video_studio:
   # Enable remote runners to transcode studio tasks
   # If enabled, your instance won't transcode the videos itself
   # At least 1 remote runner must be configured to transcode your videos
+  remote_runners:
+    enabled: false
+
+video_transcription:
+  # Enable automatic transcription of videos
+  enabled: false
+
+  # Choose engine for local transcription
+  # Supported: 'openai-whisper' or 'whisper-ctranslate2'
+  engine: 'whisper-ctranslate2'
+
+  # You can set a custom engine path for local transcription
+  # If not provided, PeerTube will try to automatically install it in the PeerTube bin directory
+  engine_path: null
+
+  # Choose engine model for local transcription
+  # Available for 'openai-whisper' and 'whisper-ctranslate2': 'tiny', 'base', 'small', 'medium', 'large-v2' or 'large-v3'
+  model: 'small'
+
+  # Or specify the model path:
+  #  * PyTorch model file path for 'openai-whisper'
+  #  * CTranslate2 Whisper model directory path for 'whisper-ctranslate2'
+  # If not provided, PeerTube will automatically download the model
+  model_path: null
+
+  # Enable remote runners to transcribe videos
+  # If enabled, your instance won't transcribe the videos itself
+  # At least 1 remote runner must be configured to transcribe your videos
   remote_runners:
     enabled: false
 
@@ -656,20 +814,35 @@ import:
       youtube_dl_release:
         # Direct download URL to youtube-dl binary
         # Github releases API is also supported
-        # Examples:
+        #
+        # Platform-independent examples:
         #   * https://api.github.com/repos/ytdl-org/youtube-dl/releases
         #   * https://api.github.com/repos/yt-dlp/yt-dlp/releases
         #   * https://yt-dl.org/downloads/latest/youtube-dl
+        #
+        # You can also use a youtube-dl standalone binary (requires python_path: null)
+        # GNU/Linux binaries with support for impersonating browser requests (required by some platforms such as Vimeo) examples:
+        #   * https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux (x64)
+        #   * https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux_armv7l (ARMv7)
+        #   * https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux_armv7l (ARMv8/AArch64/ARM64)
         url: 'https://api.github.com/repos/yt-dlp/yt-dlp/releases'
 
         # Release binary name: 'yt-dlp' or 'youtube-dl'
         name: 'yt-dlp'
 
         # Path to the python binary to execute for youtube-dl or yt-dlp
+        # Set to null if you use a youtube-dl executable
         python_path: '/usr/bin/python3'
 
       # IPv6 is very strongly rate-limited on most sites supported by youtube-dl
       force_ipv4: false
+
+      # By default PeerTube uses HTTP_PROXY and HTTPS_PROXY environment variables
+      # But you can specify custom proxies for youtube-dl because remote websites (like YouTube) may block your server IP address
+      # PeerTube will randomly select a proxy from the following list
+      # You may need to use a standalone youtube-dl binary (see `url` key comment above) to use this feature
+      proxies:
+#        - "https://username:password@example.com:8888"
 
     # Magnet URI or torrent file (use classic TCP/UDP/WebSeed to download the file)
     torrent:
@@ -690,6 +863,24 @@ import:
 
     # Max number of videos to import when the user asks for full sync
     full_sync_videos_limit: 1000
+
+  users:
+    # Video quota is checked on import so the user doesn't upload a too big archive file
+    # Video quota (daily quota is not taken into account) is also checked for each video when PeerTube is processing the import
+    enabled: true
+
+export:
+  users:
+    # Allow users to export their PeerTube data in a .zip for backup or re-import
+    # Only one export at a time is allowed per user
+    enabled: true
+
+    # Max size of the current user quota to accept or not the export
+    # Goal of this setting is to not store too big archive file on your server disk
+    max_user_video_quota: 10GB
+
+    # How long PeerTube should keep the user export
+    export_expiration: '2 days'
 
 auto_blacklist:
   # New videos automatically blacklisted so moderators can review before publishing
@@ -724,17 +915,19 @@ instance:
   # Example: '2 vCore, 2GB RAM...'
   hardware_information: '' # Supports Markdown
 
-  # What are the main languages of your instance? To interact with your users for example
+  # Describe the languages spoken on your instance, to interact with your users for example
   # Uncomment or add the languages you want
   # List of supported languages: https://peertube.cpy.re/api/v1/videos/languages
+  # PeerTube plugins can add additional languages to the official list of supported languages
   languages:
 #    - en
 #    - es
 #    - fr
 
-  # You can specify the main categories of your instance (dedicated to music, gaming or politics etc)
-  # Uncomment or add the category ids you want
+  # Describe the main categories of your instance (to explain for example that your instance is dedicated to music, gaming, etc.)
+  # Uncomment categories you want
   # List of supported categories: https://peertube.cpy.re/api/v1/videos/categories
+  # PeerTube plugins can add additional categories to the official list of supported categories
   categories:
 #    - 1  # Music
 #    - 2  # Films
@@ -755,7 +948,7 @@ instance:
 #    - 17 # Kids
 #    - 18 # Food
 
-  default_client_route: '/videos/trending'
+  default_client_route: '/videos/browse'
 
   # Whether or not the instance is dedicated to NSFW content
   # Enabling it will allow other administrators to know that you are mainly federating sensitive content
@@ -779,13 +972,11 @@ instance:
     Expires: 2025-12-31T11:00:00.000Z'
 
 services:
-  # Cards configuration to format video in Twitter
+  # Cards configuration to format video in Twitter/X
+  # All other social media (Facebook, Mastodon, etc.) are supported out of the box
   twitter:
-    username: '@yunohost' # Indicates the Twitter account for the website or platform on which the content was published
-    # If true, a video player will be embedded in the Twitter feed on PeerTube video share
-    # If false, we use an image link card that will redirect on your PeerTube instance
-    # Change it to `true`, and then test on https://cards-dev.twitter.com/validator to see if you are whitelisted
-    whitelisted: false
+    # Indicates the Twitter/X account for the website or platform where the content was published
+    # This is just an information injected in HTML that is required by Twitter/X
 
 followers:
   instance:
@@ -850,7 +1041,7 @@ client:
     miniature:
       # By default PeerTube client displays author username
       prefer_author_display_name: false
-      display_author_avatar: false
+
     resumable_upload:
       # Max size of upload chunks, e.g. '90MB'
       # If null, it will be calculated based on network speed
@@ -861,3 +1052,7 @@ client:
       # If you enable only one external auth plugin
       # You can automatically redirect your users on this external platform when they click on the login button
       redirect_on_single_external_auth: false
+
+storyboards:
+  # Generate storyboards of local videos using ffmpeg so users can see the video preview in the player while scrubbing the video
+  enabled: true

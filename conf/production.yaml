@@ -971,10 +971,10 @@ instance:
     Contact: https://github.com/Chocobozzz/PeerTube/blob/develop/SECURITY.md
     Expires: 2025-12-31T11:00:00.000Z'
 
-services:
+#services:
   # Cards configuration to format video in Twitter/X
   # All other social media (Facebook, Mastodon, etc.) are supported out of the box
-  twitter:
+  #twitter:
     # Indicates the Twitter/X account for the website or platform where the content was published
     # This is just an information injected in HTML that is required by Twitter/X
 

@@ -65,6 +65,13 @@ ynh_setup_source --dest_dir="$install_dir" --full_replace --keep="config/product
 chown -R $app:www-data "$data_dir"
 
 #=================================================
+# UPGRADE DEPENDENCIES
+#=================================================
+ynh_script_progression "Upgrading dependencies..."
+
+ynh_nodejs_install
+
+#=================================================
 # UPDATE A CONFIG FILE
 #=================================================
 ynh_script_progression "Updating $app's configuration files..."
@@ -87,13 +94,6 @@ touch "/var/log/$app/peertube.log"
 ynh_config_add_logrotate
 
 yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
-
-#=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-ynh_script_progression "Upgrading dependencies..."
-
-ynh_nodejs_install
 
 #=================================================
 # BUILD YARN DEPENDENCIES

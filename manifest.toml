@@ -5,7 +5,7 @@ name = "PeerTube"
 description.en = "Federated video streaming platform using P2P directly in the web browser"
 description.fr = "Plateforme fédéralisé de diffusion vidéo par P2P directement dans le navigateur"
 
-version = "6.3.3~ynh1"
+version = "7.0.0~ynh1"
 
 maintainers = [ ]
 
@@ -15,12 +15,16 @@ website = "https://joinpeertube.org/fr"
 demo = "http://peertube.cpy.re"
 admindoc = "https://docs.joinpeertube.org"
 code = "https://github.com/Chocobozzz/PeerTube"
+cpe = "cpe:2.3:a:framasoft:peertube"
 
 [integration]
-yunohost = ">= 11.2.21"
+yunohost = ">= 11.2.30"
+helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
+
 ldap = true
+
 sso = false
 
 disk = "50M"
@@ -39,21 +43,17 @@ ram.runtime = "1G"
     type = "user"
 
 [resources]
-        [resources.sources.main]
-        url = "https://github.com/Chocobozzz/PeerTube/releases/download/v6.3.3/peertube-v6.3.3.tar.xz"
-        sha256 = "4e2883b1ebbb81dda3d56a8ca0905ea9959a31a5021ba0220ed6c9ce6ee321dd"
-        autoupdate.strategy = "latest_github_release"
-        autoupdate.asset = "^peertube-v.*\\.tar\\.xz$"
-
-    [resources.ports]
-    main.default = 8095
-    rtmp.default = 1935
-    rtmp.exposed = "TCP"
+    [resources.sources.main]
+    url = "https://github.com/Chocobozzz/PeerTube/releases/download/v7.0.0/peertube-v7.0.0.tar.xz"
+    sha256 = "7f5413c8571427d3ca1755aa9109c93aa5b8af7b835d16968dffe02cd3e6172c"
+    autoupdate.strategy = "latest_github_release"
+    autoupdate.asset = "^peertube-v.*\\.tar\\.xz$"
 
     [resources.system_user]
     allow_email = true
 
     [resources.install_dir]
+    group = "www-data:r-x"
 
     [resources.data_dir]
     subdirs = ["storage"]
@@ -66,6 +66,11 @@ ram.runtime = "1G"
     api.auth_header = false
     api.show_tile = false
     api.protected = true
+
+    [resources.ports]
+    main.default = 8095
+    rtmp.default = 1935
+    rtmp.exposed = "TCP"
 
     [resources.apt]
     packages = "ffmpeg, postgresql, postgresql-contrib, redis-server"

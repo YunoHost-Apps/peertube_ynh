@@ -1,24 +1,32 @@
 #!/bin/bash
 
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
 source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# RETRIEVE ARGUMENTS FROM THE MANIFEST
+# INITIALIZE AND STORE SETTINGS
 #=================================================
 
-admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 admin_pass=$(ynh_string_random --length=24)
-secrets_peertube=$(ynh_string_random --length=24)
-redis_db=$(ynh_redis_get_free_db)
-
-#=================================================
-# STORE SETTINGS FROM MANIFEST
-#=================================================
-
 ynh_app_setting_set --key=admin_pass --value=$admin_pass
+secrets_peertube=$(ynh_string_random --length=24)
 ynh_app_setting_set --key=secrets_peertube --value=$secrets_peertube
+redis_db=$(ynh_redis_get_free_db)
 ynh_app_setting_set --key=redis_db --value="$redis_db"
+
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+ynh_script_progression "Setting up source files..."
+
+# Download, check integrity, uncompress and patch the source from manifest.toml
+ynh_setup_source --dest_dir="$install_dir"
+
+chown -R $app:www-data "$data_dir"
 
 #=================================================
 # INSTALL DEPENDENCIES
@@ -36,15 +44,6 @@ ynh_psql_db_shell <<< "CREATE EXTENSION IF NOT EXISTS unaccent;"
 ynh_psql_db_shell <<< "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 
 #=================================================
-# DOWNLOAD, CHECK AND UNPACK SOURCE
-#=================================================
-ynh_script_progression "Setting up source files..."
-
-ynh_setup_source --dest_dir="$install_dir"
-
-chown -R $app:www-data "$data_dir"
-
-#=================================================
 # BUILD YARN DEPENDENCIES
 #=================================================
 ynh_script_progression "Building $app..."
@@ -56,35 +55,39 @@ pushd "$install_dir"
 popd
 
 #=================================================
-# NGINX CONFIGURATION
+# APP INITIAL CONFIGURATION
 #=================================================
-ynh_script_progression "Adding system configurations..."
+ynh_script_progression "Adding $app's configuration files..."
 
+admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
+ynh_config_add --template="production.yaml" --destination="$install_dir/config/production.yaml"
+echo '{}' > "$install_dir/config/local-production.json"
+
+#=================================================
+# SYSTEM CONFIGURATION
+#=================================================
+ynh_script_progression "Adding system configurations related to $app..."
+
+# Create a dedicated NGINX config using the conf/nginx.conf template
 ynh_config_add_nginx
 
+# Create a dedicated systemd config
 ynh_config_add_systemd
+
+yunohost service add "$app" --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
 
 mkdir -p "/var/log/$app"
 touch "/var/log/$app/peertube.log"
 
+# Use logrotate to manage application logfile(s)
 ynh_config_add_logrotate
-
-yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
-
-#=================================================
-# ADD A CONFIGURATION
-#=================================================
-ynh_script_progression "Adding peertube configuration file..."
-
-ynh_config_add --template="production.yaml" --destination="$install_dir/config/production.yaml"
-
-echo '{}' > "$install_dir/config/local-production.json"
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
 ynh_script_progression "Starting $app's systemd service..."
 
+# Start a systemd service
 ynh_systemctl --service=$app --action="start" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
 
 #=================================================

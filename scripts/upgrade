@@ -1,13 +1,18 @@
 #!/bin/bash
 
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
 source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# LOAD SETTINGS
+# STOP SYSTEMD SERVICE
 #=================================================
+ynh_script_progression "Stopping $app's systemd service..."
 
-admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
+ynh_systemctl --service="$app" --action="stop" --log_path="systemd"
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -40,13 +45,6 @@ if [ -d "$data_dir/storage/videos" ]; then
     mv $data_dir/storage/videos $data_dir/storage/web-videos
 fi
 
-#=================================================
-# STOP SYSTEMD SERVICE
-#=================================================
-ynh_script_progression "Stopping $app's systemd service..."
-
-ynh_systemctl --service=$app --action="stop" --log_path="systemd"
-
 # In the past, the db was called peertube_peertube >_>
 if [[ "${db_name:-}" == "peertube_peertube" ]]
 then
@@ -61,6 +59,7 @@ fi
 #=================================================
 ynh_script_progression "Upgrading source files..."
 
+# Download, check integrity, uncompress and patch the source from manifest.toml
 ynh_setup_source --dest_dir="$install_dir" --full_replace --keep="config/production.yaml config/local-production.json config/local.yaml"
 
 chown -R $app:www-data "$data_dir"
@@ -71,6 +70,14 @@ chown -R $app:www-data "$data_dir"
 ynh_script_progression "Upgrading dependencies..."
 
 ynh_nodejs_install
+
+#=================================================
+# UPDATE A CONFIG FILE
+#=================================================
+ynh_script_progression "Updating $app's configuration files..."
+
+admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
+ynh_config_add --template="production.yaml" --destination="$install_dir/config/production.yaml"
 
 #=================================================
 # REAPPLY SYSTEM CONFIGURATIONS
@@ -100,13 +107,6 @@ pushd "$install_dir"
 popd
 
 #=================================================
-# UPDATE A CONFIG FILE
-#=================================================
-ynh_script_progression "Updating configuration file..."
-
-ynh_config_add --template="production.yaml" --destination="$install_dir/config/production.yaml"
-
-#=================================================
 # INSTALL LDAP PLUGIN
 #=================================================
 ynh_script_progression "Installing $app plugin..."
@@ -119,9 +119,9 @@ popd
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression "Starting systemd service..."
+ynh_script_progression "Starting $app's systemd service..."
 
-ynh_systemctl --service=$app --action="start" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
+ynh_systemctl --service="$app" --action="start" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
 
 #=================================================
 # PEERTUBE UPGRADE MIGRATION SCRIPT

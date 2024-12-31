@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+# Keep this path for calling _common.sh inside the execution's context of backup and restore scripts
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
@@ -17,7 +22,7 @@ ynh_script_progression "Restoring the data directory..."
 
 ynh_restore "$data_dir"
 
-chown -R $app:www-data "$data_dir"
+chown -R "$app:www-data" "$data_dir"
 
 #=================================================
 # RESTORE THE POSTGRESQL DATABASE
@@ -38,26 +43,26 @@ ynh_nodejs_install
 #=================================================
 ynh_script_progression "Restoring system configurations related to $app..."
 
-ynh_script_progression "Reinstalling system configurations..."
-
 ynh_restore "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 ynh_restore "/etc/systemd/system/$app.service"
-systemctl enable $app.service --quiet
+systemctl enable "$app.service" --quiet
+
+yunohost service add "$app" --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
 
 mkdir -p "/var/log/$app"
 touch "/var/log/$app/peertube.log"
 #chown -R $app:$app "/var/log/$app"
 ynh_restore "/etc/logrotate.d/$app"
 
-yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
 
 #=================================================
-# START SYSTEMD SERVICE
+# RELOAD NGINX AND PHP-FPM OR THE APP SERVICE
 #=================================================
-ynh_script_progression "Starting $app's systemd service..."
+ynh_script_progression "Reloading NGINX web server and $app's service..."
 
-ynh_systemctl --service=$app --action="start" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
+### Typically you only have either $app or PHP-FPM but not both at the same time...
+ynh_systemctl --service="$app" --action="start" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
 
 ynh_systemctl --service=nginx --action=reload
 

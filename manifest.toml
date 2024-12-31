@@ -15,14 +15,16 @@ website = "https://joinpeertube.org/fr"
 demo = "http://peertube.cpy.re"
 admindoc = "https://docs.joinpeertube.org"
 code = "https://github.com/Chocobozzz/PeerTube"
+cpe = "cpe:2.3:a:framasoft:peertube"
 
 [integration]
-yunohost = ">= 12.0.8"
+yunohost = ">= 11.2.30"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
 
 ldap = true
+
 sso = false
 
 disk = "50M"
@@ -41,16 +43,11 @@ ram.runtime = "1G"
     type = "user"
 
 [resources]
-        [resources.sources.main]
-        url = "https://github.com/Chocobozzz/PeerTube/releases/download/v7.0.0/peertube-v7.0.0.tar.xz"
-        sha256 = "7f5413c8571427d3ca1755aa9109c93aa5b8af7b835d16968dffe02cd3e6172c"
-        autoupdate.strategy = "latest_github_release"
-        autoupdate.asset = "^peertube-v.*\\.tar\\.xz$"
-
-    [resources.ports]
-    main.default = 8095
-    rtmp.default = 1935
-    rtmp.exposed = "TCP"
+    [resources.sources.main]
+    url = "https://github.com/Chocobozzz/PeerTube/releases/download/v7.0.0/peertube-v7.0.0.tar.xz"
+    sha256 = "7f5413c8571427d3ca1755aa9109c93aa5b8af7b835d16968dffe02cd3e6172c"
+    autoupdate.strategy = "latest_github_release"
+    autoupdate.asset = "^peertube-v.*\\.tar\\.xz$"
 
     [resources.system_user]
     allow_email = true
@@ -69,6 +66,11 @@ ram.runtime = "1G"
     api.auth_header = false
     api.show_tile = false
     api.protected = true
+
+    [resources.ports]
+    main.default = 8095
+    rtmp.default = 1935
+    rtmp.exposed = "TCP"
 
     [resources.apt]
     packages = "ffmpeg, postgresql, postgresql-contrib, redis-server"

@@ -101,8 +101,8 @@ yunohost service add $app --description="Federated video streaming platform" --l
 ynh_script_progression "Building Yarn dependencies..."
 
 pushd "$install_dir"
-	ynh_hide_warnings ynh_exec_as_app yarn config set network-timeout 300000
-	ynh_hide_warnings ynh_exec_as_app yarn install --production --pure-lockfile
+	ynh_hide_warnings ynh_exec_as_app COREPACK_ENABLE_DOWNLOAD_PROMPT=0 yarn config set network-timeout 300000
+	ynh_hide_warnings ynh_exec_as_app COREPACK_ENABLE_DOWNLOAD_PROMPT=0 yarn install --production --pure-lockfile
 	ynh_hide_warnings ynh_exec_as_app yarn cache clean
 popd
 

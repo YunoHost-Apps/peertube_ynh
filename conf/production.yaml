@@ -111,7 +111,7 @@ smtp:
   tls: false # If you use StartTLS: false
   disable_starttls: true
   ca_file: null # Used for self signed certificates
-  from_address: '__APP__@__DOMAIN__'
+  from_address: 'webmaster@__DOMAIN__'
 
 email:
   body:

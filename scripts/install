@@ -9,8 +9,10 @@ source /usr/share/yunohost/helpers
 
 admin_pass=$(ynh_string_random --length=24)
 ynh_app_setting_set --key=admin_pass --value=$admin_pass
+
 secrets_peertube=$(ynh_string_random --length=24)
 ynh_app_setting_set --key=secrets_peertube --value=$secrets_peertube
+
 redis_db=$(ynh_redis_get_free_db)
 ynh_app_setting_set --key=redis_db --value="$redis_db"
 

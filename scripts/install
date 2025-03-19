@@ -1,9 +1,5 @@
 #!/bin/bash
 
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
@@ -13,8 +9,10 @@ source /usr/share/yunohost/helpers
 
 admin_pass=$(ynh_string_random --length=24)
 ynh_app_setting_set --key=admin_pass --value=$admin_pass
+
 secrets_peertube=$(ynh_string_random --length=24)
 ynh_app_setting_set --key=secrets_peertube --value=$secrets_peertube
+
 redis_db=$(ynh_redis_get_free_db)
 ynh_app_setting_set --key=redis_db --value="$redis_db"
 
@@ -23,7 +21,6 @@ ynh_app_setting_set --key=redis_db --value="$redis_db"
 #=================================================
 ynh_script_progression "Setting up source files..."
 
-# Download, check integrity, uncompress and patch the source from manifest.toml
 ynh_setup_source --dest_dir="$install_dir"
 
 chown -R $app:www-data "$data_dir"
@@ -68,10 +65,8 @@ echo '{}' > "$install_dir/config/local-production.json"
 #=================================================
 ynh_script_progression "Adding system configurations related to $app..."
 
-# Create a dedicated NGINX config using the conf/nginx.conf template
 ynh_config_add_nginx
 
-# Create a dedicated systemd config
 ynh_config_add_systemd
 
 yunohost service add "$app" --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp

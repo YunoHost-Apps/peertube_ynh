@@ -1,10 +1,5 @@
 #!/bin/bash
 
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
-# Keep this path for calling _common.sh inside the execution's context of backup and restore scripts
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
@@ -61,7 +56,6 @@ ynh_restore "/etc/logrotate.d/$app"
 #=================================================
 ynh_script_progression "Reloading NGINX web server and $app's service..."
 
-### Typically you only have either $app or PHP-FPM but not both at the same time...
 ynh_systemctl --service="$app" --action="start" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
 
 ynh_systemctl --service=nginx --action=reload

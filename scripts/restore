@@ -31,7 +31,7 @@ ynh_psql_db_shell < ./db.sql
 #=================================================
 ynh_script_progression "Reinstalling dependencies..."
 
-ynh_nodejs_install
+#REMOVEME? ynh_nodejs_install
 
 #=================================================
 # RESTORE SYSTEM CONFIGURATIONS

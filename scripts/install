@@ -28,9 +28,9 @@ chown -R $app:www-data "$data_dir"
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression "Installing nodejs..."
+#REMOVEME? ynh_script_progression "Installing nodejs..."
 
-ynh_nodejs_install
+#REMOVEME? ynh_nodejs_install
 
 #=================================================
 # CREATE A POSTGRESQL DATABASE

@@ -26,13 +26,6 @@ ynh_setup_source --dest_dir="$install_dir"
 chown -R $app:www-data "$data_dir"
 
 #=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-#REMOVEME? ynh_script_progression "Installing nodejs..."
-
-#REMOVEME? ynh_nodejs_install
-
-#=================================================
 # CREATE A POSTGRESQL DATABASE
 #=================================================
 ynh_script_progression "Initializing PostgreSQL modules..."

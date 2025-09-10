@@ -27,13 +27,6 @@ ynh_script_progression "Restoring the PostgreSQL database..."
 ynh_psql_db_shell < ./db.sql
 
 #=================================================
-# REINSTALL DEPENDENCIES
-#=================================================
-ynh_script_progression "Reinstalling dependencies..."
-
-ynh_nodejs_install
-
-#=================================================
 # RESTORE SYSTEM CONFIGURATIONS
 #=================================================
 ynh_script_progression "Restoring system configurations related to $app..."
@@ -49,7 +42,6 @@ mkdir -p "/var/log/$app"
 touch "/var/log/$app/peertube.log"
 #chown -R $app:$app "/var/log/$app"
 ynh_restore "/etc/logrotate.d/$app"
-
 
 #=================================================
 # RELOAD NGINX AND PHP-FPM OR THE APP SERVICE

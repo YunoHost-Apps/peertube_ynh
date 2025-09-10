@@ -5,7 +5,7 @@ name = "PeerTube"
 description.en = "Federated video streaming platform"
 description.fr = "Plateforme fédéralisé de diffusion vidéo"
 
-version = "7.2.3~ynh1"
+version = "7.3.0~ynh1"
 
 maintainers = [ ]
 
@@ -18,7 +18,7 @@ code = "https://github.com/Chocobozzz/PeerTube"
 cpe = "cpe:2.3:a:framasoft:peertube"
 
 [integration]
-yunohost = ">= 12.0.9"
+yunohost = ">= 12.1.17"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
@@ -43,8 +43,8 @@ ram.runtime = "1G"
 
 [resources]
     [resources.sources.main]
-    url = "https://github.com/Chocobozzz/PeerTube/releases/download/v7.2.3/peertube-v7.2.3.tar.xz"
-    sha256 = "53c822d836db2d9b4a464a64a7c360e4ae6eaffbbcdc83de348e44fad2d64f7e"
+    url = "https://github.com/Chocobozzz/PeerTube/releases/download/v7.3.0/peertube-v7.3.0.tar.xz"
+    sha256 = "eb9dafbd63415425ec92a11866c93d13d220b938f9671dda70deccd65281bf7f"
     autoupdate.strategy = "latest_github_release"
     autoupdate.asset = "^peertube-v.*\\.tar\\.xz$"
 
@@ -80,3 +80,6 @@ ram.runtime = "1G"
 
     [resources.database]
     type = "postgresql"
+
+    [resources.nodejs]
+    version = "22"

@@ -72,11 +72,7 @@ ram.runtime = "1G"
     rtmp.exposed = "TCP"
 
     [resources.apt]
-    packages = "ffmpeg, postgresql, postgresql-contrib, redis-server"
-
-    extras.yarn.repo = "deb https://dl.yarnpkg.com/debian/ stable main"
-    extras.yarn.key = "https://dl.yarnpkg.com/debian/pubkey.gpg"
-    extras.yarn.packages = "yarn"
+    packages = "ffmpeg, postgresql, postgresql-contrib, redis-server, yarn"
 
     [resources.database]
     type = "postgresql"

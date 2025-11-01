@@ -90,7 +90,6 @@ ynh_script_progression "Building Yarn dependencies..."
 
 pushd "$install_dir"
     corepack enable
-    ynh_hide_warnings npm install -g corepack@latest
     ynh_hide_warnings corepack prepare  yarn@latest --activate
 	
 	ynh_hide_warnings ynh_exec_as_app yarn config set network-timeout 300000

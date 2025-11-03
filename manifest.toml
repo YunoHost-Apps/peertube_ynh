@@ -72,7 +72,7 @@ ram.runtime = "1G"
     rtmp.exposed = "TCP"
 
     [resources.apt]
-    packages = "ffmpeg, postgresql, postgresql-contrib, redis-server, yarn"
+    packages = "ffmpeg, postgresql, postgresql-contrib, redis-server"
 
     [resources.database]
     type = "postgresql"

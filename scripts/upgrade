@@ -89,6 +89,9 @@ yunohost service add $app --description="Federated video streaming platform" --l
 ynh_script_progression "Building Yarn dependencies..."
 
 pushd "$install_dir"
+    corepack enable
+    ynh_hide_warnings corepack prepare yarn@latest --activate
+	
 	ynh_hide_warnings ynh_exec_as_app yarn config set network-timeout 300000
 	ynh_hide_warnings ynh_exec_as_app yarn install --production --pure-lockfile
 	ynh_hide_warnings ynh_exec_as_app yarn cache clean

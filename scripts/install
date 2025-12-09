@@ -17,6 +17,13 @@ redis_db=$(ynh_redis_get_free_db)
 ynh_app_setting_set --key=redis_db --value="$redis_db"
 
 #=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+ynh_script_progression "Installing dependencies..."
+
+ynh_hide_warnings corepack enable && corepack prepare pnpm@latest --activate
+
+#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_script_progression "Setting up source files..."
@@ -39,12 +46,9 @@ ynh_psql_db_shell <<< "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 ynh_script_progression "Building $app..."
 
 pushd "$install_dir"
-    corepack enable
-    ynh_hide_warnings corepack prepare yarn@latest --activate
-	
-	ynh_hide_warnings ynh_exec_as_app yarn config set network-timeout 300000
-	ynh_hide_warnings ynh_exec_as_app yarn install --production --pure-lockfile
-	ynh_hide_warnings ynh_exec_as_app yarn cache clean
+	ynh_hide_warnings ynh_exec_as_app pnpm config set network-timeout 300000
+	ynh_hide_warnings ynh_exec_as_app pnpm install --production --pure-lockfile
+	ynh_hide_warnings ynh_exec_as_app pnpm cache clean
 popd
 
 #=================================================

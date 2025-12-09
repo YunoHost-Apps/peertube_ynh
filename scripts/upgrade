@@ -153,6 +153,13 @@ if ynh_app_upgrading_from_version_before 7.2.0~ynh1; then
 	popd
 fi
 
+# Running Peertube 8.0.0 migration script...
+if ynh_app_upgrading_from_version_before 8.0.0~ynh1; then
+	pushd "$install_dir"
+		ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production node dist/scripts/migrations/peertube-8.0.js
+	popd
+fi
+
 #=================================================
 # END OF SCRIPT
 #=================================================

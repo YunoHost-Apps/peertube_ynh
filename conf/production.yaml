@@ -135,6 +135,8 @@ storage:
   cache: '__DATA_DIR__/storage/cache/'
   plugins: '__DATA_DIR__/storage/plugins/'
   well_known: '__DATA_DIR__/storage/well-known/'
+  # Various admin/user uploads that are not suitable for the folders above
+  uploads: '__DATA_DIR__/storage/uploads/'
   # Overridable client files in client/dist/assets/images:
   # - default-avatar-account-48x48.png
   # - default-avatar-account.png

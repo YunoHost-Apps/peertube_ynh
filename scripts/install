@@ -42,9 +42,10 @@ pushd "$install_dir"
     corepack enable
     ynh_hide_warnings corepack prepare yarn@latest --activate
 	
-	ynh_hide_warnings ynh_exec_as_app yarn config set network-timeout 300000
-	ynh_hide_warnings ynh_exec_as_app yarn install --production --pure-lockfile
-	ynh_hide_warnings ynh_exec_as_app yarn cache clean
+    ynh_hide_warnings ynh_exec_as_app pnpm config set network-timeout 300000
+    ynh_hide_warnings ynh_exec_as_app pnpm install --production
+    ynh_hide_warnings ynh_exec_as_app pnpm store prune
+    ynh_hide_warnings ynh_exec_as_app pnpm run build
 popd
 
 #=================================================

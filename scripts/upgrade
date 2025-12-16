@@ -11,6 +11,13 @@ ynh_script_progression "Stopping $app's systemd service..."
 ynh_systemctl --service="$app" --action="stop" --log_path="systemd"
 
 #=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+ynh_script_progression "Installing dependencies..."
+
+ynh_hide_warnings corepack enable && corepack prepare pnpm@latest --activate
+
+#=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
 ynh_script_progression "Ensuring downward compatibility..."
@@ -89,12 +96,8 @@ yunohost service add $app --description="Federated video streaming platform" --l
 ynh_script_progression "Building Yarn dependencies..."
 
 pushd "$install_dir"
-    corepack enable
-    ynh_hide_warnings corepack prepare yarn@latest --activate
-	
-	ynh_hide_warnings ynh_exec_as_app yarn config set network-timeout 300000
-	ynh_hide_warnings ynh_exec_as_app yarn install --production --pure-lockfile
-	ynh_hide_warnings ynh_exec_as_app yarn cache clean
+	ynh_hide_warnings ynh_exec_as_app pnpm install --frozen-lockfile
+	ynh_hide_warnings ynh_exec_as_app pnpm store prune
 popd
 
 #=================================================
@@ -150,6 +153,13 @@ fi
 if ynh_app_upgrading_from_version_before 7.2.0~ynh1; then
 	pushd "$install_dir"
 		ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production node dist/scripts/migrations/peertube-7.2.js
+	popd
+fi
+
+# Running Peertube 8.0.0 migration script...
+if ynh_app_upgrading_from_version_before 8.0.0~ynh1; then
+	pushd "$install_dir"
+		ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production node dist/scripts/migrations/peertube-8.0.js
 	popd
 fi
 

@@ -37,6 +37,8 @@ chown -R $app:www-data "$data_dir"
 #=================================================
 ynh_script_progression "Initializing PostgreSQL modules..."
 
+ynh_psql_db_shell <<< "ALTER DATABASE $app REFRESH COLLATION VERSION;"
+ynh_psql_db_shell <<< "REINDEX DATABASE $app;"
 ynh_psql_db_shell <<< "CREATE EXTENSION IF NOT EXISTS unaccent;"
 ynh_psql_db_shell <<< "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 

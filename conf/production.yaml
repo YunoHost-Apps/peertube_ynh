@@ -1017,7 +1017,7 @@ instance:
   #twitter:
     # Indicates the Twitter/X account for the website or platform where the content was published
     # This is just an information injected in HTML that is required by Twitter/X
-    username: '@Chocobozzz'
+    #username: '@Chocobozzz'
 
 followers:
   instance:

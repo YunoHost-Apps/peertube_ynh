@@ -47,7 +47,7 @@ ynh_script_progression "Building $app..."
 
 pushd "$install_dir"
 	ynh_hide_warnings ynh_exec_as_app pnpm config set network-timeout 300000
-	ynh_hide_warnings ynh_exec_as_app pnpm pnpm install --production
+	ynh_hide_warnings ynh_exec_as_app pnpm install --production
 	ynh_hide_warnings ynh_exec_as_app pnpm cache clean
 popd
 

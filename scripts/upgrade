@@ -113,8 +113,8 @@ ynh_systemctl --service="$app" --action="start" --log_path="systemd" --wait_unti
 ynh_script_progression "Installing $app plugin..."
 
 pushd "$install_dir"
-	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run plugin:install -- --npm-name peertube-plugin-auth-ldap
-	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run plugin:install -- --npm-name peertube-plugin-livechat
+	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run plugin:install --npm-name peertube-plugin-auth-ldap
+	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run plugin:install --npm-name peertube-plugin-livechat
 popd
 
 #=================================================

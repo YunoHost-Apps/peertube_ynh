@@ -91,9 +91,9 @@ ynh_config_add_logrotate
 yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
 
 #=================================================
-# BUILD YARN DEPENDENCIES
+# BUILD DEPENDENCIES
 #=================================================
-ynh_script_progression "Building Yarn dependencies..."
+ynh_script_progression "Building dependencies..."
 
 pushd "$install_dir"
 	ynh_hide_warnings ynh_exec_as_app pnpm install --frozen-lockfile

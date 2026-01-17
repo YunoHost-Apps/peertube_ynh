@@ -112,6 +112,14 @@ ynh_systemctl --service="$app" --action="start" --log_path="systemd" --wait_unti
 #=================================================
 ynh_script_progression "Installing $app plugin..."
 
+# Remove old package.json and yarn.lock from plugins directory to avoid conflict with pnpm
+if [ -f "$data_dir/storage/plugins/package.json" ]; then
+    ynh_safe_rm "$data_dir/storage/plugins/package.json"
+fi
+if [ -f "$data_dir/storage/plugins/yarn.lock" ]; then
+    ynh_safe_rm "$data_dir/storage/plugins/yarn.lock"
+fi
+
 pushd "$install_dir"
 	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run plugin:install --npm-name peertube-plugin-auth-ldap
 	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run plugin:install --npm-name peertube-plugin-livechat

@@ -90,9 +90,9 @@ ynh_systemctl --service=$app --action="start" --log_path="systemd" --wait_until=
 ynh_script_progression "Installing $app plugin and password..."
 
 pushd "$install_dir"
-	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
-	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production npm run plugin:install -- --npm-name peertube-plugin-livechat
-	echo "$admin_pass" | ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production npm run reset-password -- -u root
+	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run plugin:install --npm-name peertube-plugin-auth-ldap
+	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run plugin:install --npm-name peertube-plugin-livechat
+	echo "$admin_pass" | ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run reset-password -u root
 popd
 
 #=================================================

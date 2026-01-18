@@ -1,0 +1,18 @@
+--- a/dist/core/lib/plugins/package-manager.js 2025-12-16 09:39:47.000000000 +0100
++++ b/dist/core/lib/plugins/package-manager.js 2026-01-17 02:01:04.003159714 +0100
+@@ -57,7 +57,7 @@
+         try {
+             let packageJSONContent = await readFile(pluginPackageJSON, 'utf-8');
+             if (packageJSONContent.includes('"packageManager"')) {
+-                packageJSONContent = packageJSONContent.replace(/\s*"packageManager".*/g, '');
++                packageJSONContent = packageJSONContent.replace(/,?\s*"packageManager".*/g, '');
+                 await writeFile(pluginPackageJSON, packageJSONContent, 'utf-8');
+             }
+         }
+@@ -81,4 +81,4 @@
+         }
+     }
+ }
+-//# sourceMappingURL=package-manager.js.map
+\ Pas de fin de ligne à la fin du fichier
++//# sourceMappingURL=package-manager.js.map

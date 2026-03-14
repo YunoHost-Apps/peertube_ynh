@@ -122,7 +122,7 @@ smtp:
   tls: false # If you use StartTLS: false
   disable_starttls: true
   ca_file: null # Used for self signed certificates
-  from_address: 'webmaster@__DOMAIN__'
+  from_address: 'peertube@__DOMAIN__'
 
 # From the project root directory
 storage:
@@ -218,7 +218,7 @@ object_storage:
     # which can be a problem depending on your object storage provider
     # You can also choose to disable this feature to reduce live streams latency
     # Live stream replays are not affected by this setting, so they are uploaded in object storage as regular VOD videos
-    store_live_streams: true
+    store_live_streams: false
 
   web_videos:
     bucket_name: 'peertube'
@@ -926,7 +926,7 @@ auto_blacklist:
 
 # Instance settings
 instance:
-  name: 'YunoHost PeerTube'
+  name: 'PeerTube'
   short_description: 'PeerTube, an ActivityPub-federated video streaming platform using P2P directly in your web browser.'
   description: 'Welcome to this PeerTube instance!' # Support markdown
   terms: 'No terms for now.' # Support markdown
@@ -953,7 +953,7 @@ instance:
 
   # Default language of your instance, used in emails for example
   # The web interface still uses the web browser preferred language
-  default_language: 'fr'
+  default_language: '__LANGUAGE__'
 
   # Describe the languages spoken on your instance, to interact with your users for example
   # Uncomment or add the languages you want

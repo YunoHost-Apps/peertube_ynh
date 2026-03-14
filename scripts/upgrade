@@ -62,17 +62,9 @@ fi
 #=================================================
 ynh_script_progression "Upgrading source files..."
 
-ynh_setup_source --dest_dir="$install_dir" --full_replace --keep="config/production.yaml config/local-production.json config/local.yaml"
+ynh_setup_source --dest_dir="$install_dir" --full_replace --keep="config/production.yaml config/local-production.json"
 
 chown -R $app:www-data "$data_dir"
-
-#=================================================
-# UPDATE A CONFIG FILE
-#=================================================
-ynh_script_progression "Updating $app's configuration files..."
-
-admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
-ynh_config_add --template="production.yaml" --destination="$install_dir/config/production.yaml"
 
 #=================================================
 # REAPPLY SYSTEM CONFIGURATIONS

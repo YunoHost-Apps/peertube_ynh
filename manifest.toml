@@ -37,6 +37,13 @@ ram.runtime = "1G"
     [install.init_main_permission]
     type = "group"
     default = "visitors"
+    
+    [install.language]
+    ask.en = "Choose the application language"
+    ask.fr = "Choisissez la langue de l'application"
+    type = "select"
+    choices = ["de", "en", "es", "fr", "it", "nl", "pt"]
+    default = "fr"
 
     [install.admin]
     type = "user"

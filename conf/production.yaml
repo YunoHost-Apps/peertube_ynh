@@ -483,7 +483,6 @@ thumbnails:
   # Only two sizes are currently supported for now (not less, not more)
   # 1 size for the thumbnail (displayed in video miniatures)
   # 1 size for the preview (displayed in the video player)
-
   sizes:
     -
       width: 280

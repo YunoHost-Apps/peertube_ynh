@@ -9,6 +9,7 @@ webserver:
   port: 443
 
 # Secrets you need to generate the first time you run PeerTube
+# Mainly used to sign JWT tokens and TOTP
 secrets:
   # Generate one using `openssl rand -hex 32`
   peertube: '__SECRETS_PEERTUBE__'
@@ -93,12 +94,19 @@ redis:
   port: 6379
   auth: null
   db: __REDIS_DB__
+
   sentinel:
     enabled: false
     enable_tls: false
+    tls_settings:
+      reject_unauthorized: false
+      ca: '/absolute/path/to/server-certificates/root.crt'
+      cert: '/absolute/path/to/client-certificates/postgresql.crt'
+      key: '/absolute/path/to/client-key/postgresql.key'
     master_name: ''
+    password: ''
     sentinels:
-      - hostname: ''
+      - host: ''
         port: 26379
 
 # SMTP server to send emails
@@ -161,6 +169,9 @@ object_storage:
 
   region: 'us-east-1'
 
+  # Use path style requests if the S3 provider does not support virtual hosting of buckets
+  force_path_style: false
+
   upload_acl:
     # Set this ACL on each uploaded object of public/unlisted videos
     # Use null if your S3 provider does not support object ACL
@@ -184,7 +195,7 @@ object_storage:
     secret_access_key: ''
 
   # Maximum amount to upload in one request to object storage
-  max_upload_part: 2GB
+  max_upload_part: 100MB
 
   # Maximum number of attempts to make a request to object storage
   # Some object storage providers (for instance Backblaze) expects the client to retry upload upon 5xx errors
@@ -194,10 +205,10 @@ object_storage:
   streaming_playlists:
     # Bucket name created on your object storage provider
     # PeerTube will access it via {bucket_name}.example.com
-    bucket_name: 'streaming-playlists'
+    bucket_name: 'peertube'
 
     # Allows setting all buckets to the same value but with a different prefix
-    prefix: '' # Example: 'streaming-playlists:'
+    prefix: 'streaming-playlists/'
 
     # Base url for object URL generation, scheme and host will be replaced by this URL
     # Useful when you want to use a CDN/external proxy
@@ -207,28 +218,28 @@ object_storage:
     # which can be a problem depending on your object storage provider
     # You can also choose to disable this feature to reduce live streams latency
     # Live stream replays are not affected by this setting, so they are uploaded in object storage as regular VOD videos
-    store_live_streams: true
+    store_live_streams: false
 
   web_videos:
-    bucket_name: 'web-videos'
-    prefix: ''
+    bucket_name: 'peertube'
+    prefix: 'web-videos/'
     base_url: ''
 
   user_exports:
-    bucket_name: 'user-exports'
-    prefix: ''
+    bucket_name: 'peertube'
+    prefix: 'user-exports/'
     base_url: ''
 
   # Same settings but for original video files
   original_video_files:
-    bucket_name: 'original-video-files'
-    prefix: ''
+    bucket_name: 'peertube'
+    prefix: 'original-video-files/'
     base_url: ''
 
   # Video captions
   captions:
-    bucket_name: 'captions'
-    prefix: ''
+    bucket_name: 'peertube'
+    prefix: 'captions/'
     base_url: ''
 
 log:
@@ -475,17 +486,32 @@ thumbnails:
     # Minimum value is 2
     frames_to_analyze: 50
 
-  # Only two sizes are currently supported for now (not less, not more)
-  # 1 size for the thumbnail (displayed in video miniatures)
-  # 1 size for the preview (displayed in the video player)
   sizes:
     -
       width: 280
       height: 157
+      aspect_ratio: '16:9'
 
     -
       width: 850
       height: 480
+      aspect_ratio: '16:9'
+
+    -
+      width: 1280
+      height: 720
+      aspect_ratio: '16:9'
+
+    -
+      width: 1920
+      height: 1080
+      aspect_ratio: '16:9'
+
+    # For podcast applications
+    -
+      width: 1400
+      height: 1400
+      aspect_ratio: '1:1'
 
 stats:
   # Display registration requests stats (average response time, total requests...)
@@ -534,16 +560,6 @@ download_generate_video:
 #
 ###############################################################################
 
-cache:
-  previews:
-    size: 500 # Max number of previews you want to cache
-  captions:
-    size: 500 # Max number of video captions/subtitles you want to cache
-  torrents:
-    size: 500 # Max number of video torrents you want to cache
-  storyboards:
-    size: 500 # Max number of video storyboards you want to cache
-
 admin:
   # Used to generate the root user at first startup
   # And to receive emails from the contact form
@@ -573,7 +589,7 @@ signup:
 user:
   history:
     videos:
-      # Enable or disable video history by default for new users.
+      # Enable or disable video history by default for new users
       enabled: true
 
   # Default value of maximum video bytes the user can upload
@@ -639,6 +655,11 @@ transcoding:
 
   # Transcode and keep original resolution, even if it's above your maximum enabled resolution
   always_transcode_original_resolution: true
+
+  # If web_videos transcoding is not enabled, some podcast applications may not be able to correctly play the HLS audio file
+  # Enabling this option ensures that PeerTube always produces an audio file in a format compatible with podcasts
+  # even if web_videos transcoding or audio resolution are disabled
+  always_transcode_podcast_optimized_audio: true
 
   fps:
     # Cap transcoded video FPS
@@ -817,7 +838,7 @@ import:
     timeout: '2 hours'
 
     # Number of attempts a user or the channel sync process can do to import a video if an error occurs during the import process
-    max_attempts: 3
+    max_attempts: 5
 
     # Classic HTTP or all sites supported by youtube-dl https://rg3.github.io/youtube-dl/supportedsites.html
     http:
@@ -837,8 +858,8 @@ import:
         # You can also use a youtube-dl standalone binary (requires python_path: null)
         # GNU/Linux binaries with support for impersonating browser requests (required by some platforms such as Vimeo) examples:
         #   * https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux (x64)
-        #   * https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux_armv7l (ARMv7)
-        #   * https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux_armv7l (ARMv8/AArch64/ARM64)
+        #   * https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux_armv7l.zip (ARMv7)
+        #   * https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux_aarch64 (ARMv8/AArch64/ARM64)
         url: 'https://api.github.com/repos/yt-dlp/yt-dlp/releases'
 
         # Release binary name: 'yt-dlp' or 'youtube-dl'
@@ -849,7 +870,7 @@ import:
         python_path: '/usr/bin/python3'
 
       # IPv6 is very strongly rate-limited on most sites supported by youtube-dl
-      force_ipv4: false
+      force_ipv4: true
 
       # By default PeerTube uses HTTP_PROXY and HTTPS_PROXY environment variables
       # But you can specify custom proxies for youtube-dl because remote websites (like YouTube) may block your server IP address
@@ -1009,7 +1030,7 @@ instance:
   # To discourage researchers from testing your instance and disable security.txt integration, set this to an empty string
   securitytxt: |
     Contact: https://github.com/Chocobozzz/PeerTube/blob/develop/SECURITY.md
-    Expires: 2025-12-31T11:00:00.000Z'
+    Expires: 2025-12-31T11:00:00.000Z
 
 #services:
   # Cards configuration to format video in Twitter/X
@@ -1045,7 +1066,7 @@ followings:
     auto_follow_index:
       enabled: false
       # Host your own using https://framagit.org/framasoft/peertube/instances-peertube#peertube-auto-follow
-      index_url: 'https://instances.joinpeertube.org'
+      index_url: ''
 
 theme:
   default: 'default'
@@ -1055,6 +1076,7 @@ theme:
   # If you need more advanced customizations, install or develop a dedicated theme: https://docs.joinpeertube.org/contribute/plugins
   customization:
     primary_color: null # Hex color. Example: '#FF8F37'
+    on_primary_color: null # Hex color
 
     foreground_color: null # Hex color
     background_color: null # Hex color
@@ -1204,7 +1226,7 @@ defaults:
       enabled: true
 
   player:
-    theme: 'galaxy' # 'galaxy' | 'lucide'
+    theme: 'lucide' # 'galaxy' | 'lucide'
 
     # By default, playback starts automatically when opening a video
     auto_play: true

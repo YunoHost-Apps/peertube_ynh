@@ -91,23 +91,13 @@ ynh_config_add_logrotate
 yunohost service add $app --description="Federated video streaming platform" --log="/var/log/$app/$app.log" --needs_exposed_ports $port_rtmp
 
 #=================================================
-# BUILD YARN DEPENDENCIES
+# BUILD DEPENDENCIES
 #=================================================
-ynh_script_progression "Building Yarn dependencies..."
+ynh_script_progression "Building dependencies..."
 
 pushd "$install_dir"
 	ynh_hide_warnings ynh_exec_as_app pnpm install --frozen-lockfile
 	ynh_hide_warnings ynh_exec_as_app pnpm store prune
-popd
-
-#=================================================
-# INSTALL LDAP PLUGIN
-#=================================================
-ynh_script_progression "Installing $app plugin..."
-
-pushd "$install_dir"
-	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production npm run plugin:install -- --npm-name peertube-plugin-auth-ldap
-	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production npm run plugin:install -- --npm-name peertube-plugin-livechat
 popd
 
 #=================================================
@@ -116,6 +106,16 @@ popd
 ynh_script_progression "Starting $app's systemd service..."
 
 ynh_systemctl --service="$app" --action="start" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
+
+#=================================================
+# INSTALL LDAP PLUGIN
+#=================================================
+ynh_script_progression "Installing $app plugin..."
+
+pushd "$install_dir"
+	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run plugin:install --npm-name peertube-plugin-auth-ldap
+	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run plugin:install --npm-name peertube-plugin-livechat
+popd
 
 #=================================================
 # PEERTUBE UPGRADE MIGRATION SCRIPT
@@ -160,6 +160,14 @@ fi
 if ynh_app_upgrading_from_version_before 8.0.0~ynh1; then
 	pushd "$install_dir"
 		ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production node dist/scripts/migrations/peertube-8.0.js
+	popd
+fi
+
+# Running Peertube 8.1.0 migration script...
+if ynh_app_upgrading_from_version_before 8.1.2~ynh1; then
+	pushd "$install_dir"
+		ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production node dist/scripts/migrations/peertube-8.1.js
+		ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production npm run regenerate-thumbnails
 	popd
 fi
 

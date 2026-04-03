@@ -212,7 +212,7 @@ object_storage:
 
     # Base url for object URL generation, scheme and host will be replaced by this URL
     # Useful when you want to use a CDN/external proxy
-    base_url: 'https://__DOmAIN__' # Example: 'https://mirror.example.com'
+    base_url: 'https://__OBSTOR_DOMAIN__' # Example: 'https://mirror.example.com'
 
     # PeerTube makes many small requests to the object storage provider to upload/delete/update live chunks
     # which can be a problem depending on your object storage provider
@@ -223,24 +223,24 @@ object_storage:
   web_videos:
     bucket_name: '__OBSTOR_BUCKET_NAME__'
     prefix: 'web-videos/'
-    base_url: 'https://__DOmAIN__'
+    base_url: 'https://__OBSTOR_DOMAIN__'
 
   user_exports:
     bucket_name: '__OBSTOR_BUCKET_NAME__'
     prefix: 'user-exports/'
-    base_url: 'https://__DOmAIN__'
+    base_url: 'https://__OBSTOR_DOMAIN__'
 
   # Same settings but for original video files
   original_video_files:
     bucket_name: '__OBSTOR_BUCKET_NAME__'
     prefix: 'original-video-files/'
-    base_url: 'https://__DOmAIN__'
+    base_url: 'https://__OBSTOR_DOMAIN__'
 
   # Video captions
   captions:
     bucket_name: '__OBSTOR_BUCKET_NAME__'
     prefix: 'captions/'
-    base_url: 'https://__DOmAIN__'
+    base_url: 'https://__OBSTOR_DOMAIN__'
 
 log:
   level: 'info' # 'debug' | 'info' | 'warn' | 'error'

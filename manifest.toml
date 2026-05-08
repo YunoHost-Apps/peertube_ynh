@@ -5,7 +5,7 @@ name = "PeerTube"
 description.en = "Federated video streaming platform"
 description.fr = "Plateforme fédéralisé de diffusion vidéo"
 
-version = "8.1.5~ynh1"
+version = "8.1.5~ynh2"
 
 maintainers = [ ]
 
@@ -18,7 +18,7 @@ code = "https://github.com/Chocobozzz/PeerTube"
 cpe = "cpe:2.3:a:framasoft:peertube"
 
 [integration]
-yunohost = ">= 12.1.17"
+yunohost = ">= 12.1.39"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
@@ -78,4 +78,4 @@ ram.runtime = "1G"
     type = "postgresql"
 
     [resources.nodejs]
-    version = "22"
+    version = "24"

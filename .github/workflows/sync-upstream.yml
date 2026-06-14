@@ -1,0 +1,48 @@
+name: Import Upstream CI Branches
+
+on:
+  schedule:
+    - cron: '0 */8 * * *'
+  workflow_dispatch:
+
+jobs:
+  import-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Fork
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.SYNC_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add Upstream Remote
+        run: |
+          git remote add upstream https://github.com/Yunohost-Apps/peertube_ynh.git
+          git fetch upstream
+
+      - name: Copy Matching Branches to Fork
+        run: |
+          # Loop through upstream branches matching pattern
+          for remote_branch in $(git branch -r | grep 'upstream/ci-auto-update-'); do
+            
+            # Extract branch name (e.g., ci-auto-update-8.2.1)
+            local_branch=${remote_branch#upstream/}
+            
+            echo "Checking branch: $local_branch"
+            
+            # Check if branch already exists in fork (origin)
+            if ! git show-ref --verify --quiet refs/remotes/origin/$local_branch; then
+              echo "New CI branch detected. Importing $local_branch to fork..."
+              
+              # Track upstream branch locally and push to origin
+              git checkout -b $local_branch $remote_branch
+              git push origin $local_branch
+            else
+              echo "Branch $local_branch already exists in fork. Skipping."
+            fi
+          done

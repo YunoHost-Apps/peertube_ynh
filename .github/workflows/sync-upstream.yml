@@ -23,26 +23,32 @@ jobs:
       - name: Add Upstream Remote
         run: |
           git remote add upstream https://github.com/Yunohost-Apps/peertube_ynh.git
-          git fetch upstream
+          git fetch upstream --prune
+          git fetch origin --prune
 
-      - name: Copy Matching Branches to Fork
+      - name: Import New Upstream Branches to Fork
         run: |
-          # Loop through upstream branches matching pattern
+          echo "=== IMPORTING NEW BRANCHES ==="
           for remote_branch in $(git branch -r | grep 'upstream/ci-auto-update-'); do
-            
-            # Extract branch name (e.g., ci-auto-update-8.2.1)
             local_branch=${remote_branch#upstream/}
             
-            echo "Checking branch: $local_branch"
-            
-            # Check if branch already exists in fork (origin)
             if ! git show-ref --verify --quiet refs/remotes/origin/$local_branch; then
-              echo "New CI branch detected. Importing $local_branch to fork..."
-              
-              # Track upstream branch locally and push to origin
-              git checkout -b $local_branch $remote_branch
-              git push origin $local_branch
+              echo "New upstream CI branch detected. Importing $local_branch to fork..."
+              # Fix: Push the upstream remote tracking branch directly to origin without local checkouts
+              git push origin $remote_branch:refs/heads/$local_branch
+            fi
+          done
+
+      - name: Prune Deleted Branches From Fork
+        run: |
+          echo "=== PRUNING DELETED BRANCHES ==="
+          for remote_fork_branch in $(git branch -r | grep 'origin/ci-auto-update-'); do
+            local_branch=${remote_fork_branch#origin/}
+            
+            if ! git show-ref --verify --quiet refs/remotes/upstream/$local_branch; then
+              echo "Upstream deleted $local_branch. Deleting from fork..."
+              git push origin --delete $local_branch || echo "Branch already gone on remote."
             else
-              echo "Branch $local_branch already exists in fork. Skipping."
+              echo "Keep $local_branch (Still active upstream)."
             fi
           done

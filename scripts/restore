@@ -42,6 +42,7 @@ mkdir -p "/var/log/$app"
 touch "/var/log/$app/peertube.log"
 chown -R $app:$app "/var/log/$app"
 ynh_restore "/etc/logrotate.d/$app"
+ynh_config_add_systemd # Required because nodejs minor version may have been upgraded (the manifest only sticks the major version)
 
 #=================================================
 # RELOAD NGINX AND PHP-FPM OR THE APP SERVICE

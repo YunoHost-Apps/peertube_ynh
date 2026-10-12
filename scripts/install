@@ -58,6 +58,7 @@ ynh_script_progression "Adding $app's configuration files..."
 admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 ynh_config_add --template="production.yaml" --destination="$install_dir/config/production.yaml"
 echo '{}' > "$install_dir/config/local-production.json"
+chown -R $app:www-data "$install_dir/config/local-production.json"
 
 #=================================================
 # SYSTEM CONFIGURATION

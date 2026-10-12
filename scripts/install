@@ -96,6 +96,9 @@ pushd "$install_dir"
 	echo "$admin_pass" | ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run reset-password -u root
 popd
 
+# Restart the systemd service to load plugin data
+ynh_systemctl --service=$app --action="restart" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
+
 #=================================================
 # END OF SCRIPT
 #=================================================

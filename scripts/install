@@ -7,6 +7,8 @@ source /usr/share/yunohost/helpers
 # INITIALIZE AND STORE SETTINGS
 #=================================================
 
+admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
+
 admin_pass=$(ynh_string_random --length=24)
 ynh_app_setting_set --key=admin_pass --value=$admin_pass
 
@@ -55,7 +57,6 @@ popd
 #=================================================
 ynh_script_progression "Adding $app's configuration files..."
 
-admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 ynh_config_add --template="production.yaml" --destination="$install_dir/config/production.yaml"
 echo '{}' > "$install_dir/config/local-production.json"
 chown -R $app:www-data "$install_dir/config/local-production.json"

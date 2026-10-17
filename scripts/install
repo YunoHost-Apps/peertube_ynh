@@ -7,6 +7,8 @@ source /usr/share/yunohost/helpers
 # INITIALIZE AND STORE SETTINGS
 #=================================================
 
+admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
+
 admin_pass=$(ynh_string_random --length=24)
 ynh_app_setting_set --key=admin_pass --value=$admin_pass
 
@@ -55,9 +57,9 @@ popd
 #=================================================
 ynh_script_progression "Adding $app's configuration files..."
 
-admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 ynh_config_add --template="production.yaml" --destination="$install_dir/config/production.yaml"
 echo '{}' > "$install_dir/config/local-production.json"
+chown -R $app:www-data "$install_dir/config/local-production.json"
 
 #=================================================
 # SYSTEM CONFIGURATION
@@ -94,6 +96,9 @@ pushd "$install_dir"
 	ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run plugin:install --npm-name peertube-plugin-livechat
 	echo "$admin_pass" | ynh_hide_warnings ynh_exec_as_app NODE_CONFIG_DIR="$install_dir/config" NODE_ENV=production pnpm run reset-password -u root
 popd
+
+# Restart the systemd service to load plugin data
+ynh_systemctl --service=$app --action="restart" --log_path="systemd" --wait_until="HTTP server listening on 127.0.0.1"
 
 #=================================================
 # END OF SCRIPT

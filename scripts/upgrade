@@ -22,6 +22,8 @@ ynh_hide_warnings corepack enable && corepack prepare pnpm@latest --activate
 #=================================================
 ynh_script_progression "Ensuring downward compatibility..."
 
+admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
+
 # If redis_db doesn't exist, create it
 ynh_app_setting_set_default --key=redis_db --value=$(ynh_redis_get_free_db)
 ynh_app_setting_set_default --key=secrets_peertube --value=$(ynh_string_random --length=24)
@@ -71,7 +73,6 @@ chown -R $app:www-data "$data_dir"
 #=================================================
 ynh_script_progression "Updating $app's configuration files..."
 
-admin_mail=$(ynh_user_get_info --username=$admin --key="mail")
 ynh_config_add --template="production.yaml" --destination="$install_dir/config/production.yaml"
 
 #=================================================

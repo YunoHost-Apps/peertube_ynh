@@ -5,7 +5,7 @@ name = "PeerTube"
 description.en = "Federated video streaming platform"
 description.fr = "Plateforme fédéralisé de diffusion vidéo"
 
-version = "8.3.1~ynh3"
+version = "8.3.2~ynh1"
 
 maintainers = [ ]
 
@@ -43,8 +43,8 @@ ram.runtime = "1G"
 
 [resources]
     [resources.sources.main]
-    url = "https://github.com/Chocobozzz/PeerTube/releases/download/v8.3.1/peertube-v8.3.1.tar.xz"
-    sha256 = "b2026b99ee6a2e07098230bb68fafbad634b44ce5a67a3e48e0b163ba9b5304a"
+    url = "https://github.com/Chocobozzz/PeerTube/releases/download/v8.3.2/peertube-v8.3.2.tar.xz"
+    sha256 = "93103439e1c348cfdc6ce493843a9be4e2605c3a0607d2ecdac35ca88464ac13"
     autoupdate.strategy = "latest_github_release"
     autoupdate.asset = "^peertube-v.*\\.tar\\.xz$"
 
